@@ -8,7 +8,7 @@ h1 {
     text-align: center;
 }
 body {
-    background-image: url("public-domain-images-free-stock-photos-002.jpg");
+    background-image: url("images/public-domain-images-free-stock-photos-002.jpg");
 }
 #searchBar {
     width: 250px;
@@ -17,7 +17,7 @@ body {
     border-radius: 5px;
     font-size: 16px;
     background-color: white;
-    background-image: url('1466678038_icon-111-search.png');
+    background-image: url('images/1466678038_icon-111-search.png');
     background-size: 30px;
     background-position: 10px 10px;
     background-repeat: no-repeat;
