@@ -1,0 +1,51 @@
+h1 {
+    font-size: 125px;
+    font-weight: 300;
+    letter-spacing: -1px;
+    line-height: 45px;
+    font-family: GillSans, Calibri, Trebuchet, sans-serif;
+    color: #f2f2f2;
+    text-align: center;
+}
+body {
+    background-image: url("public-domain-images-free-stock-photos-002.jpg");
+}
+#searchBar {
+    width: 250px;
+    box-sizing: border-box;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    background-color: white;
+    background-image: url('1466678038_icon-111-search.png');
+    background-size: 30px;
+    background-position: 10px 10px;
+    background-repeat: no-repeat;
+    padding: 14px 20px 14px 40px;
+    /*-webkit-transition: width .4s ease-in-out;*/
+    transition: width .4s ease-in-out;
+}
+#searchBar:focus {
+    width: 31%;
+}
+#searchForm {
+    text-align: center;
+    line-height: 100px;
+}
+
+#be_back {
+  font-size: 40px;
+  letter-spacing: 0px;
+  line-height: 250px;
+  font-family: GillSans, Calibri, Trebuchet, sans-serif;
+  color: #4C4C4C;
+  text-align: center;
+}
+
+#busy_updating {
+  font-size: 15px;
+  letter-spacing: 0px;
+  font-family: GillSans, Calibri, Trebuchet, sans-serif;
+  color: #4C4C4C;
+  text-align: center;
+}
