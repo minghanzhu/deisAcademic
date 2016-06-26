@@ -9,10 +9,13 @@
         We are busy updating myDeis!
         <br> see you soon :)
     </p> -->
+    {{#if hasKeyword}}
+        {{> reactiveTable collection=courseData settings=settings_course}}
+    {{/if}}
 </template>
 
 <template name="searchForm">
     <form>
-        <input type="type" placeholder=" Search.." name="keyword" id="searchBar">
+        <input type="text" placeholder=" Search.." name="keyword" id="searchBar" class="js-submit-search">
     </form>
 </template>
