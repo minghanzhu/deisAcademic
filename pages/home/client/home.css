@@ -7,10 +7,13 @@ h1 {
     color: #f2f2f2;
     text-align: center;
 }
+
 body {
     background-image: url("images/public-domain-images-free-stock-photos-002.jpg");
 }
+
 #searchBar {
+    margin:auto;
     width: 250px;
     box-sizing: border-box;
     border: 2px solid #ccc;
@@ -25,9 +28,11 @@ body {
     /*-webkit-transition: width .4s ease-in-out;*/
     transition: width .4s ease-in-out;
 }
+
 #searchBar:focus {
     width: 31%;
 }
+
 #searchForm {
     text-align: center;
     line-height: 100px;
