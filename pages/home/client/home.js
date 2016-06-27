@@ -1,46 +1,18 @@
+Template.home.onCreated(function(){
+	this.homeDict = new ReactiveDict();
+	this.homeDict.set('showTable', false);
+})
+
 Template.home.helpers ({
-	/*
-	settings_section: function(){
-		return {
-			fields:[
-				'name','code','requirements',
-				{key:'description', label:'Info', fn: function(key){
-					if (key.length>50){
-						return key.substring(0,50)+"...";
-					} else {
-						return key;
-					}
-				}},
-				{key:'course', label: 'Major', fn: function(key){
-					const course_obj = Course.find({id: key}).fetch()[0];
-					key = course_obj.subjects;
-					const ids = [];
+	courseSearch: function(){
+		const keyword = Template.instance().homeDict.get('keyword');
+		const dataCursor = CourseIndex.search(keyword,{limit:0});
+		return dataCursor.fetch();
+	},
 
-					for(var i = 0; i < key.length; i++){
-						const maj_obj = Subject.find({id: key[i].id}).fetch();
-						
-						if (maj_obj.length==0){
-							ids.push("unknown major");
-						} else {
-							const maj_name = maj_obj[0].name;
-							ids.push(maj_name);
-						};
-					};
-
-					if(ids.length == 0){
-						return "unknown";
-					} else {
-						return ids.toString();
-					};				
-				}},
-				{key:'course', label:'term', fn: function(key){
-					const course_obj = Course.find({id: key}).fetch()[0];
-					key = course_obj.term;
-					return Term.find({id: key}).fetch()[0].name;
-				}},
-			],
-		};
-	},*/
+	showTable: function(){
+		return Template.instance().homeDict.get('showTable');
+	},
 
 	settings_course: function(){
 		return {
@@ -55,7 +27,7 @@ Template.home.helpers ({
 					} else {
 						return key;
 					}
-				}},
+				}},/*
 				{key:'subjects', label: 'Major', fn: function(key){
 					const ids = [];
 
@@ -75,10 +47,10 @@ Template.home.helpers ({
 					} else {
 						return ids.toString();
 					};				
-				}},
-				{key:'term', label:'term', fn: function(key){
+				}},*/
+				{key:'term', label:'Term', fn: function(key){
 					return Term.find({id: key}).fetch()[0].name;
-				}},
+				}},/*
 				{key:'id', label:'Sections', fn: function(key){
 					const sec_obj = Section.find({course: key}).fetch();//this is an array
 					const sections = [];
@@ -111,35 +83,32 @@ Template.home.helpers ({
 					} else {
 						return instructors.toString();
 					};
-				}},
+				}},*/
 			],
 		};
 	},
-
+	/*
 	courseData: function(){
-		return Course.find({},{skip:0,limit:5}).fetch();
+		//return Course.find({},{skip:0,limit:5}).fetch();
+		return Course.find({}).fetch();
 	},
 
 	sectionData: function(){
 		return Section.find({},{skip:0,limit:5}).fetch();
-	},
-
-	hasKeyword: function(){
-		//return !Keyword.find().fetch().length==0;
-		return true;
-	},
+	},*/
 })
 
-Template.searchForm.events ({
-  "submit form": function(event) {
+Template.home.events ({
+  "submit form": function(event, template) {
     event.preventDefault();
     var keyword = event.target.keyword.value;
     if(keyword==""){
     	window.alert("Enter a keyword!");
     	return;
     }
-
-    Meteor.call("keywordInsert", keyword);
+    //Meteor.call("keywordInsert", keyword);
     event.target.keyword.value = "";
+    template.homeDict.set('showTable', true);
+    template.homeDict.set('keyword', keyword);
   }
 });

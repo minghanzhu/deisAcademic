@@ -1,6 +1,10 @@
 <template name="home">
     <h1>myDeis!</h1>
-    <p id="searchForm">{{> searchForm}}</p>
+    <p id="searchForm">
+        <form>
+            <input type="text" placeholder=" Search.." name="keyword" id="searchBar" class="js-submit-search">
+        </form>
+    </p>
      <!-- <p id="be_back">
         We will be back
     </p>
@@ -9,13 +13,8 @@
         We are busy updating myDeis!
         <br> see you soon :)
     </p> -->
-    {{#if hasKeyword}}
-        {{> reactiveTable collection=courseData settings=settings_course}}
+    
+    {{#if showTable}}
+        {{> reactiveTable collection=courseSearch settings=settings_course}}
     {{/if}}
-</template>
-
-<template name="searchForm">
-    <form>
-        <input type="text" placeholder=" Search.." name="keyword" id="searchBar" class="js-submit-search">
-    </form>
 </template>
