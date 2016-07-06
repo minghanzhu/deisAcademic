@@ -23,6 +23,7 @@ ddp-server@1.2.8_1
 deps@1.0.12
 diff-sequence@1.0.6
 easy:search@2.0.5
+easysearch:autosuggest@2.0.9
 easysearch:components@2.0.5
 easysearch:core@2.0.9
 ecmascript@0.4.6_1
@@ -45,6 +46,7 @@ iron:location@1.0.11
 iron:middleware-stack@1.1.0
 iron:router@1.0.13
 iron:url@1.0.11
+jeremy:selectize@0.12.1_5
 jquery@1.11.9
 launch-screen@1.0.12
 livedata@1.0.18
@@ -67,6 +69,7 @@ ordered-dict@1.0.8
 peerlibrary:assert@0.2.5
 peerlibrary:base-component@0.10.0
 peerlibrary:blaze-components@0.13.0
+perak:fuzzy-search@0.1.9
 promise@0.7.2_1
 random@1.0.10
 reactive-dict@1.1.8
