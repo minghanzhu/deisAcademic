@@ -33,12 +33,13 @@ Template.home.helpers ({
 
 					for(var i = 0; i < key.length; i++){
 						const maj_obj = Subject.find({id: key[i].id}).fetch();
+						const maj_detail = maj_obj[0].segments[parseInt(key[i].segment)].name;
 						
 						if (maj_obj.length==0){
 							ids.push("unknown major");
 						} else {
 							const maj_name = maj_obj[0].name;
-							ids.push(maj_name);
+							ids.push(maj_name + " - " + maj_detail);
 						};
 					};
 
@@ -110,5 +111,6 @@ Template.home.events ({
     event.target.keyword.value = "";
     template.homeDict.set('showTable', true);
     template.homeDict.set('keyword', keyword);
+    
   }
 });
