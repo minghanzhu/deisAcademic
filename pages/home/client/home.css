@@ -92,3 +92,31 @@ a:hover {
   text-decoration: none;
   color: white;
 }
+
+.overlay {
+    position:fixed;
+    display:none; 
+
+    /* color with alpha transparency */
+    background-color: rgba(0, 0, 0, 0.7);
+
+    /* stretch to screen edges */
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+}
+.ui.container.popup {
+    position: fixed;
+    width: 500px;
+    min-height: 500px;
+    display: none;
+    background-color: white;
+    text-align: left;
+
+    /* center it ? */
+    left: 0;
+    top: 10%;
+
+    z-index: 1000!important;
+}

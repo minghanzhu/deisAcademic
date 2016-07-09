@@ -28,5 +28,38 @@
         </ul>
     </div>
 
-    {{#if showTable}} {{> reactiveTable collection=courseSearch settings=settings_course}} {{/if}}
+    {{#if showTable}}  
+        {{> search_result}}
+    {{/if}}
+</template>
+
+<template name="search_result">
+    {{> reactiveTable class="ui selectable table" collection=courseSearch settings=settings_course}}
+
+    <div class="overlay"></div>
+
+    <div class="ui container popup">
+        <br>
+        <h3>Course </h3>{{courseInfo.name}}
+        <h3>Description</h3>
+        {{courseInfo.description}}
+        <h3>Requirements </h3> {{#each r in courseInfo.requirements}}
+                                 {{r}},
+                             {{/each}}
+        <h3>Majors </h3>{{getMajor}}
+        <h3>Sections </h3>{{getProfessor}}                   
+    </div>
+</template>    
+
+<template name="description_detail">
+    <div class="ui accordion">
+        <div class="title">
+            <i class="dropdown icon"></i>
+            {{showDescription this.description}}
+        </div>
+            
+        <div class="content">
+            {{this.description}}
+        </div>
+    </div>
 </template>
