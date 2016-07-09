@@ -1,11 +1,16 @@
 <template name="home">
-    <h1 id="head">myDeis!</h1>
-    <h1 id="searchForm">
-        <form>
-            <input type="text" placeholder=" Search.." name="keyword" id="searchBar" class="js-submit-search">
-        </form>
-    </h1>
-     <!-- <p id="be_back">
+  <div class="row">
+    
+  </div>
+    <div class="searchContainer">
+        <h1>planDeis</h1>
+        <div class="searchForm">
+            <form>
+                <input type="text" placeholder=" Search.." name="keyword" id="searchBar" class="js-submit-search" autocomplete="off">
+            </form>
+        </div>
+    </div>
+    <!-- <p id="be_back">
         We will be back
     </p>
     <br>
@@ -13,8 +18,15 @@
         We are busy updating myDeis!
         <br> see you soon :)
     </p> -->
-    
-    {{#if showTable}}
-        {{> reactiveTable collection=courseSearch settings=settings_course}}
-    {{/if}}
+
+    <div class="nav">
+        <ul>
+            <li><a href="search">Search</a></li>
+            <li><a href="sechdule">My Sechdule</a></li>
+            <li><a href="planning">Major Planning</a></li>
+            <li><a href="profile">My Profile</a></li>
+        </ul>
+    </div>
+
+    {{#if showTable}} {{> reactiveTable collection=courseSearch settings=settings_course}} {{/if}}
 </template>

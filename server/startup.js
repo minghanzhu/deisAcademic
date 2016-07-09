@@ -6,8 +6,8 @@ Meteor.startup(function(){
   Course.remove({});
   Section.remove({});
   Requirement.remove({});
-  Subject.remove({}); 
-  
+  Subject.remove({});
+
   if (Instructor.find().count()>0) return;
   const fs = Npm.require('fs');
   fs.readFile(
