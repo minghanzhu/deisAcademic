@@ -34,7 +34,12 @@
 </template>
 
 <template name="search_result">
-    {{> reactiveTable class="ui selectable table" collection=courseSearch settings=settings_course}}
+    {{courseSearch}}
+    {{#if courseDataReady}}
+        {{> reactiveTable class="ui selectable table" collection=courseData settings=settings_course}}
+    {{else}}
+        <h2>Loading...</h2>
+    {{/if}}
 
     <div class="overlay"></div>
 
@@ -50,7 +55,7 @@
                                        {{r}},
                                    {{/each}}
             <h3>Majors </h3>{{#if majorInfo}}{{#each item in majorInfo}}{{item}}<br>{{/each}}{{else}}Loading...{{/if}}
-            <h3>Sections </h3>{{#if sectionInfo}}{{#each item in sectionInfo}}{{item}}<br>{{/each}}{{else}}Loading...{{/if}}  
+            <h3>Sections </h3>{{#if sectionData}}{{> reactiveTable class="ui table" collection=sectionData settings=settings_result}}{{else}}Loading...{{/if}}  
         {{else}}
             <br>
             <h2>Loading...</h2>

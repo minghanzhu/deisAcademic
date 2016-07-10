@@ -108,7 +108,7 @@ a:hover {
 }
 .ui.container.popup {
     position: fixed;
-    width: 500px;
+    min-width: 500px;
     min-height: 500px;
     display: none;
     background-color: white;
