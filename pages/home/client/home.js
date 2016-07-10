@@ -1,22 +1,13 @@
 //Global reactive-dict
 homeDict = new ReactiveDict();
 homeDict.set('showTable', false);
+homeDict.set('majorDetail', []);
+homeDict.set('sectionDetail', []);
 
 Template.home.helpers ({
 	showTable: function(){
 		return homeDict.get('showTable');
 	},
-
-	
-	/*
-	courseData: function(){
-		//return Course.find({},{skip:0,limit:5}).fetch();
-		return Course.find({}).fetch();
-	},
-
-	sectionData: function(){
-		return Section.find({},{skip:0,limit:5}).fetch();
-	},*/
 })
 
 Template.home.events ({
@@ -36,70 +27,65 @@ Template.home.events ({
 })
 
 Template.search_result.helpers({
+	detailReady: function(){
+		return homeDict.get('courseInfo') != null;
+	},
+
 	courseInfo: function(){
 		return homeDict.get('courseInfo');
 	},
 
-	getMajor: function(){
-		const ids = [];
-		const key = homeDict.get('courseInfo').subjects;
+	majorInfo: function(){
+		return homeDict.get('majorDetail');
+	},
+
+	sectionInfo: function(){
+		return homeDict.get('sectionDetail');
+	},
+
+	getMajorDetail: function(){
+		if(!homeDict.get('courseInfo')){//continue only if the data is ready
+			return;
+		};
+
+		//console.log("loading major detail");
+		const ids = [];//array of major names
+		const key = homeDict.get('courseInfo').subjects;//get the array of major id's
 
 		for(var i = 0; i < key.length; i++){
-			const maj_obj = Subject.find({id: key[i].id}).fetch();
-			const maj_detail = maj_obj[0].segments[parseInt(key[i].segment)].name;
-					
-			if (maj_obj.length==0){
-				ids.push("unknown major");
-			} else {
-				const maj_name = maj_obj[0].name;
-				ids.push(maj_name + " - " + maj_detail);
-			};
+			const maj_obj = Subject.findOne({id: key[i].id});//get the major object using the id
+			//const maj_detail = maj_obj.segments[parseInt(key[i].segment)].name;//get the type of the major using the id
+			const maj_name = maj_obj.name;
+			ids.push(maj_name); //+ " - " + maj_detail);//add the major name to the array
 		};
-
-		if(ids.length == 0){
-			return "unknown";
-		} else {
-			return ids.toString();
-		};
+		
+		homeDict.set('majorDetail', ids);
+		//console.log("finished loading major detail");
 	},
 
-	getSection: function(){
-		const key = homeDict.get('courseInfo').id;
-
-		const sec_obj = Section.find({course: key}).fetch();//this is an array
-		const sections = [];
-		for (var i = 0; i < sec_obj.length; i++) {
-			sections.push("Section: " + sec_obj[i].section);
+	getSectionDetail: function(){
+		if(!homeDict.get('courseInfo')){//continue only if the data is ready
+			return;
 		};
 
-		if(sections.length==0){
-			return "No section";
-		} else {
-			return sections.toString();
-		}
-	},
+		//console.log("loading section detail");
+		const key = homeDict.get('courseInfo').id;//get the id of the course
 
-	getProfessor: function(){
-		const key = homeDict.get('courseInfo').id;
-
-		const sec_obj = Section.find({course: key}).fetch();//this is an array
-		const instructors = [];
+		const sec_obj = Section.find({course: key}).fetch();//an array of corresponding sections
+		const instructors = [];//array for professor names
 		for (var i = 0; i < sec_obj.length; i++) {
-			const instru_array = sec_obj[i].instructors;
-			for (var i = 0; i < instru_array.length; i++) {
-				const instru_id = instru_array[i];
-				const instru_obj = Instructor.find({id: instru_id}).fetch()[0];
+			const instru_array = sec_obj[i].instructors;//get the list of the professor id's for the current section
+			for (var j = 0; j < instru_array.length; j++) {
+				const instru_id = instru_array[j];//get the current professor id
+				const instru_obj = Instructor.findOne({id: instru_id});//get the professor object using the id
 				var instru_name = instru_obj.first + " " + instru_obj.last;
 				if(instru_obj.first=="Staff" || instru_obj.last=="Staff") instru_name = "Staff";
 				instructors.push("Section: " + sec_obj[i].section + " - " + instru_name);
 			};
 		};
 
-		if(instructors.length==0){
-			return "No insructor"
-		} else {
-			return instructors.toString();
-		};
+		homeDict.set('sectionDetail', instructors);
+		//console.log("finished loading section detail");
 	},
 
 	courseSearch: function(){
@@ -133,8 +119,10 @@ Template.search_result.events({
 	},	
 
 	"click .overlay" :function(event){
-		$(".overlay, .popup").fadeToggle();
 		homeDict.set('courseInfo', {});
+		homeDict.set('sectionDetail', []);
+		homeDict.set('majorDetail', []);
+		$(".overlay, .popup").fadeToggle();
 	},
 })
 

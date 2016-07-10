@@ -39,15 +39,22 @@
     <div class="overlay"></div>
 
     <div class="ui container popup">
-        <br>
-        <h3>Course </h3>{{courseInfo.name}}
-        <h3>Description</h3>
-        {{courseInfo.description}}
-        <h3>Requirements </h3> {{#each r in courseInfo.requirements}}
-                                 {{r}},
-                             {{/each}}
-        <h3>Majors </h3>{{getMajor}}
-        <h3>Sections </h3>{{getProfessor}}                   
+        {{getMajorDetail}}
+        {{getSectionDetail}}
+        {{#if detailReady}}
+            <br>
+            <h3>Course </h3>{{courseInfo.name}}
+            <h3>Description</h3>
+            {{courseInfo.description}}
+            <h3>Requirements </h3> {{#each r in courseInfo.requirements}}
+                                       {{r}},
+                                   {{/each}}
+            <h3>Majors </h3>{{#if majorInfo}}{{#each item in majorInfo}}{{item}}<br>{{/each}}{{else}}Loading...{{/if}}
+            <h3>Sections </h3>{{#if sectionInfo}}{{#each item in sectionInfo}}{{item}}<br>{{/each}}{{else}}Loading...{{/if}}  
+        {{else}}
+            <br>
+            <h2>Loading...</h2>
+        {{/if}}                 
     </div>
 </template>    
 
