@@ -62,7 +62,7 @@ Template.search_result.helpers({
 			ids.push(maj_name); //+ " - " + maj_detail);//add the major name to the array
 		};
 		
-		homeDict.set('majorDetail', ids);
+		homeDict.set('majorDetail', ids.sort());
 		//console.log("finished loading major detail");
 	},
 
@@ -93,7 +93,7 @@ Template.search_result.helpers({
 			};
 		};
 
-		homeDict.set('sectionDetail', instructors);
+		homeDict.set('sectionDetail', instructors.sort());
 		//console.log("finished loading section detail");
 	},
 
