@@ -54,6 +54,9 @@ Template.search_result.helpers({
 
 		for(var i = 0; i < key.length; i++){
 			const maj_obj = Subject.findOne({id: key[i].id});//get the major object using the id
+			if(!maj_obj){
+				return;
+			}
 			//const maj_detail = maj_obj.segments[parseInt(key[i].segment)].name;//get the type of the major using the id
 			const maj_name = maj_obj.name;
 			ids.push(maj_name); //+ " - " + maj_detail);//add the major name to the array
@@ -72,12 +75,18 @@ Template.search_result.helpers({
 		const key = homeDict.get('courseInfo').id;//get the id of the course
 
 		const sec_obj = Section.find({course: key}).fetch();//an array of corresponding sections
+		if(!sec_obj){
+			return;
+		};
 		const instructors = [];//array for professor names
 		for (var i = 0; i < sec_obj.length; i++) {
 			const instru_array = sec_obj[i].instructors;//get the list of the professor id's for the current section
 			for (var j = 0; j < instru_array.length; j++) {
 				const instru_id = instru_array[j];//get the current professor id
 				const instru_obj = Instructor.findOne({id: instru_id});//get the professor object using the id
+				if(!instru_obj){
+					return;
+				};
 				var instru_name = instru_obj.first + " " + instru_obj.last;
 				if(instru_obj.first=="Staff" || instru_obj.last=="Staff") instru_name = "Staff";
 				instructors.push("Section: " + sec_obj[i].section + " - " + instru_name);
@@ -105,7 +114,10 @@ Template.search_result.helpers({
 				{key:'requirements', label:'Requirements'},
 				{key:'description', label:'Description', tmpl:Template.description_detail},
 				{key:'term', label:'Term', fn: function(key){
-					return Term.find({id: key}).fetch()[0].name;
+					if(!Term.findOne({id: key})){
+						return "loading...";
+					};
+					return Term.findOne({id: key}).name;
 				}},
 			],
 		};
@@ -114,14 +126,14 @@ Template.search_result.helpers({
 
 Template.search_result.events({
 	"click .reactive-table tbody tr": function(event){
+		homeDict.set('courseInfo', {});
+		homeDict.set('sectionDetail', []);
+		homeDict.set('majorDetail', []);
 		homeDict.set('courseInfo', this);
 		$(".overlay, .popup").fadeToggle();
 	},	
 
 	"click .overlay" :function(event){
-		homeDict.set('courseInfo', {});
-		homeDict.set('sectionDetail', []);
-		homeDict.set('majorDetail', []);
 		$(".overlay, .popup").fadeToggle();
 	},
 })
