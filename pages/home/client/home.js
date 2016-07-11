@@ -9,22 +9,55 @@ Template.home.helpers ({
 	showTable: function(){
 		return homeDict.get('showTable');
 	},
+
+	getTerms: function(){
+		return Term.find();
+	},
+
+	// getDepts: function(){
+	// 	return Dept.find();
+	// },
+
 })
 
 Template.home.events ({
-  "submit form": function(event, template) {
+	"submit #advSearch_form": function(event, template){
+		event.preventDefault();
+		homeDict.set('instructor', ($('#advSearch_form input:text[name="instructor"]').val()));
+	},
+
+  "submit #search_main": function(event, template) {
     event.preventDefault();
     homeDict.set('courseData');
+		//var keyword = ($('#main_search input:text[name="keyword"]').val());
     var keyword = event.target.keyword.value;
     if(keyword==""){
     	window.alert("Enter a keyword!");
     	return;
     }
     //Meteor.call("keywordInsert", keyword);
-    event.target.keyword.value = "";
+    //event.target.keyword.value = "";
     homeDict.set('showTable', true);
     homeDict.set('keyword', keyword);
+
   },
+
+	"change .js-term": function(event, template){
+		event.preventDefault();
+		homeDict.set('term', $(".js-term").val());
+	},
+
+	// "click .js-dept": function(event, template){
+	// 	event.preventDefault();
+	// 	homeDict.set('dept', $(".js-dept").val());
+	// },
+
+	// 'change select': function (e) {
+  //   CourseIndex.getComponentMethods(/* optional name */)
+  //     .addProps('term', $(e.target).val())
+  //   ;
+  // },
+
 })
 
 Template.search_result.onRendered(function(){
@@ -83,7 +116,7 @@ Template.search_result.helpers({
 			const maj_name = maj_obj.name;
 			ids.push(maj_name); //+ " - " + maj_detail);//add the major name to the array
 		};
-		
+
 		homeDict.set('majorDetail', ids.sort());
 		//console.log("finished loading major detail");
 	},
@@ -107,7 +140,15 @@ Template.search_result.helpers({
 
 	courseSearch: function(){
 		const keyword = homeDict.get('keyword');
-		const dataCursor = CourseIndex.search(keyword,{limit:0});
+		const term = homeDict.get('term');
+		const dept = homeDict.get('dept');
+		const instructor = homeDict.get('instructor');
+
+		var regexDept = new RegExp("^" + keyword, "i");
+		var regexTitle = new RegExp(keyword, "i");
+
+		var dataCursor = Course.find({term: term, $or: [{code: regexDept}, {name: regexTitle}]},);
+
 		homeDict.set('courseData', dataCursor.fetch());
 	},
 
@@ -162,7 +203,7 @@ Template.search_result.helpers({
 						for(var day of item.days){
 							days = days + day + " ";
 						}
-						
+
 						//get times
 						const start = item.start;
 						const end = item.end;
@@ -180,7 +221,7 @@ Template.search_result.helpers({
 						var end = Math.floor(end / 60) + ":" + end_min;
 						const time = start + "-" + end;
 
-						result = result + days + ": " + time + "\n";  
+						result = result + days + ": " + time + "\n";
 					};
 
 					return result;
@@ -202,7 +243,7 @@ Template.search_result.helpers({
 				}},
 			],
 		};
-	}
+	},
 })
 
 Template.search_result.events({
@@ -212,7 +253,7 @@ Template.search_result.events({
 		homeDict.set('majorDetail', []);
 		homeDict.set('courseInfo', this);
 		$(".overlay, .popup").fadeToggle();
-	},	
+	},
 
 	"click .overlay" :function(event){
 		$(".overlay, .popup").fadeToggle();

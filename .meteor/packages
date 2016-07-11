@@ -28,3 +28,6 @@ twbs:bootstrap
 semantic:ui
 less
 juliancwirko:postcss
+easysearch:components
+easy:search
+easysearch:core

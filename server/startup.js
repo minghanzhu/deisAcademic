@@ -1,5 +1,20 @@
 Meteor.startup(function(){
   Keyword.remove({});
+  Dept.remove({});
+
+		const codes = [];
+		for(var key of Course.find().fetch()){
+			const code = key.code.substring(0, key.code.indexOf(" "));
+			if(!_.contains(codes, code)){
+				codes.push(code);
+			}
+		}
+		codes.sort();
+
+    codes.forEach(function(item, index, array){
+      Dept.insert({code:item});
+    })
+
   /*
   Instructor.remove({});
   Term.remove({});
