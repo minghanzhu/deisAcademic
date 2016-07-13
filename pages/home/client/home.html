@@ -14,15 +14,39 @@
   <form id="advSearch_form" class="form-inline">
 
     <div class="form-group">
-
-  <label class="control-label" for="term">Term:</label>
-    <select name="term" class="js-term form-control">
-      {{#each t in getTerms}}
-        <option value="{{t.id}}">{{t.name}}</option>
-      {{/each}}
+        <label class="control-label" for="term">Term: </label>
+        <select name="term" class="js-term form-control">
+            <option value="">Term</option>
+            <option value="1171">Spring 2017</option>
+            <option value="1163">Fall 2016</option>
+            <option value="1162">Summer 2016</option>
+            <option value="1161">Spring 2016</option>
+            <option value="1153">Fall 2015</option>     
     </select>
+    </div>
 
-  </div>
+    <div class="form-group">
+        <label class="control-label" for="requirement">Requirement: </label>
+        <select class="js-req form-control">
+            <option value="">Requirement</option>
+            <option value="CA">CA</option>
+            <option value="FL">FL</option>
+            <option value="HUM">HUM</option>
+            <option value="NW">NW</option>
+            <option value="OC">OC</option>
+            <option value="PE-1">PE-1</option>
+            <option value="PE-SC">PE-SC</option>
+            <option value="QR">QR</option>
+            <option value="QR1">QR1</option>
+            <option value="QR2">QR2</option>
+            <option value="SN">SN</option>
+            <option value="SS">SS</option>
+            <option value="USEM">USEM</option>
+            <option value="USWI">USWI</option>
+            <option value="UWS">UWS</option>
+            <option value="WI">WI</option>
+        </select> 
+    </div>
 
     <!-- <div class="form-group">
 
