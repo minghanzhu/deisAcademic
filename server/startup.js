@@ -1,57 +1,122 @@
-Meteor.startup(function(){
-  Keyword.remove({});
-  Dept.remove({});
+Meteor.startup(function() {
+    Keyword.remove({});
+    Dept.remove({});
+    Major.remove({});
 
-		const codes = [];
-		for(var key of Course.find().fetch()){
-			const code = key.code.substring(0, key.code.indexOf(" "));
-			if(!_.contains(codes, code)){
-				codes.push(code);
-			}
-		}
-		codes.sort();
+    // TODO: JSON file of University Bulletin
+    Major.insert({
+        name: "Computer Science",
+        school: "School of Science",
+        bulletin: "http://www.brandeis.edu/registrar/bulletin/provisional/courses/subjects/1400.html",
+        major: "<div class='sectionContent' id='section7' style='display: block;'><strong>Degree of Bachelor of Arts<br></strong> The minimum requirements for the computer science major are nine courses:<br><p><strong>A.</strong> Five core courses: COSI 11a, 12b, 21a , 29a, and 131a.</p><p><strong>B.</strong> Electives: At least four additional COSI courses, excluding 99d, and one may be cross-listed.</p><p><strong>Degree of Bachelor of Science<br></strong> The minimum requirement for the computer science major are fourteen courses:</p><p><strong>A.</strong> Seven core courses: COSI 11a, 12b, 21a, 29a, 121b, 130a&nbsp;and 131a.</p><p><strong>B.</strong> Mathematics courses: Math 8a and 10a.</p><p><strong>C.</strong>&nbsp;Electives: at least five additional COSI courses, excluding 99d, and up to two courses can be cross-listed.</p><p><strong>D.</strong> No course with a final grade below C- can count toward fulfilling the requirements for the major in computer science.</p><p><strong>E.</strong> No course taken pass/fail may count toward requirements for the major.</p><p><strong>Honors<br></strong> Graduation with honors in computer science requires completion and defense of a senior honors thesis; students considering this option should take note of the prerequisites for enrollment in COSI 99d (Senior Research).</p></div>",
+        minor: "<div class='sectionContent' id='section6' style='display: block;'>The minimum requirements for the computer science minor are six courses:<br><p><strong>A.</strong> COSI 11a, 12b, and 21a.</p><p><strong>B.</strong> Three additional computer science courses, one of which may be a cross-listed course or another course approved by the undergraduate advising head.</p><p><strong>C.</strong> No course with a final grade below C- can count toward fulfilling the requirements for the minor in computer science.</p><p><strong>D.</strong> No course taken pass/fail may count toward requirements for the minor.</p></div>",
+        master: "<div class='sectionContent' id='section11' style='display: block;'><hr class='colormyhr' noshade='noshade'><h4>Master of Arts in Computer Science</h4><hr class='colormyhr' noshade='noshade'><p><strong>Program of Study<br></strong> The MA program in computer science is a two-track program designed for outstanding students with undergraduate degrees in any field. Admitted students with an undergraduate degree in Computer Science must satisfactorily complete an approved schedule of nine courses, which includes:<br>A. Elective courses: At least nine COSI courses numbered 100 or greater of which at most three may be chosen from the following courses: COSI 152aj, COSI 152bj, COSI 153aj, COSI 153bj, COSI 154aj, COSI 293aj, COSI 210aj, COSI 200ab and COSI 210a.</p><p>Admitted students with an undergraduate degree in a field other than Computer Science must satisfactorily complete an approved schedule of twelve courses, which includes:<br>A. Four core courses providing fundamental background in Computer Science: COSI 11a, COSI 12b, COSI 21a, and COSI 29a. At most two core courses can be taken a semester.<br>B. Elective courses: At least eight additional COSI courses numbered 100 or greater of which one must be COSI 131a, one may be chosen from the following courses: COSI 152aj, COSI 152bj, COSI 153aj, COSI 153bj, COSI 154aj, COSI 293aj, COSI 210aj, COSI 200ab and COSI 210a. Students who have previously taken the equivalent of any core course may petition the Graduate Program Director for an exemption allowing them to substitute an additional COSI course numbered 100 or greater.</p><p><strong>Residence Requirement<br></strong> The minimum residency requirement is three semesters.</p><hr class='colormyhr' noshade='noshade'><h4>Master of Arts in Computational Linguistics</h4><hr class='colormyhr' noshade='noshade'><p><strong>Program of Study<br></strong> The two-year MA program in computational linguistics is designed for outstanding students, preferably with an undergraduate degree in either language and linguistics or computer science. The MA provides a solid foundation for professional work in the field of computational linguistics or pursuit of a PhD in computational linguistics and theoretical linguistics.</p><p>Students must complete a schedule of course work designed in conjunction with and approved by the director of graduate studies consisting of nine courses, which includes: four to five core courses, three to four electives, and either an internship in computational linguistics or a master’s thesis. The master’s thesis must be deposited electronically to the Robert D. Farber University Archives at Brandeis.</p><p>The specific course work will vary according to the student’s background in computer science and/or linguistics; however all students will be required to complete LING 131a,&nbsp;COSI 114b, and COSI 134a. Depending on the student’s preparation for the program, additional courses beyond the nine may be required.</p><p><strong>Residence Requirement<br></strong> The minimum residence requirement is two years.</p></div>",
+        combined: "<div class='sectionContent' id='section9' style='display: block;'><p>The five-year BA/MA or BS/MA&nbsp;degree program in Computational Linguistics is designed for outstanding undergraduate students who will have completed all requirements for the undergraduate BA or BS degree within four years at Brandeis, with a major preferably in either Language and Linguistics or Computer Science. Eligibility for the program is normally limited to students who have maintained a minimum 3.500 GPA in all linguistics and computer science courses taken. Students complete the MA in Computational Linguistics by taking computational linguistics courses in the senior (fourth) year and in one additional (fifth) year of study. The MA degree provides a solid foundation for professional work in the field of computational linguistics or for additional graduate study in computational linguistics and theoretical linguistics. An application should be submitted no later than May 1 of the student's junior year.</p><p><strong>Program of Study<br></strong> Students admitted to the program must fulfill the following requirements, in addition to completing their undergraduate degree: a schedule of course work designed in conjunction with and approved by the director of graduate studies consisting of nine courses, which includes: four to five core courses, three to four electives, and either an internship in computational linguistics or a master's thesis. The specific course work will vary according to the student’s background in computer science and/or linguistics; however all students will be required to complete LING 131a, COSI 114b,&nbsp;and COSI 134a. Depending on the student's preparation for the program, additional courses beyond the nine may be required.</p><p><strong>Residence Requirement<br></strong> The minimum residence requirement is one year after completing the BA or BS degree.</p></div>",
+        doctor: "<div class='sectionContent' id='section13' style='display: block;'><p><strong>Adviser<br></strong> Ph.D. students are expected to work closely with faculty on research projects of mutual interest. By the end of the second year, the student must obtain the consent of a computer science faculty member to serve as adviser and dissertation committee chair.</p><p><strong>Course Requirements<br></strong> Satisfactory completion of an approved schedule of nine computer science courses numbered 100 or above of which two may be chosen from the following courses: COSI 152aj, COSI 152bj, COSI 153aj, COSI 153bj, COSI 154aj, COSI 293aj, COSI 210aj, COSI 200a,b and COSI 210a. Students may petition the director of graduate studies to substitute courses from other departments that are relevant to their research area. Students who have obtained a Masters degree in Computer Science may petition to reduce their course requirements by a maximum of 6 courses.</p><p>Each summer, full-time PhD students are required to do work related to their research area under the supervision of a faculty member. The work can take the form of dissertation research, or can involve an industrial internship. Students doing dissertation research over the summer should register for CONT 250. Students doing an industrial internship must have the consent of their advisor and should register for COSI 393g.</p><p><strong>Teaching Requirement<br></strong> Teaching is a critical skill required in both academic and industrial careers that follow graduation. To prepare students for this role, students normally serve as teaching interns for one course per year. Teaching internship responsibilities may include assisting with course design and lecture preparation, giving an occasional class lecture, assignment formulation and grading.</p><strong>Thesis Committee and Proposal<br></strong> <strong>1.</strong> Establishment by the adviser and the director of graduate studies of a thesis committee consisting of the adviser, two other Brandeis faculty, and one or more appropriate external members from outside Brandeis.<p><strong>2.</strong> An approved, written thesis proposal by the candidate that surveys the relevant literature and states the goals of the dissertation and topics to be investigated (including aspects already completed or underway), along with an oral presentation to the thesis committee that is open to computer science faculty who wish to attend.</p><p><strong>Thesis Defense<br></strong> Public defense of a completed dissertation will be announced three weeks in advance. Copies of the complete thesis will be available to the faculty during these three weeks.</p><p><strong>Residence Requirement<br></strong> The minimum residency requirement is three years.</p><hr class='colormyhr' noshade='noshade'><h4>Requirements for the Degree of Doctor of Philosophy in Computer Science with an Additional Specialization in Quantitative Biology</h4><hr class='colormyhr' noshade='noshade'><p><strong>Program of Study<br></strong> Students wishing to obtain the specialization must first gain approval of the graduate program director. This should be done as early as possible, ideally during the first year of graduate studies. In order to receive the PhD in Computer Science with additional specialization in Quantitative Biology, candidates must complete (a) the requirements for the PhD described above and (b) the course requirements for the quantitative biology specialization that are described in the quantitative biology section of this <em>Bulletin</em>.</p><p>Any alteration to the quantitative biology course requirements must be approved by the graduate program director and by the quantitative biology program faculty advisory committee.</p></div>",
 
-    codes.forEach(function(item, index, array){
-      Dept.insert({code:item});
+    });
+
+    Major.insert({
+        name: "Biochemistry",
+        school: "School of Science",
+        bulletin: "https://www.brandeis.edu/registrar/bulletin/provisional/courses/subjects/500.html",
+        major: "<div class='sectionContent' id='section3' style='display: block;'>Students who are interested in majoring in biochemistry should speak with the Undergraduate Advising Head.</div>",
+        minor: "<div class='sectionContent' id='section5' style='display: block;'><p><strong>Degree of Bachelor of Science<br></strong> One year of general chemistry with laboratory; one year of organic chemistry with laboratory; one year of physics taught using calculus (PHYS 11a,b or PHYS 15a,b) with laboratory&nbsp;(PHYS 19a,b); BIOL 14a or 22a with laboratory (Genetics and Genomics); BIOL 15b or 22b with laboratory (Cells and Organisms)--the above courses must be taken prior to the senior year; BCHM 100a (Advanced Introductory Biochemistry), BCHM 101a (Advanced Biochemistry: Enzyme Mechanisms), BCHM 103b (Advanced Biochemistry: Cellular Information Transfer Mechanisms), BCHM 104a (Physical Chemistry of Macromolecules I), BCHM 104b (Physical Chemistry of Macromolecules); and one elective consisting of a biochemistry-related 100-level course (excluding research courses) from any department in the Division of Science. The course used to fulfill the elective requirement must be approved in advance by the Undergraduate Advising Head. <span>In some cases, courses below 100-level in mathematics or statistics can be used to fulfill the elective requirement if approved by the Undergraduate Advising Head.&nbsp;</span>CHEM 141a (Classical and Statistical Thermodynamics) may be substituted for BCHM 104a with approval of the Undergraduate Advising Head.</p><p>No course used to fulfill major requirements may be taken pass/fail. Grades below C- cannot be used to fulfill the requirements for the major. The advanced courses required for the Biochemistry major are demanding and require a strong background in Chemistry, Physics, and Mathematics. Biochemistry majors are typically students with excellent performance in the introductory courses in these subjects.</p><p><strong>Senior Honors Program<br></strong> In addition to the degree requirements listed previously, departmental honors require completion of eight credits of BCHM 99 (Research for Undergraduates), submission of an acceptable research thesis, and a final GPA 3.00 or better in the sciences and mathematics. Honors candidates are also expected to give a short oral presentation of their thesis research to members of the department at the end of their senior year. BCHM 99 may not exceed 12 credits. Petition to the department for participation in the honors program is made at or before the beginning of the senior year.</p></div>",
+        master: "",
+        combined: "<div class='sectionContent' id='section6' style='display: block;'><p>In addition to all courses required for the BS degree, the BS/MS degree requires completion of BCHM 102a (Quantitative Approaches to Biochemical Systems) one additional 100-level elective (excluding research courses) approved in advance by the Undergraduate Advising Head, four semesters of research courses (consisting of one or two semesters of BCHM 99 plus two or three semesters of BCHM 150), a full-time (i.e., no concurrent course work) summer research residency lasting at least ten weeks, submission of an acceptable thesis, a GPA of 3.00 or better in the sciences and mathematics, and grades of B- or better in all<span>&nbsp;</span>courses used for the major.</p><p>The BS/MS program requires completion of thirty-eight courses and the total credits required for the BS/MS degree is 152; no more than 24 credits of research (BCHM 99 or BCHM 150) can count toward this total. In addition, students must complete at least four graduate-level courses beyond the courses used by that student to fulfill the requirements for any undergraduate major (including the Biochemistry BS). BCHM 102a and BCHM 150 courses can be used to fulfill this four-course requirement. Application to the BS/MS program is made to the department no later than the last day of classes in the first semester of the junior year, and all work, including the thesis, must be completed by the time the BS is awarded.</p><p>To qualify for the BS/MS degree, the thesis must constitute a significant research contribution; if a thesis is found to be unacceptable under the BS/MS program, it will automatically be considered under the honors program. The BS/MS thesis must be deposited electronically to the Robert D. Farber University Archives at Brandeis.</p><p>In order to complete the honors program or the combined BS/MS program, it is advisable to gain exemption where possible from introductory courses in science and mathematics. This is especially important for the premedical students who must also fulfill the requirements imposed by medical schools.</p></div>",
+        doctor: "",
+
+    });
+
+    Major.insert({
+        name: "Biological Physics",
+        school: "School of Science",
+        bulletin: "http://www.brandeis.edu/registrar/bulletin/provisional/courses/subjects/600.html#",
+        major: "<div class='sectionContent' id='section5' style='display: block;'><strong>Degree of Bachelor of Science<br></strong> To satisfy the requirements for the major in biological physics leading to the degree of Bachelor of Science, students must successfully complete the foundation of this program, which is a set of required courses in the physical and life sciences. The core courses, divided by fields, are:<br><p>Physics: PHYS 11a,b or PHYS 15a,b; PHYS 19a,b; PHYS 20a; PHYS 31a (formerly PHYS 30b); PHYS 39; PHYS 40</p><p>Mathematics: MATH 10a,b</p><p>Chemistry: CHEM 11a,b and CHEM 18a,b or equivalents</p><p>Biology: BIOL 14a, BIOL 15b (or BIOL 22a,b) and BIOL 18a,b</p><p>Biological Physics: FYS 11a or PHYS 105a</p><p>FYS 11a (Nature's Nanotechnology) should be taken in the first year, if it is offered.&nbsp;Students who enter the program after their first year may find it convenient to replace FYS 11a with PHYS 105a (Biological Physics), which covers the same material at a higher level of both mathematics and physics.</p><p>Students with high enough Advanced Placement Examination scores may place out of some of the elementary courses. See the Advanced Placement Credit chart in an earlier section of this <em>Bulletin</em> for details concerning the equivalent Brandeis courses for sufficient scores in the tests in Mathematics (AB or BC), Physics (C), and Chemistry. Credit toward the major is given for all these tests except for Physics C: Electrical. Students who take advanced placement credit for PHYS 15b will be required to take PHYS 30a, the intermediate-level course in this subject.</p><p>Beyond the core curriculum, students are expected to explore areas of further inquiry by taking at least two elective courses. Possible topics and related courses are listed in the following sections. Other courses can be taken as electives with approval of the program advisor.</p><p><em>Molecular structure:</em> The use of physical techniques including X-ray diffraction, electron microscopy, and nuclear magnetic resonance to elucidate the structure of bio-molecules. Electives: BIOL 102b, BCHM 171b*, BIBC 126b, BCHM 104b*.</p><p><em>Single molecule biophysics:</em> The study of biological processes on the single molecule scale, such as enzyme function, ion transport through membranes, protein folding, molecular motors. Electives: BCHM 101a*.</p><p><em>Modeling of biological structure and function:</em> The development and analysis of mathematical models for elucidating biological structure and function. Electives: BIOL 135b, PHYS 105a, NBIO 136b, <span>NPHY 115a,</span>&nbsp;QBIO&nbsp;110a.</p><p><em>Systems and networks:</em> Study of topics including bioinformatics, neural networks, and networks of genes and proteins. Electives: COSI 178a, NBIO 140b.</p><p><em>Biophysical research skills:</em> EL 24b.</p><p>*Required prerequisites for this course are not included in the core curriculum.</p><p>A student starting the biological physics major in the first year, with no advanced placement, should follow the recommended sequence:</p><p>Year 1: FYS 11a; MATH 10a,b; PHYS 15a,b; PHYS 19a,b<br> Year 2: CHEM 11a,b; CHEM 18a,b; PHYS 20a, PHYS&nbsp;40a<br> Year 3: BIOL 18a,b; BIOL 22a,b; PHYS 39a<br> Year 4: PHYS 31a (formerly PHYS 30b); two electives</p><p>A student with advanced preparation in math, physics, and chemistry who wants to emphasize biochemistry might take the following program:</p><p>Year 1: FYS 11a; MATH 15a; MATH 20b; PHYS 19b; PHYS 20a; PHYS&nbsp;40a<br> Year 2: BIOL 18a,b; BIOL 22a,b; CHEM 25a,b; CHEM 29a,b<br> Year 3: BCHM 100a; PHYS 39a, one elective<br> Year 4: PHYS 30a; PHYS&nbsp;31a (formerly PHYS&nbsp;30b); one elective</p><p>Students with advanced preparation might choose additional courses in other areas rather than organic chemistry and biochemistry. A student who has started as a premed and switched to biological physics (not completing the premed program) might have the following program:</p><p>Year 1: CHEM 11a,b; CHEM 18a,b; MATH 10a,b<br> Year 2: BIOL 18a; BIOL 22a; FYS 11a; PHYS 11a,b or PHYS 15a,b; PHYS 19a,b<br> Year 3: BIOL 18b; BIOL 22b; PHYS 20a; PHYS&nbsp;40a; one elective<br> Year 4: PHYS 31a (formerly PHYS&nbsp;30b); PHYS 39a; one elective</p><p>In addition to the required courses, students are urged to learn the necessary topics in organic chemistry as preparation for biochemistry. This opens up additional options for undergraduate research and graduate programs in the life sciences. For medical school, a year of organic chemistry with laboratory, in addition to the required courses for biological physics, will complete the premed program requirements.</p><p>An important component of the program is the opportunity for students to participate in research. Opportunities exist for research in the laboratories of physics, chemistry, neuroscience, biochemistry, and biology faculty.</p><p>No course with a final grade below C- can count toward fulfilling the major requirements in Biological Physics.</p><p>No course taken pass/fail may count toward the major requirements.</p><p><strong>Honors Program</strong><br> Graduation with honors requires completion of a senior research thesis. Students must enroll in BIPH 99d in their senior year to carry out a research project. Students wishing to join the honors program should apply to the honors advisor in the program in the spring of their junior year.</p></div>",
+        minor: "",
+        master: "",
+        combined: "",
+        doctor: "",
+
+    });
+
+    Major.insert({
+        name: "Biology",
+        school: "School of Science",
+        bulletin: "https://www.brandeis.edu/registrar/bulletin/provisional/courses/subjects/700.html",
+        major: "<div class='sectionContent' id='section5' style='display: block;'><p><strong>A.</strong> Core Courses required of all candidates: BIOL 14a; BIOL 15b; BIOL 16a; BIOL 18a,b lab; CHEM 11a,b or CHEM 15a,b; CHEM 18a,b or CHEM 19a,b lab; CHEM 25a,b; CHEM 29a,b lab; and Option I or II below.</p><p>Option I: The BA Degree in Biology<br> The BA is the standard biology option that provides students with a general background in biology. In addition to the Core courses required of all candidates (listed above), students must complete one course from the Quantitative Course List below. Also, students must complete a total of five Elective Courses, three of which must be taken at Brandeis. At least three electives must come from the Biology Elective Group; up to two may be chosen from the General Science Elective Group.</p><p>Courses required of all BA candidates or those used to fulfill the Quantitative Course requirement cannot also be used for Elective credit.</p><p>Option II: The BS Degree in Biology<br> The BS is the intensive biology option that provides students with a strong background in several areas of biology. In addition to the Core courses required of all candidates (listed as in A above), students must complete two courses from the Quantitative Course List. They must also complete PHYS 10a,b or PHYS 11a,b or PHYS 15a,b; and PHYS 18a,b or PHYS 19a,b lab. In addition, students must complete six elective courses, at least four of which be taken at Brandeis. At least four electives must come from the Biology Elective Group; up to two may be chosen from the General Science Elective Group.</p><p>Courses required of all BS candidates or those used to fulfill the Quantitative Course requirement cannot also be used for Elective credit.</p><p><strong>Quantitative Course List</strong><br> BIOL 51a<br> BIOL 107a<br> any COSI course numbered 10 or higher<br> ECON 83a<br> HSSP 100b<br> any MATH course numbered 10 or higher<br> NBIO 136b<br> any QBIO course<br> PSYC 51a<br> PSYC 148a</p><p><strong>Biology Electives</strong><br> BIOL 17b<br> any BIOL course numbered 23 or higher (excluding courses numbered 90-99)<br> ANTH 116a<br> BCHM 88b or 100a (one but not both)<br> BCHM 155b<br> COSI 178a<br> any BIBC course<br> any CBIO course<br> any NBIO course<br> any QBIO course</p><p>Two semesters of supervised research (BIOL 93 plus BIOL 99; BIOL 95 plus BIOL 99 or BIOL 93; or two semesters of BIOL 99), if both supervised by the same Brandeis professor, may count as one elective with permission of the biology department honors coordinator.</p><p><strong>General Science Electives</strong> (no more than 2 full course electives can come from this group): Any course from BCHM, CHEM, COSI, MATH, PHYS numbered 10 or higher (excluding courses numbered 90-99 and courses in the Biology Elective Group). Lab courses not listed as a requirement for A. Option I (BA) or A. Option II (BS) can be used as electives in the General Science elective group.</p><p>Note: Two-credit laboratory courses are counted as one-half of a regular semester course and 4-credit laboratory courses will be counted as a full semester course.</p><p>AP credit cannot be used to satisfy the quantitative requirement or the elective requirement. The Biology AP cannot be used to fulfil BIOL 14a, 15b or 16a.</p><p class='text'><strong>B.</strong> Independent Research (BIOL 93)<br> Any junior or senior majoring in biology may enroll in BIOL 93 (Independent Research). This course on its own does not count as an elective but may be used for course credit. The internship may be done during the summer or during one academic semester. No more than one BIOL 93 course may be taken. Students must petition the department for participation in BIOL 93. Petitions and information about the research internships are available in the biology department office or you can download the petition and information from <a href='http://www.bio.brandeis.edu/undergrad/biology/BIOL_93_petition.pdf'>http://www.bio.brandeis.edu/undergrad/biology/BIOL_93_petition.pdf</a>. See BIOL 93 course description for details.</p><p><strong>C.</strong> Senior Research<br> Any senior majoring in biology may enroll in senior research. This two-semester program is taken as a combination of two courses, which can be <strong>either</strong> <span>BIOL 93 and BIOL 99</span>, <strong>or</strong> <span>BIOL 99a and BIOL 99b</span>.&nbsp;</p><p>In the first option, the student can do the BIOL 93 research internship in the summer of junior year followed by BIOL 99a in fall semester of senior year; or the student may do the BIOL 93 research internship in fall semester, followed by BIOL 99 in spring semester of senior year.&nbsp;</p><p>In the second option, the student enrolls in BIOL 99a in fall semester and BIOL 99b (or BIOL 99e) in spring semester of the senior year.&nbsp;The combination of BIOL 93 and BIOL 99, or the combination of BIOL 99a and BIOL 99b, may be used as one elective in biology.&nbsp;No more than 3 courses (combinations of BIOL 93, BIOL 99) may be taken for course credit. Students petition the department for participation in BIOL 93 or BIOL 99. Petitions and information about the research internship and senior research are available in the biology department office or you can download the petition and information from <a href='http://www.bio.brandeis.edu/undergrad/biology/BIOL_93_petition.pdf'>http://www.bio.brandeis.edu/undergrad/biology/BIOL_93_petition.pdf</a> and <a href='#http://www.bio.brandeis.edu/undergrad/biology/BIOL_99_petition.pdf'>http://www.bio.brandeis.edu/undergrad/biology/BIOL_99_petition.pdf</a>. See BIOL 93 and BIOL 99 course descriptions for details.</p><p><strong>D.</strong> Senior Honors Program<br> Seniors can receive credit for senior research in biology by petitioning the biology honors coordinator during the fall of their senior year. Candidates must enroll in BIOL 99a and 99b to carry out a senior research project and submit a thesis. Candidates interested in honors must state this in their petition and also present an oral defense of their thesis. Students must meet university eligibility for honors, and, in addition, a minimum grade of B+ must be earned in BIOL 99a and BIOL 99b to be eligible for honors.</p><p><strong>E.</strong> No course offered for major requirements in either Option I or II may be taken on a pass/fail basis.</p><p><strong>F.</strong> Satisfactory grades (C- or above) must be earned in all Biology Core courses with BIOL designations (BIOL 14a, 15b, 16a, 18a, 18b), all Quantitative courses and in all Elective courses from the Biology Elective and the General Science Elective groups offered for the major in Biology. No more than one D or D+ may be earned in any other courses offered for the major. No grade of D- will be allowed.</p></div>",
+        minor: "",
+        master: "",
+        combined: "<div class='sectionContent' id='section6' style='display: block;'><p class='text'><strong>Four-year Combined BS/MS Program in Biology</strong></p><p>Undergraduate students majoring in Biology may be admitted to a four-year BS/MS program upon recommendation by the faculty research sponsor and approval by the Biology BS/MS Coordinator, Rachel Woodruff. BS/MS candidates must do senior honors research, i. e., take two semesters of BIOL 99 and receive departmental honors. Additional courses must be taken. The student must meet in their junior year with the Biology BS/MS Coordinator to receive approval to participate in the BS/MS program. It is recommended that this meeting take place no later than February 1 of the student’s junior year. For specific details about the BS/MS requirements, see <a href='http://www.bio.brandeis.edu/undergrad/biology/bsms.html'>http://www.bio.brandeis.edu/undergrad/biology/bsms.html</a>.</p></div>",
+        doctor: "",
+    });
+
+    Major.insert({
+        name: "",
+        school: "",
+        bulletin: "",
+        major: "",
+        minor: "",
+        master: "",
+        combined: "",
+        doctor: "",
+    });
+
+
+
+
+    const codes = [];
+    for (var key of Course.find().fetch()) {
+        const code = key.code.substring(0, key.code.indexOf(" "));
+        if (!_.contains(codes, code)) {
+            codes.push(code);
+        }
+    }
+    codes.sort();
+
+    codes.forEach(function(item, index, array) {
+        Dept.insert({
+            code: item
+        });
     })
 
-  /*
-  Instructor.remove({});
-  Term.remove({});
-  Course.remove({});
-  Section.remove({});
-  Requirement.remove({});
-  Subject.remove({});
+    /*
+    Instructor.remove({});
+    Term.remove({});
+    Course.remove({});
+    Section.remove({});
+    Requirement.remove({});
+    Subject.remove({});
 
-  if (Instructor.find().count()>0) return;
-  const fs = Npm.require('fs');
-  fs.readFile(
-  "D:\\Luyi's\\JBS2016\\deisAcademic\\public\\data\\classes.json", 'utf8',
-    Meteor.bindEnvironment(function (err, data) {
-        if (err) {
-            console.log('Error: ' + err);
-            return;
-        }
-        data = JSON.parse(data);
-        let i=0;
-        for (i=0;i<data.length;i++){
-          const d = data[i];
-          if (d.type=="instructor") {
-            Instructor.insert(d);
-          }else if (d.type=="requirement"){
-            Requirement.insert(d);
-          }else if (d.type=="term"){
-            Term.insert(d);
-          }else if (d.type=="subject"){
-            Subject.insert(d);
-          }else if (d.type=="course"){
-            Course.insert(d);
-          }else if (d.type=="section"){
-            Section.insert(d);
-          }else {
-            console.log("don't recognize data ");
-            console.log(d.type);
+    if (Instructor.find().count()>0) return;
+    const fs = Npm.require('fs');
+    fs.readFile(
+    "D:\\Luyi's\\JBS2016\\deisAcademic\\public\\data\\classes.json", 'utf8',
+      Meteor.bindEnvironment(function (err, data) {
+          if (err) {
+              console.log('Error: ' + err);
+              return;
           }
-        }
-    }));*/
+          data = JSON.parse(data);
+          let i=0;
+          for (i=0;i<data.length;i++){
+            const d = data[i];
+            if (d.type=="instructor") {
+              Instructor.insert(d);
+            }else if (d.type=="requirement"){
+              Requirement.insert(d);
+            }else if (d.type=="term"){
+              Term.insert(d);
+            }else if (d.type=="subject"){
+              Subject.insert(d);
+            }else if (d.type=="course"){
+              Course.insert(d);
+            }else if (d.type=="section"){
+              Section.insert(d);
+            }else {
+              console.log("don't recognize data ");
+              console.log(d.type);
+            }
+          }
+      }));*/
 })
