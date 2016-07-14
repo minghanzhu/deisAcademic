@@ -39,9 +39,9 @@ Meteor.methods ({
 
 		for(var i = 0; i < major_key.length; i++){
 			const maj_obj = Subject.findOne({id: major_key[i].id});//get the major object using the id
-			//const maj_detail = maj_obj.segments[parseInt(key[i].segment)].name;//get the type of the major using the id
+			const maj_detail = maj_obj.segments[parseInt(major_key[i].segment)].name;//get the type of the major using the id
 			const maj_name = maj_obj.name;
-			ids.push(maj_name); //+ " - " + maj_detail);//add the major name to the array
+			ids.push(maj_name + " - " + maj_detail);//add the major name to the array
 		};
 
 		return ids.sort();
