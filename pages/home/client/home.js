@@ -21,7 +21,6 @@ Template.home.events ({
 		homeDict.set('termName');
 		homeDict.set('noResult', false);
 
-    	console.log("doing search");
 		const keyword = event.target.keyword.value;
 		const term = $(".js-term").val();
 		//const dept = homeDict.get('dept');
