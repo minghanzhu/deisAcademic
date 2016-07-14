@@ -3,6 +3,12 @@ Meteor.startup(function() {
     Dept.remove({});
     Major.remove({});
 
+    if (Wishlist.find().count()==0) {
+    	Wishlist.insert({number:"Cosi 11a",title:"Programming in Java and C", professor:"DiLillo, Antonella", time:"M,W,Th 1:00 PM–1:50 PM"});
+      Wishlist.insert({number:"Cosi 12b",title:"Advanced Programming Techniques", professor:"Papaemmanouil, Olga", time:"M,W,Th 11:00 AM–11:50 AM"});
+      Wishlist.insert({number:"Cosi 21a",title:"Data Structures and the Fundamentals of Computing", professor:"Storer, James A", time:"M,W 2:00 PM–3:20 PM"});
+    };
+
     // TODO: JSON file of University Bulletin
     Major.insert({
         name: "Computer Science",
@@ -72,14 +78,6 @@ Meteor.startup(function() {
             codes.push(code);
         }
     }
-    codes.sort();
-
-    codes.forEach(function(item, index, array) {
-        Dept.insert({
-            code: item
-        });
-    })
-
     /*
     Instructor.remove({});
     Term.remove({});
@@ -118,5 +116,5 @@ Meteor.startup(function() {
               console.log(d.type);
             }
           }
-      }));*/
-})
+      }));*/    
+  })
