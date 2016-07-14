@@ -23,10 +23,11 @@ Template.home.events ({
 
 		const keyword = event.target.keyword.value;
 		const term = $(".js-term").val();
+		const req = $(".js-req").val();
 		//const dept = homeDict.get('dept');
 		//const instructor = homeDict.get('instructor');
 
-		Meteor.call("searchCourse", keyword, term, 
+		Meteor.call("searchCourse", keyword, term, req, 
 			function(err, result){
 				if(result.length == 0){
 					homeDict.set('noResult', true);
@@ -51,10 +52,11 @@ Template.home.events ({
 
 		const keyword = $(".js-submit-search").val();
 		const term = $(".js-term").val();
+		const req = $(".js-req").val();
 		//const dept = homeDict.get('dept');
 		//const instructor = homeDict.get('instructor');
 
-		Meteor.call("searchCourse", keyword, term, 
+		Meteor.call("searchCourse", keyword, term, req,
 			function(err, result){
 				if(result.length == 0){
 					homeDict.set('noResult', true);
@@ -67,6 +69,35 @@ Template.home.events ({
 			}
 		);
  	},
+
+ 	"change .js-req": function(event, template){
+ 		event.preventDefault();
+    	homeDict.set('showTable', false);
+    	homeDict.set('majorDetail', []);
+		homeDict.set('sectionDetail', []);
+		homeDict.set('courseData');
+		homeDict.set('termName');
+		homeDict.set('noResult', false);
+
+		const keyword = $(".js-submit-search").val();
+		const term = $(".js-term").val();
+		const req = $(".js-req").val();
+		//const dept = homeDict.get('dept');
+		//const instructor = homeDict.get('instructor');
+
+		Meteor.call("searchCourse", keyword, term, req,
+			function(err, result){
+				if(result.length == 0){
+					homeDict.set('noResult', true);
+				} else {
+					homeDict.set('courseData', result);
+					homeDict.set('noResult',false);
+				}
+
+    			homeDict.set('showTable', true);
+			}
+		);
+ 	}
 })
 
 Template.search_result.helpers({

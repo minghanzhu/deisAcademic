@@ -5,14 +5,13 @@ Meteor.methods ({
     });
   },
 
- 	searchCourse: function(keyword, term){
+ 	searchCourse: function(keyword, term, req){
   	var regexDept = new RegExp("^" + keyword, "i");
 		var regexTitle = new RegExp(keyword, "i");
-		if(term){
-			return Course.find({term: term, $or: [{code: regexDept}, {name: regexTitle}]}).fetch();
-		} else {
-			return Course.find({$or: [{code: regexDept}, {name: regexTitle}]}).fetch();
-		}
+    var regexTerm = new RegExp("^" + term + "$", "i");
+    var regexReq = new RegExp("^" + req + "$", "i");
+
+    return Course.find({term: regexTerm, requirements: regexReq, $or: [{code: regexDept}, {name: regexTitle}]}).fetch();
   },
 
   	searchTerm: function(key){
