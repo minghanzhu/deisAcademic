@@ -3,5 +3,5 @@ Meteor.methods ({
     Keyword.insert({
       keyword: keyword,
     });
-  }
+  },
 });
