@@ -22,7 +22,6 @@ iron:router
 reactive-dict
 matteodem:easy-search
 perak:fuzzy-search
-autopublish
 easysearch:autosuggest
 twbs:bootstrap
 semantic:ui

@@ -47,26 +47,6 @@
             <option value="WI">WI</option>
         </select> 
     </div>
-
-    <!-- <div class="form-group">
-
-  <label class="control-label" for="dept">Dept:</label>
-    <select name="dept" class="js-dept form-control">
-      {{#each d in getDepts}}
-        <option>{{d.code}}</option>
-      {{/each}}
-    </select>
-
-</div> -->
-
-    <!-- <div class="form-group">
-
-<label class="control-label" for="instructor">Instructor:</label>
-    <input type="text" name="instructor" placeholder="Instructor" class="js-instructor form-control">
-
-
-</div> -->
-
   </form>
 
     <!-- <p id="be_back">
@@ -93,18 +73,21 @@
 </template>
 
 <template name="search_result">
-    {{courseSearch}}
     {{#if courseDataReady}}
         {{> reactiveTable class="ui selectable table" collection=courseData settings=settings_course}}
     {{else}}
-        <h2>Loading...</h2>
+        {{#if noResult}}
+            <br>
+           <h2>No Result</h2>
+        {{else}}
+            <br>
+            <h2>Loading...</h2>
+        {{/if}}
     {{/if}}
 
     <div class="overlay"></div>
 
     <div class="ui container popup">
-        {{getMajorDetail}}
-        {{getSectionDetail}}
         {{#if detailReady}}
             <br>
             <h3>Course </h3>{{courseInfo.name}}
@@ -114,7 +97,7 @@
                                        {{r}},
                                    {{/each}}
             <h3>Majors </h3>{{#if majorInfo}}{{#each item in majorInfo}}{{item}}<br>{{/each}}{{else}}Loading...{{/if}}
-            <h3>Sections </h3>{{#if sectionData}}{{> reactiveTable class="ui table" collection=sectionData settings=settings_result}}{{else}}Loading...{{/if}}
+            <h3>Sections </h3>{{#if sectionData}}{{> search_result_time_table}}{{else}}Loading...{{/if}}
         {{else}}
             <br>
             <h2>Loading...</h2>
@@ -133,4 +116,8 @@
             {{this.description}}
         </div>
     </div>
+</template>
+
+<template name="search_result_time_table">
+    {{> reactiveTable class="ui table" collection=sectionData settings=settings_result}}
 </template>

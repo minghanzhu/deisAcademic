@@ -9,68 +9,37 @@ Template.home.helpers ({
 	showTable: function(){
 		return homeDict.get('showTable');
 	},
-
-	getTerms: function(){
-		return Term.find();
-	},
-
-	// getDepts: function(){
-	// 	return Dept.find();
-	// },
-
 })
 
 Template.home.events ({
-	"submit #advSearch_form": function(event, template){
-		event.preventDefault();
-		homeDict.set('instructor', ($('#advSearch_form input:text[name="instructor"]').val()));
-	},
+  	"submit #search_main": function(event, template) {
+    	event.preventDefault();
+    	homeDict.set('showTable', false);
+    	homeDict.set('majorDetail', []);
+		homeDict.set('sectionDetail', []);
+		homeDict.set('courseData');
+		homeDict.set('termName');
+		homeDict.set('noResult', false);
 
-  "submit #search_main": function(event, template) {
-    event.preventDefault();
-    homeDict.set('courseData');
-		//var keyword = ($('#main_search input:text[name="keyword"]').val());
-    var keyword = event.target.keyword.value;
-    if(keyword==""){
-    	window.alert("Enter a keyword!");
-    	return;
-    }
-    //Meteor.call("keywordInsert", keyword);
-    //event.target.keyword.value = "";
-    homeDict.set('showTable', true);
-    homeDict.set('keyword', keyword);
+    	console.log("doing search");
+		const keyword = event.target.keyword.value;
+		const term = $(".js-term").val();
+		//const dept = homeDict.get('dept');
+		//const instructor = homeDict.get('instructor');
 
-  },
+		Meteor.call("searchCourse", keyword, term, 
+			function(err, result){
+				if(result.length == 0){
+					homeDict.set('noResult', true);
+				} else {
+					homeDict.set('courseData', result);
+					homeDict.set('noResult',false);
+				}
 
-	"change .js-term": function(event, template){
-		event.preventDefault();
-		homeDict.set('term', $(".js-term").val());
-	},
-
-	// "click .js-dept": function(event, template){
-	// 	event.preventDefault();
-	// 	homeDict.set('dept', $(".js-dept").val());
-	// },
-
-	// 'change select': function (e) {
-  //   CourseIndex.getComponentMethods(/* optional name */)
-  //     .addProps('term', $(e.target).val())
-  //   ;
-  // },
-
-})
-
-Template.search_result.onRendered(function(){
-	/*
-	//shows different lines for times
-	var times = $(".ui.table.reactive.table tbody tr .times");
-	const times_code = times.html;
-	times.html(times_code.replace(/\r?\n/g, '<br>'));
-
-	//shows different lines for instructors
-	var instructors = $(".ui.table.reactive.table tbody tr .instructors");
-	const instructors_code = instructors.html;
-	instructors.html(instructors_code.replace(/\r?\n/g, '<br>'));*/
+    			homeDict.set('showTable', true);
+			}
+		);
+  	},
 })
 
 Template.search_result.helpers({
@@ -98,58 +67,8 @@ Template.search_result.helpers({
 		return homeDict.get('sectionDetail');
 	},
 
-	getMajorDetail: function(){
-		if(!homeDict.get('courseInfo')){//continue only if the data is ready
-			return;
-		};
-
-		//console.log("loading major detail");
-		const ids = [];//array of major names
-		const key = homeDict.get('courseInfo').subjects;//get the array of major id's
-
-		for(var i = 0; i < key.length; i++){
-			const maj_obj = Subject.findOne({id: key[i].id});//get the major object using the id
-			if(!maj_obj){
-				return;
-			}
-			//const maj_detail = maj_obj.segments[parseInt(key[i].segment)].name;//get the type of the major using the id
-			const maj_name = maj_obj.name;
-			ids.push(maj_name); //+ " - " + maj_detail);//add the major name to the array
-		};
-
-		homeDict.set('majorDetail', ids.sort());
-		//console.log("finished loading major detail");
-	},
-
-	getSectionDetail: function(){
-		if(!homeDict.get('courseInfo')){//continue only if the data is ready
-			return;
-		};
-
-		//console.log("loading section detail");
-		const key = homeDict.get('courseInfo').id;//get the id of the course
-
-		const sec_obj = Section.find({course: key}).fetch();//an array of corresponding sections
-		if(!sec_obj){
-			return;
-		};
-
-		homeDict.set('sectionDetail', sec_obj);
-		//console.log("finished loading section detail");
-	},
-
-	courseSearch: function(){
-		const keyword = homeDict.get('keyword');
-		const term = homeDict.get('term');
-		const dept = homeDict.get('dept');
-		const instructor = homeDict.get('instructor');
-
-		var regexDept = new RegExp("^" + keyword, "i");
-		var regexTitle = new RegExp(keyword, "i");
-
-		var dataCursor = Course.find({term: term, $or: [{code: regexDept}, {name: regexTitle}]},);
-
-		homeDict.set('courseData', dataCursor.fetch());
+	noResult: function(){
+		return homeDict.get('noResult');
 	},
 
 	settings_course: function(){
@@ -162,14 +81,73 @@ Template.search_result.helpers({
 				{key:'code', label:'Code'},
 				{key:'requirements', label:'Requirements'},
 				{key:'description', label:'Description', tmpl:Template.description_detail},
-				{key:'term', label:'Term', fn: function(key){
-					if(!Term.findOne({id: key})){
-						return "loading...";
-					};
-					return Term.findOne({id: key}).name;
+				{key:'term', label:'Term', fn: function(key, object){
+					Meteor.call("searchTerm", key, function(err, result){
+						homeDict.set("termName" + object.id, result);
+					});
+
+					const term_name = homeDict.get("termName" + object.id);
+					if(!term_name){
+						return "loading..."
+					} else {
+						return term_name;
+					}
 				}},
 			],
 		};
+	},
+})
+
+Template.search_result.events({
+	"click .reactive-table tbody tr": function(event){
+		homeDict.set('courseInfo');
+		homeDict.set('sectionDetail', []);
+		homeDict.set('majorDetail', []);
+		homeDict.set('instructors');
+		homeDict.set('courseInfo', this);
+		$(".overlay, .popup").fadeToggle();
+
+		if(!homeDict.get('courseInfo')){//continue only if the data is ready
+			return;
+		};
+
+		//get major details	
+		Meteor.call("getMajorDetails", homeDict.get('courseInfo'), 
+			function(err, result){
+				homeDict.set('majorDetail', result);
+			}
+		);
+
+		//get section details
+		Meteor.call("getSectionDetails", homeDict.get('courseInfo'), 
+			function(err, result){
+				homeDict.set('sectionDetail', result);
+			}
+		);	
+	},
+
+	"click .overlay" :function(event){
+		$(".overlay, .popup").fadeToggle();
+	},
+})
+
+Template.description_detail.onRendered(function(){
+	$('.ui.accordion').accordion();
+})
+
+Template.description_detail.helpers({
+	showDescription: function(text){
+		if (text.length > 50){
+			return text.substring(0, 50) + "...";
+		} else {
+			return text;
+		};
+	},
+})
+
+Template.search_result_time_table.helpers({
+	sectionData: function(){
+		return homeDict.get('sectionDetail');
 	},
 
 	settings_result: function(){
@@ -221,55 +199,28 @@ Template.search_result.helpers({
 						var end = Math.floor(end / 60) + ":" + end_min;
 						const time = start + "-" + end;
 
-						result = result + days + ": " + time + "\n";
+						result = result + days + ": " + time + "<br>";
 					};
 
-					return result;
+					if(result){
+						return new Spacebars.SafeString(result);
+					} else {
+						return "TBA";
+					};
 				}},
-				{key:'instructors', label:'Instructor', fn: function(key){
-					var instructors = "";
-					for (var i = 0; i < key.length; i++) {
-						const instru_id = key[i];//get the current professor id
-						const instru_obj = Instructor.findOne({id: instru_id});//get the professor object using the id
-						if(!instru_obj){
-							return;
-						};
-						var instru_name = instru_obj.first + " " + instru_obj.last;
-						if(instru_obj.first == "Staff" || instru_obj.last == "Staff") instru_name = "Staff";
-						instructors = instructors + instru_name + "\n";
-					};
+				{key:'instructors', label:'Instructor', fn: function(key, object){
+					Meteor.call("searchInstructorArray", key, function(err, result){
+						homeDict.set("instructors" + object.id, result);
+					});
 
-					return instructors;
+					const instructors = homeDict.get("instructors" + object.id);
+					if(!instructors){
+						return "loading..."
+					} else {
+						return new Spacebars.SafeString(instructors);
+					};
 				}},
 			],
-		};
-	},
-})
-
-Template.search_result.events({
-	"click .reactive-table tbody tr": function(event){
-		homeDict.set('courseInfo');
-		homeDict.set('sectionDetail', []);
-		homeDict.set('majorDetail', []);
-		homeDict.set('courseInfo', this);
-		$(".overlay, .popup").fadeToggle();
-	},
-
-	"click .overlay" :function(event){
-		$(".overlay, .popup").fadeToggle();
-	},
-})
-
-Template.description_detail.onRendered(function(){
-	$('.ui.accordion').accordion();
-})
-
-Template.description_detail.helpers({
-	showDescription: function(text){
-		if (text.length > 50){
-			return text.substring(0, 50) + "...";
-		} else {
-			return text;
 		};
 	},
 })
