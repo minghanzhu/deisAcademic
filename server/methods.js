@@ -5,11 +5,11 @@ Meteor.methods ({
     });
   },
 
- 	searchCourse: function(keyword, term, req_array){
-    var regexDept = new RegExp("^" + keyword, "i");
+ 	searchCourse: function(keyword, term, req_array, dept){
+    var regexCode = new RegExp("^" + keyword, "i");
 		var regexTitle = new RegExp(keyword, "i");
     var regexTerm = new RegExp("^" + term, "i");
-    const searchQuery = {term: regexTerm, $or: [{code: regexDept}, {name: regexTitle}]};
+    const searchQuery = {term: regexTerm, $or: [{code: regexCode}, {name: regexTitle}]};
     
     //process the array of requirements
     if(req_array.length != 0){
@@ -18,6 +18,15 @@ Meteor.methods ({
         searchQuery.$and.push({requirements: node});
       }
     };
+
+    //term-dept 
+    if(term && dept && dept !== "all"){//make term-dept
+      const dept_query = term + "-" + dept;
+      searchQuery['subjects.id'] = dept_query;
+    } else if (!term && dept && dept !== "all"){
+      let regexDept = new RegExp(dept + "$", "i");
+      searchQuery['subjects.id'] = regexDept;
+    }
 
     return Course.find(searchQuery).fetch();
   },
