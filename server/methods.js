@@ -5,13 +5,21 @@ Meteor.methods ({
     });
   },
 
- 	searchCourse: function(keyword, term, req){
-  	var regexDept = new RegExp("^" + keyword, "i");
+ 	searchCourse: function(keyword, term, req_array){
+    var regexDept = new RegExp("^" + keyword, "i");
 		var regexTitle = new RegExp(keyword, "i");
-    var regexTerm = new RegExp("^" + term + "$", "i");
-    var regexReq = new RegExp("^" + req + "$", "i");
+    var regexTerm = new RegExp("^" + term, "i");
+    const searchQuery = {term: regexTerm, $or: [{code: regexDept}, {name: regexTitle}]};
+    
+    //process the array of requirements
+    if(req_array.length != 0){
+      searchQuery.$and = [];
+      for(let node of req_array){
+        searchQuery.$and.push({requirements: node});
+      }
+    };
 
-    return Course.find({term: regexTerm, requirements: regexReq, $or: [{code: regexDept}, {name: regexTitle}]}).fetch();
+    return Course.find(searchQuery).fetch();
   },
 
   	searchTerm: function(key){
