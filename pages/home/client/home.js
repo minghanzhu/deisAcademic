@@ -8,6 +8,14 @@ homeDict.set('courseData');
 Template.home.onRendered(function(){
 	$('#multi-select').dropdown();
 	$('#search-select').dropdown();
+	Meteor.call("getProfData", function(err, result){
+		$('#prof-search').search({
+    		source : result,
+    		searchFields   : [
+      			'title'
+    		],
+  		});
+	})
 })
 
 Template.home.helpers ({
@@ -34,9 +42,9 @@ Template.home.events ({
 			req_names_array.push(item.innerText);
 		};
 		const dept = $("#search-select input").val();//""for no option and "all" for all departments
-		//const instructor = homeDict.get('instructor');
+		const instructor = $(".js-prof input").val();
 
-		Meteor.call("searchCourse", keyword, term, req_names_array, dept, 
+		Meteor.call("searchCourse", keyword, term, req_names_array, dept, instructor, 
 			function(err, result){
 				if(result.length == 0){
 					homeDict.set('noResult', true);
@@ -67,9 +75,9 @@ Template.home.events ({
 			req_names_array.push(item.innerText);
 		};
 		const dept = $("#search-select input").val();
-		//const instructor = homeDict.get('instructor');
+		const instructor = $(".js-prof input").val();
 
-		Meteor.call("searchCourse", keyword, term, req_names_array, dept,
+		Meteor.call("searchCourse", keyword, term, req_names_array, dept, instructor,
 			function(err, result){
 				if(result.length == 0){
 					homeDict.set('noResult', true);

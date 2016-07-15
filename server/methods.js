@@ -1,3 +1,16 @@
+//Create an array of professor names and id's
+const prof_name_and_id = [];
+const profData = Instructor.find().fetch();
+for(let person of profData){
+  const first_name = person.first;
+  const last_name = person.last;
+  if(first_name !== "Staff" && last_name !== "Staff"){
+    const full_name = first_name + " " + last_name;
+    const id = person.id;
+    prof_name_and_id.push({title: full_name, id: id});
+  }
+}
+
 Meteor.methods ({
   keywordInsert: function(keyword) {
     Keyword.insert({
@@ -5,7 +18,7 @@ Meteor.methods ({
     });
   },
 
- 	searchCourse: function(keyword, term, req_array, dept){
+ 	searchCourse: function(keyword, term, req_array, dept, prof){
     var regexCode = new RegExp("^" + keyword, "i");
 		var regexTitle = new RegExp(keyword, "i");
     var regexTerm = new RegExp("^" + term, "i");
@@ -26,6 +39,34 @@ Meteor.methods ({
     } else if (!term && dept && dept !== "all"){
       let regexDept = new RegExp(dept + "$", "i");
       searchQuery['subjects.id'] = regexDept;
+    }
+
+    //instructor
+    let prof_id;
+    let section_of_prof;
+    for(let item of prof_name_and_id){
+      if(item.title === prof){
+        prof_id = item.id;
+        section_of_prof = Section.find({instructors: prof_id}).fetch();
+        break;
+      }
+    }
+
+    if(prof_id && section_of_prof){
+      const section_id_list = [];
+
+      for(let item of section_of_prof){
+        section_id_list.push(item.course);
+      }
+
+      const new_or = {'$or':searchQuery.$or};
+      const prof_or = {'$or':[]};
+
+      for(let item of section_id_list){
+        prof_or.$or.push({id:item})
+      }
+      delete searchQuery['$or'];
+      searchQuery.$and = [new_or,prof_or];
     }
 
     return Course.find(searchQuery).fetch();
@@ -67,4 +108,8 @@ Meteor.methods ({
   		const section_key = courseData.id;//get the id of the course
 		return Section.find({course: section_key}).fetch();//an array of corresponding sections
   	},
+
+    getProfData: function(){
+      return prof_name_and_id;
+    },
 });
