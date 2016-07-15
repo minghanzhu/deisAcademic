@@ -53,6 +53,11 @@ Meteor.methods ({
     }
 
     if(prof_id && section_of_prof){
+      let req_and = [];
+      if(req_array.length != 0){
+        req_and = searchQuery.$and;
+      }
+
       const section_id_list = [];
 
       for(let item of section_of_prof){
@@ -67,6 +72,12 @@ Meteor.methods ({
       }
       delete searchQuery['$or'];
       searchQuery.$and = [new_or,prof_or];
+
+      if(req_and.length != 0){
+        for(let item of req_and){
+          searchQuery.$and.push(item);
+        }
+      }
     }
 
     return Course.find(searchQuery).fetch();
