@@ -1,0 +1,35 @@
+<template name="majorPlan">
+	<div class="ui container">
+		Welcome to major plan
+	</div>
+	<ul>
+		{{#each m in majors}}
+		<li>
+			{{> majorItem m = m}}
+			<br>
+		</li>
+		<hr> {{/each}}
+	</ul>
+</template>
+
+<template name="majorItem">
+	<div data-toggle="collapse" data-target=#{{m._id}}><b>{{{m.name}}}</b></div>
+	<div id={{m._id}} class="collapse">
+		<br>
+		<a data-toggle="collapse" data-target="#major{{m._id}}"><b>Major (BA/BS)</b></a>
+		<div id="major{{m._id}}" class="collapse">{{{m.major}}}</div>
+		<br>
+		<a data-toggle="collapse" data-target="#minor{{m._id}}"><b>Minor</b></a>
+		<div id="minor{{m._id}}" class="collapse">{{{m.minor}}}</div>
+		<br>
+		<a data-toggle="collapse" data-target="#master{{m._id}}"><b>Master of Arts</b></a>
+		<div id="master{{m._id}}" class="collapse">{{{m.master}}}</div>
+		<br>
+		<a data-toggle="collapse" data-target="#combined{{m._id}}"><b>Combined BA/MA</b></a>
+		<div id="combined{{m._id}}" class="collapse">{{{m.combined}}}</div>
+		<br>
+		<a data-toggle="collapse" data-target="#doctor{{m._id}}"><b>Doctor of Philosophy</b></a>
+		<div id="doctor{{m._id}}" class="collapse">{{{m.doctor}}}</div>
+		<br>
+	</div>
+</template>

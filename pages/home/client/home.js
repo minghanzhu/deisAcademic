@@ -1,116 +1,278 @@
-Template.home.onCreated(function(){
-	this.homeDict = new ReactiveDict();
-	this.homeDict.set('showTable', false);
+//Global reactive-dict
+homeDict = new ReactiveDict();
+homeDict.set('showTable', false);
+homeDict.set('majorDetail', []);
+homeDict.set('sectionDetail', []);
+homeDict.set('courseData');
+
+Template.home.onRendered(function(){
+	$('#multi-select').dropdown();
+	$('#search-select').dropdown();
+	Meteor.call("getProfData", function(err, result){
+		$('#prof-search').search({
+    		source : result,
+    		searchFields   : [
+      			'title'
+    		],
+  		});
+	})
 })
 
 Template.home.helpers ({
-	courseSearch: function(){
-		const keyword = Template.instance().homeDict.get('keyword');
-		const dataCursor = CourseIndex.search(keyword,{limit:0});
-		return dataCursor.fetch();
+	showTable: function(){
+		return homeDict.get('showTable');
+	},
+})
+
+Template.home.events ({
+  	"submit #search_main": function(event, template) {
+    	event.preventDefault();
+    	homeDict.set('showTable', false);
+    	homeDict.set('majorDetail', []);
+		homeDict.set('sectionDetail', []);
+		homeDict.set('courseData');
+		homeDict.set('termName');
+		homeDict.set('noResult', false);
+
+		const keyword = event.target.keyword.value;
+		const term = $(".js-term").val();
+		const req_array = $(".ui.label.transition.visible").toArray();
+		const req_names_array = [];
+		for(let item of req_array){
+			req_names_array.push(item.innerText);
+		};
+		const dept = $("#search-select input").val();//""for no option and "all" for all departments
+		const instructor = $(".js-prof input").val();
+
+		Meteor.call("searchCourse", keyword, term, req_names_array, dept, instructor, 
+			function(err, result){
+				if(result.length == 0){
+					homeDict.set('noResult', true);
+				} else {
+					homeDict.set('courseData', result);
+					homeDict.set('noResult',false);
+				}
+
+    			homeDict.set('showTable', true);
+			}
+		);
+  	},
+
+  	"change .js-term": function(event, template){
+ 		event.preventDefault();
+    	homeDict.set('showTable', false);
+    	homeDict.set('majorDetail', []);
+		homeDict.set('sectionDetail', []);
+		homeDict.set('courseData');
+		homeDict.set('termName');
+		homeDict.set('noResult', false);
+
+		const keyword = $(".js-submit-search").val();
+		const term = $(".js-term").val();
+		const req_array = $(".ui.label.transition.visible").toArray();
+		const req_names_array = [];
+		for(let item of req_array){
+			req_names_array.push(item.innerText);
+		};
+		const dept = $("#search-select input").val();
+		const instructor = $(".js-prof input").val();
+
+		Meteor.call("searchCourse", keyword, term, req_names_array, dept, instructor,
+			function(err, result){
+				if(result.length == 0){
+					homeDict.set('noResult', true);
+				} else {
+					homeDict.set('courseData', result);
+					homeDict.set('noResult',false);
+				}
+
+    			homeDict.set('showTable', true);
+			}
+		);
+ 	},
+})
+
+Template.search_result.helpers({
+	detailReady: function(){
+		return homeDict.get('courseInfo') != null;
 	},
 
-	showTable: function(){
-		return Template.instance().homeDict.get('showTable');
+	courseDataReady: function(){
+		return homeDict.get('courseData') != null;
+	},
+
+	courseData: function(){
+		return homeDict.get('courseData');
+	},
+
+	courseInfo: function(){
+		return homeDict.get('courseInfo');
+	},
+
+	majorInfo: function(){
+		return homeDict.get('majorDetail');
+	},
+
+	sectionData: function(){
+		return homeDict.get('sectionDetail');
+	},
+
+	noResult: function(){
+		return homeDict.get('noResult');
 	},
 
 	settings_course: function(){
 		return {
-			rowsPerPage: 5,
+			rowsPerPage: 10,
+			showFilter: false,
+			showNavigationRowsPerPage: false,
 			fields:[
 				{key:'name', label: 'Course'},
 				{key:'code', label:'Code'},
 				{key:'requirements', label:'Requirements'},
-				{key:'description', label:'Description', fn: function(key){
-					if (key.length>50){
-						return key.substring(0,50)+"...";
-					} else {
-						return key;
-					}
-				}},/*
-				{key:'subjects', label: 'Major', fn: function(key){
-					const ids = [];
+				{key:'description', label:'Description', tmpl:Template.description_detail},
+				{key:'term', label:'Term', fn: function(key, object){
+					Meteor.call("searchTerm", key, function(err, result){
+						homeDict.set("termName" + object.id, result);
+					});
 
-					for(var i = 0; i < key.length; i++){
-						const maj_obj = Subject.find({id: key[i].id}).fetch();
-						const maj_detail = maj_obj[0].segments[parseInt(key[i].segment)].name;
-						
-						if (maj_obj.length==0){
-							ids.push("unknown major");
-						} else {
-							const maj_name = maj_obj[0].name;
-							ids.push(maj_name + " - " + maj_detail);
-						};
-					};
-
-					if(ids.length == 0){
-						return "unknown";
+					const term_name = homeDict.get("termName" + object.id);
+					if(!term_name){
+						return "loading..."
 					} else {
-						return ids.toString();
-					};				
-				}},*/
-				{key:'term', label:'Term', fn: function(key){
-					return Term.find({id: key}).fetch()[0].name;
-				}},/*
-				{key:'id', label:'Sections', fn: function(key){
-					const sec_obj = Section.find({course: key}).fetch();//this is an array
-					const sections = [];
-					for (var i = 0; i < sec_obj.length; i++) {
-						sections.push("Section: " + sec_obj[i].section);
-					};
-
-					if(sections.length==0){
-						return "No section";
-					} else {
-						return sections.toString();
+						return term_name;
 					}
 				}},
-				{key:'id', label:'Insructors', fn: function(key){
-					const sec_obj = Section.find({course: key}).fetch();//this is an array
-					const instructors = [];
-					for (var i = 0; i < sec_obj.length; i++) {
-						const instru_array = sec_obj[i].instructors;
-						for (var i = 0; i < instru_array.length; i++) {
-							const instru_id = instru_array[i];
-							const instru_obj = Instructor.find({id: instru_id}).fetch()[0];
-							var instru_name = instru_obj.first + " " + instru_obj.last;
-							if(instru_obj.first=="Staff" || instru_obj.last=="Staff") instru_name = "Staff";
-							instructors.push("Section: " + sec_obj[i].section + " - " + instru_name);
-						};
-					};
-
-					if(instructors.length==0){
-						return "No insructor"
-					} else {
-						return instructors.toString();
-					};
-				}},*/
 			],
 		};
 	},
-	/*
-	courseData: function(){
-		//return Course.find({},{skip:0,limit:5}).fetch();
-		return Course.find({}).fetch();
-	},
-
-	sectionData: function(){
-		return Section.find({},{skip:0,limit:5}).fetch();
-	},*/
 })
 
-Template.home.events ({
-  "submit form": function(event, template) {
-    event.preventDefault();
-    var keyword = event.target.keyword.value;
-    if(keyword==""){
-    	window.alert("Enter a keyword!");
-    	return;
-    }
-    //Meteor.call("keywordInsert", keyword);
-    event.target.keyword.value = "";
-    template.homeDict.set('showTable', true);
-    template.homeDict.set('keyword', keyword);
-    
-  }
-});
+Template.search_result.events({
+	"click .reactive-table tbody tr": function(event){
+		homeDict.set('courseInfo');
+		homeDict.set('sectionDetail', []);
+		homeDict.set('majorDetail', []);
+		homeDict.set('instructors');
+		homeDict.set('courseInfo', this);
+		let popup = $(".popup");
+		popup.css("top", (($(window).height() - popup.outerHeight()) / 2) + $(window).scrollTop() + "px");  
+		$(".overlay, .popup").fadeToggle();
+
+		if(!homeDict.get('courseInfo')){//continue only if the data is ready
+			return;
+		};
+
+		//get major details	
+		Meteor.call("getMajorDetails", homeDict.get('courseInfo'), 
+			function(err, result){
+				homeDict.set('majorDetail', result);
+			}
+		);
+
+		//get section details
+		Meteor.call("getSectionDetails", homeDict.get('courseInfo'), 
+			function(err, result){
+				homeDict.set('sectionDetail', result);
+			}
+		);	
+	},
+
+	"click .overlay" :function(event){
+		$(".overlay, .popup").fadeToggle();
+	},
+})
+
+Template.description_detail.onRendered(function(){
+	$('.ui.accordion').accordion();
+})
+
+Template.description_detail.helpers({
+	showDescription: function(text){
+		if (text.length > 50){
+			return text.substring(0, 50) + "...";
+		} else {
+			return text;
+		};
+	},
+})
+
+Template.search_result_time_table.helpers({
+	sectionData: function(){
+		return homeDict.get('sectionDetail');
+	},
+
+	settings_result: function(){
+		return {
+			rowsPerPage: 5,
+			showFilter: false,
+			showNavigationRowsPerPage: false,
+			fields:[
+				{key:'section', label: 'Section', fn: function(key){
+					var section = key;
+					if(section < 10){
+						section = "0" + section;
+					};
+
+					return "Section " + section;
+				}},
+				{key:'enrolled', label:'Enrolled', fn: function(key, object){
+					var limit = object.limit;
+					if(!limit){
+						limit = 999;
+					};
+
+					return key + "/" + limit;
+				}},
+				{key:'status_text', label:'Status'},
+				{key:'times', label:'Times', fn:function(key){
+					var result = "";
+					for(var item of key){
+						//get days
+						days = "";
+						for(var day of item.days){
+							days = days + day + " ";
+						}
+
+						//get times
+						const start = item.start;
+						const end = item.end;
+						var start_min = Math.floor(start % 60);
+						if(start_min < 10){
+							start_min = "0" + start_min;
+						}
+
+						var end_min = Math.floor(end % 60);
+						if(end_min < 10){
+							end_min = "0" + end_min;
+						}
+
+						var start = Math.floor(start / 60) + ":" + start_min;
+						var end = Math.floor(end / 60) + ":" + end_min;
+						const time = start + "-" + end;
+
+						result = result + days + ": " + time + "<br>";
+					};
+
+					if(result){
+						return new Spacebars.SafeString(result);
+					} else {
+						return "TBA";
+					};
+				}},
+				{key:'instructors', label:'Instructor', fn: function(key, object){
+					Meteor.call("searchInstructorArray", key, function(err, result){
+						homeDict.set("instructors" + object.id, result);
+					});
+
+					const instructors = homeDict.get("instructors" + object.id);
+					if(!instructors){
+						return "loading..."
+					} else {
+						return new Spacebars.SafeString(instructors);
+					};
+				}},
+			],
+		};
+	},
+})

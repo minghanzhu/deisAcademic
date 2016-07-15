@@ -2,19 +2,21 @@ h1 {
     font-size: 125px;
     font-weight: 300;
     letter-spacing: -1px;
-    line-height: 45px;
+    /*line-height: 45px;*/
     font-family: GillSans, Calibri, Trebuchet, sans-serif;
     color: #f2f2f2;
     text-align: center;
+    /*background-color: blue;*/
+    /*margin-top: 200px;*/
+    position: relative;
 }
-
 body {
     background-image: url("images/public-domain-images-free-stock-photos-002.jpg");
 }
-
 #searchBar {
-    margin:auto;
-    width: 250px;
+    position: relative;
+    margin: auto;
+    width: 350px;
     box-sizing: border-box;
     border: 2px solid #ccc;
     border-radius: 5px;
@@ -27,18 +29,32 @@ body {
     padding: 14px 20px 14px 40px;
     /*-webkit-transition: width .4s ease-in-out;*/
     transition: width .4s ease-in-out;
+    outline: none;
 }
-
-#searchBar:focus {
-    width: 31%;
+#searchBar:hover {
+    width: 75%;
 }
-
-#searchForm {
+.searchForm {
     text-align: center;
-    line-height: 100px;
+    /*top: 50px;*/
+    position: relative;
+    /*line-height: 100px;*/
+}
+.searchContainer {
+    height: 400px;
+    width: 60%;
+    position: relative;
+    margin: auto;
+    /*background-color: red;*/
+}
+.searchContainer form {
+    position: relative;
+    margin: auto;
+    display: block;
+    margin-top: 100px;
 }
 
-#be_back {
+/*#be_back {
   font-size: 40px;
   letter-spacing: 0px;
   line-height: 250px;
@@ -53,4 +69,53 @@ body {
   font-family: GillSans, Calibri, Trebuchet, sans-serif;
   color: #4C4C4C;
   text-align: center;
+}*/
+
+.nav {
+    font-size: 25px;
+    letter-spacing: 0px;
+    line-height: px;
+    font-family: GillSans, Calibri, Trebuchet, sans-serif;
+    color: #4C4C4C;
+    box-shadow: 0 8px 6px -6px #999;
+}
+
+.nav ul li {
+  list-style-type: none;
+}
+
+a {
+  color: #4C4C4C;
+}
+
+a:hover {
+  text-decoration: none;
+  color: white;
+}
+
+.overlay {
+    position:fixed;
+    display:none; 
+
+    /* color with alpha transparency */
+    background-color: rgba(0, 0, 0, 0.7);
+
+    /* stretch to screen edges */
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+}
+.ui.container.popup {
+    position: absolute;
+    min-width: 500px;
+    min-height: 500px;
+    display: none;
+    background-color: white;
+    text-align: left;
+
+    /* center it ? */
+    left: 0;
+
+    z-index: 1000!important;
 }
