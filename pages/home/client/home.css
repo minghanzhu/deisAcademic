@@ -107,7 +107,7 @@ a:hover {
     right: 0;
 }
 .ui.container.popup {
-    position: fixed;
+    position: absolute;
     min-width: 500px;
     min-height: 500px;
     display: none;
@@ -116,7 +116,6 @@ a:hover {
 
     /* center it ? */
     left: 0;
-    top: 10%;
 
     z-index: 1000!important;
 }

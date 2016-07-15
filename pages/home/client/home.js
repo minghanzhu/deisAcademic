@@ -155,6 +155,8 @@ Template.search_result.events({
 		homeDict.set('majorDetail', []);
 		homeDict.set('instructors');
 		homeDict.set('courseInfo', this);
+		let popup = $(".popup");
+		popup.css("top", (($(window).height() - popup.outerHeight()) / 2) + $(window).scrollTop() + "px");  
 		$(".overlay, .popup").fadeToggle();
 
 		if(!homeDict.get('courseInfo')){//continue only if the data is ready
