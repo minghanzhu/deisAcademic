@@ -12,25 +12,24 @@
 	</ul>
 </template>
 
-<!-- TODO:  data-target conflict waiting to be resolved-->
 <template name="majorItem">
-	<div data-toggle="collapse" data-target="#more"><b>{{{m.name}}}</b></div>
-	<div id="more" class="collapse">
+	<div data-toggle="collapse" data-target=#{{m._id}}><b>{{{m.name}}}</b></div>
+	<div id={{m._id}} class="collapse">
 		<br>
-		<a data-toggle="collapse" data-target="#major"><b>Major (BA/BS)</b></a>
-		<div id="major" class="collapse">{{{m.major}}}</div>
+		<a data-toggle="collapse" data-target="#major{{m._id}}"><b>Major (BA/BS)</b></a>
+		<div id="major{{m._id}}" class="collapse">{{{m.major}}}</div>
 		<br>
-		<a data-toggle="collapse" data-target="#minor"><b>Minor</b></a>
-		<div id="minor" class="collapse">{{{m.minor}}}</div>
+		<a data-toggle="collapse" data-target="#minor{{m._id}}"><b>Minor</b></a>
+		<div id="minor{{m._id}}" class="collapse">{{{m.minor}}}</div>
 		<br>
-		<a data-toggle="collapse" data-target="#master"><b>Master of Arts</b></a>
-		<div id="master" class="collapse">{{{m.master}}}</div>
+		<a data-toggle="collapse" data-target="#master{{m._id}}"><b>Master of Arts</b></a>
+		<div id="master{{m._id}}" class="collapse">{{{m.master}}}</div>
 		<br>
-		<a data-toggle="collapse" data-target="#combined"><b>Combined BA/MA</b></a>
-		<div id="combined" class="collapse">{{{m.combined}}}</div>
+		<a data-toggle="collapse" data-target="#combined{{m._id}}"><b>Combined BA/MA</b></a>
+		<div id="combined{{m._id}}" class="collapse">{{{m.combined}}}</div>
 		<br>
-		<a data-toggle="collapse" data-target="#doctor"><b>Doctor of Philosophy</b></a>
-		<div id="doctor" class="collapse">{{{m.doctor}}}</div>
+		<a data-toggle="collapse" data-target="#doctor{{m._id}}"><b>Doctor of Philosophy</b></a>
+		<div id="doctor{{m._id}}" class="collapse">{{{m.doctor}}}</div>
 		<br>
 	</div>
 </template>
