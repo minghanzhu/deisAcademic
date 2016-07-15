@@ -138,7 +138,7 @@ Template.search_result.helpers({
 
 					const term_name = homeDict.get("termName" + object.id);
 					if(!term_name){
-						return "loading..."
+						return new Spacebars.SafeString("<div class=\"ui active inline loader\"></div>");
 					} else {
 						return term_name;
 					}
@@ -146,6 +146,10 @@ Template.search_result.helpers({
 			],
 		};
 	},
+})
+
+Template.search_result.onRendered(function(){
+	$('#popup-tab .item').tab();
 })
 
 Template.search_result.events({
@@ -156,7 +160,7 @@ Template.search_result.events({
 		homeDict.set('instructors');
 		homeDict.set('courseInfo', this);
 		let popup = $(".popup");
-		popup.css("top", (($(window).height() - popup.outerHeight()) / 2) + $(window).scrollTop() + "px");  
+		popup.css("top", (($(window).height() - popup.outerHeight()) / 2) + $(window).scrollTop() + 30 + "px");  
 		$(".overlay, .popup").fadeToggle();
 
 		if(!homeDict.get('courseInfo')){//continue only if the data is ready
@@ -178,7 +182,7 @@ Template.search_result.events({
 		);	
 	},
 
-	"click .overlay" :function(event){
+	"click .overlay,.js-close-popup" :function(event){
 		$(".overlay, .popup").fadeToggle();
 	},
 })
@@ -267,7 +271,7 @@ Template.search_result_time_table.helpers({
 
 					const instructors = homeDict.get("instructors" + object.id);
 					if(!instructors){
-						return "loading..."
+						return new Spacebars.SafeString("<div class=\"ui active inline loader\"></div>");
 					} else {
 						return new Spacebars.SafeString(instructors);
 					};

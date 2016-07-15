@@ -3,7 +3,7 @@
         <h1>planDeis</h1>
         <div class="searchForm">
             <form id="search_main">
-                <input type="text" placeholder=" Search.." name="keyword" id="searchBar" class="js-submit-search" autocomplete="off">
+                <input type="text" placeholder=" Search course code or title" name="keyword" id="searchBar" class="js-submit-search" autocomplete="off">
             </form>
         </div>
     </div>
@@ -191,27 +191,44 @@
            <h2>No Result</h2>
         {{else}}
             <br>
-            <h2>Loading...</h2>
+            <div class="ui active inline loader"></div>
         {{/if}}
     {{/if}}
 
     <div class="overlay"></div>
 
     <div class="ui container popup">
-        {{#if detailReady}}
-            <br>
-            <h3>Course </h3>{{courseInfo.name}}
-            <h3>Description</h3>
-            {{courseInfo.description}}
-            <h3>Requirements </h3> {{#each r in courseInfo.requirements}}
-                                       {{r}},
-                                   {{/each}}
-            <h3>Majors </h3>{{#if majorInfo}}{{#each item in majorInfo}}{{item}}<br>{{/each}}{{else}}Loading...{{/if}}
-            <h3>Sections </h3>{{#if sectionData}}{{> search_result_time_table}}{{else}}Loading...{{/if}}
-        {{else}}
-            <br>
-            <h2>Loading...</h2>
-        {{/if}}
+        <i class="remove icon pull-right js-close-popup"></i>
+        <div class="ui top attached tabular menu" id="popup-tab">
+            <a class="active item" data-tab="first">Course Detail</a>
+            <a class="item" data-tab="second">Section Detail</a>
+            <a class="item" data-tab="third">Statistics</a>
+        </div>
+
+        <div class="ui bottom attached active tab segment" data-tab="first">
+            {{#if detailReady}}
+                <br>
+                <h3>Course </h3>{{courseInfo.name}}
+                <h3>Description</h3>
+                {{courseInfo.description}}
+                <h3>Requirements </h3> {{#each r in courseInfo.requirements}}
+                                           {{r}},
+                                       {{/each}}
+                <h3>Majors </h3>{{#if majorInfo}}{{#each item in majorInfo}}{{item}}<br>{{/each}}{{else}}<div class="ui active inline loader"></div>{{/if}}
+                <h3>Sections </h3>{{#if sectionData}}{{> search_result_time_table}}{{else}}<div class="ui active inline loader"></div>{{/if}}
+            {{else}}
+                <br>
+                <div class="ui active inline loader"></div>
+            {{/if}}
+        </div>
+
+        <div class="ui bottom attached tab segment" data-tab="second">
+        <h3>Here's some information for sections</h3>
+        </div>
+
+        <div class="ui bottom attached tab segment" data-tab="third">
+        <h3>Here are some statistics for this course</h3>
+        </div>
     </div>
 </template>
 
