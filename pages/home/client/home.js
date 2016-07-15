@@ -8,6 +8,9 @@ homeDict.set('courseData');
 Template.home.onRendered(function(){
 	$('#multi-select').dropdown();
 	$('#search-select').dropdown();
+	$('#search-select-start-time').dropdown();
+	$('#search-select-end-time').dropdown();
+	$('#multi-select-days').dropdown();
 	Meteor.call("getProfData", function(err, result){
 		$('#prof-search').search({
     		source : result,
@@ -34,17 +37,29 @@ Template.home.events ({
 		homeDict.set('termName');
 		homeDict.set('noResult', false);
 
-		const keyword = event.target.keyword.value;
+		const keyword = $(".js-submit-search").val();
 		const term = $(".js-term").val();
-		const req_array = $(".ui.label.transition.visible").toArray();
+		const req_array = $(".js-req .ui.label.transition.visible").toArray();
 		const req_names_array = [];
 		for(let item of req_array){
 			req_names_array.push(item.innerText);
 		};
+		const days_array = $(".js-days .ui.label.transition.visible").toArray();
+		const days_names_array = [];
+		for(let item of days_array){
+			days_names_array.push($(item).attr("data-value"));
+		};
+		const start_time = $(".js-start-time input").val();
+		const end_time = $(".js-end-time input").val();
+		const time_and_date = {
+			days: days_names_array,
+			start: start_time,
+			end: end_time
+		};
 		const dept = $("#search-select input").val();//""for no option and "all" for all departments
 		const instructor = $(".js-prof input").val();
 
-		Meteor.call("searchCourse", keyword, term, req_names_array, dept, instructor, 
+		Meteor.call("searchCourse", keyword, term, req_names_array, dept, instructor, time_and_date,
 			function(err, result){
 				if(result.length == 0){
 					homeDict.set('noResult', true);
@@ -69,15 +84,27 @@ Template.home.events ({
 
 		const keyword = $(".js-submit-search").val();
 		const term = $(".js-term").val();
-		const req_array = $(".ui.label.transition.visible").toArray();
+		const req_array = $(".js-req .ui.label.transition.visible").toArray();
 		const req_names_array = [];
 		for(let item of req_array){
 			req_names_array.push(item.innerText);
 		};
+		const days_array = $(".js-days .ui.label.transition.visible").toArray();
+		const days_names_array = [];
+		for(let item of days_array){
+			days_names_array.push($(item).attr("data-value"));
+		};
+		const start_time = $(".js-start-time input").val();
+		const end_time = $(".js-end-time input").val();
+		const time_and_date = {
+			days: days_names_array,
+			start: start_time,
+			end: end_time
+		};
 		const dept = $("#search-select input").val();
 		const instructor = $(".js-prof input").val();
 
-		Meteor.call("searchCourse", keyword, term, req_names_array, dept, instructor,
+		Meteor.call("searchCourse", keyword, term, req_names_array, dept, instructor, time_and_date,
 			function(err, result){
 				if(result.length == 0){
 					homeDict.set('noResult', true);

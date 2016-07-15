@@ -18,12 +18,12 @@ Meteor.methods ({
     });
   },
 
- 	searchCourse: function(keyword, term, req_array, dept, prof){
+ 	searchCourse: function(keyword, term, req_array, dept, prof, time){
     var regexCode = new RegExp("^" + keyword, "i");
 		var regexTitle = new RegExp(keyword, "i");
     var regexTerm = new RegExp("^" + term, "i");
     const searchQuery = {term: regexTerm, $or: [{code: regexCode}, {name: regexTitle}]};
-    
+
     //process the array of requirements
     if(req_array.length != 0){
       searchQuery.$and = [];
@@ -42,44 +42,112 @@ Meteor.methods ({
     }
 
     //instructor
-    let prof_id;
-    let section_of_prof;
-    for(let item of prof_name_and_id){
-      if(item.title === prof){
-        prof_id = item.id;
-        section_of_prof = Section.find({instructors: prof_id}).fetch();
-        break;
-      }
+    if(prof){
+      let section_of_prof;//array of all sections taught by the professor
+      let prof_id;//array of the id's of these sections
+      for(let item of prof_name_and_id){
+        if(item.title === prof){
+          prof_id = item.id;
+          section_of_prof = Section.find({instructors: prof_id}).fetch();
+          break;
+        }
+      } 
+
+      //if no professor matches, return no result
+      if(!section_of_prof){
+        return [];
+      } else if (section_of_prof.length == 0){
+        return [];
+      };
+
+      if(prof_id && section_of_prof){
+        let req_and = [];
+        if(req_array.length != 0){
+          req_and = searchQuery.$and;
+        }
+
+        const section_id_list = [];
+
+        for(let item of section_of_prof){
+          section_id_list.push(item.course);
+        }
+
+        const new_or = {'$or':searchQuery.$or};
+        const prof_or = {'$or':[]};
+
+        for(let item of section_id_list){
+          prof_or.$or.push({id:item})
+        }
+        delete searchQuery['$or'];
+        searchQuery.$and = [new_or, prof_or];
+
+        if(req_and.length != 0){
+          for(let item of req_and){
+            searchQuery.$and.push(item);
+          }
+        }
+      } 
     }
+    
+    //time and date
+    let days_array = time.days;
+    let search_start = time.start;
+    let search_end = time.end;
+    if(days_array.length != 0 || (search_start && search_start !== "all") || (search_end && search_end !== "all")){
+      const searchQuery_time = {$and:[]};
+      if(search_start){
+        const start_hr = parseInt(search_start.substring(0, search_start.indexOf(":")));
+        const start_min = parseInt(search_start.substring(search_start.indexOf(":") + 1));
+        search_start = start_hr * 60 + start_min;
+      } 
 
-    if(prof_id && section_of_prof){
-      let req_and = [];
-      if(req_array.length != 0){
-        req_and = searchQuery.$and;
+      if(search_end){
+        const end_hr = parseInt(search_end.substring(0, search_end.indexOf(":")));
+        const end_min = parseInt(search_end.substring(search_end.indexOf(":") + 1));
+        search_end = end_hr * 60 + end_min;
       }
 
-      const section_id_list = [];
-
-      for(let item of section_of_prof){
-        section_id_list.push(item.course);
+      if(search_start >= "0" && search_start <= "1440"){
+        searchQuery_time.$and.push({'times.start': {$gte: search_start, $lte: 1440}});
       }
 
-      const new_or = {'$or':searchQuery.$or};
-      const prof_or = {'$or':[]};
-
-      for(let item of section_id_list){
-        prof_or.$or.push({id:item})
+      if(search_end >= "0" && search_end <= "1440"){
+        searchQuery_time.$and.push({'times.end': {$gte: 0, $lte: search_end}});
       }
-      delete searchQuery['$or'];
-      searchQuery.$and = [new_or,prof_or];
 
-      if(req_and.length != 0){
-        for(let item of req_and){
-          searchQuery.$and.push(item);
+      if(days_array.length != 0){
+        for(let day of days_array){
+          searchQuery_time.$and.push({'times.days': day});
         }
       }
-    }
 
+      const section_at_time = Section.find(searchQuery_time).fetch();
+      if(section_at_time.length != 0){
+        const section_id_list_time = [];
+        for(let item of section_at_time){
+         section_id_list_time.push(item.course);
+        }
+
+        if(searchQuery.$and){
+          let time_id_or = {$or:[]};
+          for(let key of section_id_list_time){
+            time_id_or.$or.push({id:key})
+          }
+          searchQuery.$and.push(time_id_or);
+        } else {
+          const course_or = {$or:searchQuery.$or};
+          let time_id_or = {$or:[]};
+          for(let key of section_id_list_time){
+            time_id_or.$or.push({id:key})
+          }
+          delete searchQuery.$or;
+          searchQuery.$and = [course_or, time_id_or];
+        }
+      } else {
+        return [];
+      }  
+    }
+    
     return Course.find(searchQuery).fetch();
   },
 
