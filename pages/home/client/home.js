@@ -3,11 +3,16 @@ homeDict = new ReactiveDict();
 homeDict.set('showTable', false);
 homeDict.set('majorDetail', []);
 homeDict.set('sectionDetail', []);
+homeDict.set("sectionIndex", 0);
 homeDict.set('courseData');
 
 Template.home.onRendered(function(){
 	$('#multi-select').dropdown();
 	$('#search-select').dropdown();
+	$('#search-select-start-time').dropdown();
+	$('#search-select-end-time').dropdown();
+	$('#multi-select-days').dropdown();
+	$('.ui.checkbox').checkbox();
 	Meteor.call("getProfData", function(err, result){
 		$('#prof-search').search({
     		source : result,
@@ -34,17 +39,30 @@ Template.home.events ({
 		homeDict.set('termName');
 		homeDict.set('noResult', false);
 
-		const keyword = event.target.keyword.value;
+		const keyword = $(".js-submit-search").val();
 		const term = $(".js-term").val();
-		const req_array = $(".ui.label.transition.visible").toArray();
+		const req_array = $(".js-req .ui.label.transition.visible").toArray();
 		const req_names_array = [];
 		for(let item of req_array){
 			req_names_array.push(item.innerText);
 		};
+		const days_array = $(".js-days .ui.label.transition.visible").toArray();
+		const days_names_array = [];
+		for(let item of days_array){
+			days_names_array.push($(item).attr("data-value"));
+		};
+		const start_time = $(".js-start-time input").val();
+		const end_time = $(".js-end-time input").val();
+		const time_and_date = {
+			days: days_names_array,
+			start: start_time,
+			end: end_time
+		};
 		const dept = $("#search-select input").val();//""for no option and "all" for all departments
 		const instructor = $(".js-prof input").val();
+		const if_indept = $(".js-if-indep").is(':checked');
 
-		Meteor.call("searchCourse", keyword, term, req_names_array, dept, instructor, 
+		Meteor.call("searchCourse", keyword, term, req_names_array, dept, instructor, time_and_date, if_indept,
 			function(err, result){
 				if(result.length == 0){
 					homeDict.set('noResult', true);
@@ -69,15 +87,28 @@ Template.home.events ({
 
 		const keyword = $(".js-submit-search").val();
 		const term = $(".js-term").val();
-		const req_array = $(".ui.label.transition.visible").toArray();
+		const req_array = $(".js-req .ui.label.transition.visible").toArray();
 		const req_names_array = [];
 		for(let item of req_array){
 			req_names_array.push(item.innerText);
 		};
+		const days_array = $(".js-days .ui.label.transition.visible").toArray();
+		const days_names_array = [];
+		for(let item of days_array){
+			days_names_array.push($(item).attr("data-value"));
+		};
+		const start_time = $(".js-start-time input").val();
+		const end_time = $(".js-end-time input").val();
+		const time_and_date = {
+			days: days_names_array,
+			start: start_time,
+			end: end_time
+		};
 		const dept = $("#search-select input").val();
 		const instructor = $(".js-prof input").val();
+		const if_indept = $(".js-if-indep").is(':checked');
 
-		Meteor.call("searchCourse", keyword, term, req_names_array, dept, instructor,
+		Meteor.call("searchCourse", keyword, term, req_names_array, dept, instructor, time_and_date, if_indept,
 			function(err, result){
 				if(result.length == 0){
 					homeDict.set('noResult', true);
@@ -127,11 +158,11 @@ Template.search_result.helpers({
 			showFilter: false,
 			showNavigationRowsPerPage: false,
 			fields:[
-				{key:'name', label: 'Course'},
-				{key:'code', label:'Code'},
-				{key:'requirements', label:'Requirements'},
-				{key:'description', label:'Description', tmpl:Template.description_detail},
-				{key:'term', label:'Term', fn: function(key, object){
+				{key:'name', label: 'Course',headerClass: "four wide"},
+				{key:'code', label:'Code', headerClass: "three wide"},
+				{key:'requirements', label:'Requirements', headerClass: "two wide"},
+				{key:'description', label:'Description', tmpl:Template.description_detail, headerClass: "five wide"},
+				{key:'term', label:'Term', headerClass: "two wide", fn: function(key, object){
 					Meteor.call("searchTerm", key, function(err, result){
 						homeDict.set("termName" + object.id, result);
 					});
@@ -152,6 +183,83 @@ Template.search_result.onRendered(function(){
 	$('#popup-tab .item').tab();
 })
 
+Template.search_result.helpers({
+	sectionDetail: function(){
+		return homeDict.get("sectionDetail")[homeDict.get("sectionIndex")];
+	},
+
+	getSectionDays: function(days_array){
+		days = "";
+		const day1 = "m";
+		const day2 = "tu";
+		const day3 = "w";
+		const day4 = "th";
+		const day5 = "f";
+		if($.inArray(day1, days_array) != -1){
+			days = days + day1.toUpperCase() + " ";
+		}
+		if($.inArray(day2, days_array) != -1){
+			days = days + day2.toUpperCase() + " ";
+		}
+		if($.inArray(day3, days_array) != -1){
+			days = days + day3.toUpperCase() + " ";
+		}
+		if($.inArray(day4, days_array) != -1){
+			days = days + day4.toUpperCase() + " ";
+		}
+		if($.inArray(day5, days_array) != -1){
+			days = days + day5.toUpperCase() + " ";
+		}
+		return days;
+	},
+
+	convertTime: function(time){
+		var min = Math.floor(time % 60);
+		if(min < 10){
+			min = "0" + min;
+		}
+
+		var time = Math.floor(time / 60) + ":" + min;
+		return time;
+	},
+
+	getProfName: function(prof_list, section_id){	
+		Meteor.call("searchInstructorArray", prof_list, function(err, result){
+			if(result.includes("Staff")){
+				homeDict.set("instructorsName" + section_id, "Staff - This information will be updated once Brandeis posts the professor names for this section\n");
+			} else {
+				homeDict.set("instructorsName" + section_id, result);
+			}
+		});
+
+		return homeDict.get("instructorsName" + section_id);
+	},
+
+	profNameLoading: function(section_id){
+		return !homeDict.get("instructorsName" + section_id);
+	},
+
+	sectionNum: function(section_num){
+		if(section_num < 10){
+			return "0" + section_num;
+		} else {
+			return section_num;
+		}
+	},
+
+	limitNum: function(limit){
+		if(!limit){
+			return "999";
+		} else {
+			return limit;
+		}
+	},
+
+	notFirstTime: function(index){
+		return index != 0;
+	},
+})
+
 Template.search_result.events({
 	"click .reactive-table tbody tr": function(event){
 		homeDict.set('courseInfo');
@@ -159,9 +267,19 @@ Template.search_result.events({
 		homeDict.set('majorDetail', []);
 		homeDict.set('instructors');
 		homeDict.set('courseInfo', this);
+		homeDict.set('courseCode', this.code);
+		homeDict.set("sectionIndex", 0);
+		//reset the default detail choice to be the first tab
+		$("#popup-tab .item.active").attr("class", "item");
+		$("#popup-tab [data-tab=first]").attr("class", "item active");
+		$(".ui.container.popup .segment.active").attr("class", "ui bottom attached tab segment");
+		$(".ui.container.popup [tab-num=1]").attr("class", "ui bottom attached tab segment active");
+		
 		let popup = $(".popup");
 		popup.css("top", (($(window).height() - popup.outerHeight()) / 2) + $(window).scrollTop() + 30 + "px");  
 		$(".overlay, .popup").fadeToggle();
+
+		
 
 		if(!homeDict.get('courseInfo')){//continue only if the data is ready
 			return;
@@ -177,13 +295,35 @@ Template.search_result.events({
 		//get section details
 		Meteor.call("getSectionDetails", homeDict.get('courseInfo'), 
 			function(err, result){
-				homeDict.set('sectionDetail', result);
+				homeDict.set('sectionDetail', _.sortBy(result,
+					function(section){ 
+						return parseInt(section.section); 
+					}
+				));
 			}
 		);	
 	},
 
 	"click .overlay,.js-close-popup" :function(event){
 		$(".overlay, .popup").fadeToggle();
+	},
+
+	"change .js-section": function(event){
+		event.preventDefault();
+		homeDict.set("sectionIndex", $(".js-section").val());
+		homeDict.set("instructorsName");
+	},
+
+	"click .js-textbook": function(event){
+		event.preventDefault();
+		const course_id = $(event)[0].target.attributes[1].value;
+		const course_code = homeDict.get("courseCode");
+		const section_num = $(event)[0].target.attributes[2].value;
+
+		window.open("http://www.bkstr.com/webapp/wcs/stores/servlet/booklookServlet?bookstore_id-1=1391&term_id-1=" + 
+			course_id.substring(0, course_id.indexOf("-")) + "&div-1=&dept-1=" + 
+			course_code.substring(0, course_code.indexOf(" ")) + "&course-1=" + 
+			course_code.substring(course_code.indexOf(" ") + 1) + "&sect-1=" + section_num);
 	},
 })
 
@@ -234,8 +374,25 @@ Template.search_result_time_table.helpers({
 					for(var item of key){
 						//get days
 						days = "";
-						for(var day of item.days){
-							days = days + day + " ";
+						const day1 = "m";
+						const day2 = "tu";
+						const day3 = "w";
+						const day4 = "th";
+						const day5 = "f";
+						if($.inArray(day1,item.days) != -1){
+							days = days + day1.toUpperCase() + " ";
+						}
+						if($.inArray(day2,item.days) != -1){
+							days = days + day2.toUpperCase() + " ";
+						}
+						if($.inArray(day3,item.days) != -1){
+							days = days + day3.toUpperCase() + " ";
+						}
+						if($.inArray(day4,item.days) != -1){
+							days = days + day4.toUpperCase() + " ";
+						}
+						if($.inArray(day5,item.days) != -1){
+							days = days + day5.toUpperCase() + " ";
 						}
 
 						//get times

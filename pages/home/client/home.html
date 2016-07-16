@@ -5,6 +5,10 @@
             <form id="search_main">
                 <input type="text" placeholder=" Search course code or title" name="keyword" id="searchBar" class="js-submit-search" autocomplete="off">
             </form>
+            <div class="ui checkbox">
+                <input type="checkbox" class="js-if-indep">
+                <label>Include independent instructional classes</label>
+            </div>
         </div>
     </div>
 
@@ -48,7 +52,7 @@
             <div class="four wide field">
                 <label>Department: </label>
                 <div class="ui fluid search selection dropdown js-dept" id="search-select">
-                    <input type="hidden" name="country" value="">
+                    <input type="hidden" name="department" value="">
                     <i class="dropdown icon"></i>
                     <div class="default text">Select or type</div>
                     <div class="menu">
@@ -157,6 +161,110 @@
                 </div>
             </div>
         </div>
+
+        <div class="ui horizontal divider">Time and Date</div>
+
+        <div class="fields">
+            <div class="three wide field">
+                <label>Days: </label>
+                <select class="js-days ui fluid dropdown" multiple="" id="multi-select-days">
+                    <option value="">Select from the list</option>
+                    <option value="m">Monday</option>
+                    <option value="tu">Tuesday</option>
+                    <option value="w">Wednesday</option>
+                    <option value="th">Thursday</option>
+                    <option value="f">Friday</option>
+                </select> 
+            </div>
+
+            <div class="two wide field">
+                <label>Start Time: </label>
+                <div class="ui fluid search selection dropdown js-start-time" id="search-select-start-time">
+                    <input type="hidden" name="start_time" value="">
+                    <i class="dropdown icon"></i>
+                    <div class="default text">Select or type</div>
+                    <div class="menu">
+                        <div class="item" data-value="all">All time</div>
+                        <div class="item" data-value="07:00">7:00 AM</div>
+                        <div class="item" data-value="07:30">7:30 AM</div>
+                        <div class="item" data-value="08:00">8:00 AM</div>
+                        <div class="item" data-value="08:30">8:30 AM</div>
+                        <div class="item" data-value="09:00">9:00 AM</div>
+                        <div class="item" data-value="09:30">9:30 AM</div>
+                        <div class="item" data-value="10:00">10:00 AM</div>
+                        <div class="item" data-value="10:30">10:30 AM</div>
+                        <div class="item" data-value="11:00">11:00 AM</div>
+                        <div class="item" data-value="11:30">11:30 AM</div>
+                        <div class="item" data-value="12:00">12:00 PM</div>
+                        <div class="item" data-value="12:30">12:30 PM</div>
+                        <div class="item" data-value="13:00">1:00 PM</div>
+                        <div class="item" data-value="13:30">1:30 PM</div>
+                        <div class="item" data-value="14:00">2:00 PM</div>
+                        <div class="item" data-value="14:30">2:30 PM</div>
+                        <div class="item" data-value="15:00">3:00 PM</div>
+                        <div class="item" data-value="15:30">3:30 PM</div>
+                        <div class="item" data-value="16:00">4:00 PM</div>
+                        <div class="item" data-value="16:30">4:30 PM</div>
+                        <div class="item" data-value="17:00">5:00 PM</div>
+                        <div class="item" data-value="17:30">5:30 PM</div>
+                        <div class="item" data-value="18:00">6:00 PM</div>
+                        <div class="item" data-value="18:30">6:30 PM</div>
+                        <div class="item" data-value="19:00">7:00 PM</div>
+                        <div class="item" data-value="19:30">7:30 PM</div>
+                        <div class="item" data-value="20:00">8:00 PM</div>
+                        <div class="item" data-value="20:30">8:30 PM</div>
+                        <div class="item" data-value="21:00">9:00 PM</div>
+                        <div class="item" data-value="21:30">9:30 PM</div>
+                        <div class="item" data-value="22:00">10:00 PM</div>
+                        <div class="item" data-value="22:30">10:30 PM</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="two wide field">
+                <label>End Time: </label>
+                <div class="ui fluid search selection dropdown js-end-time" id="search-select-end-time">
+                    <input type="hidden" name="end_time" value="">
+                    <i class="dropdown icon"></i>
+                    <div class="default text">Select or type</div>
+                    <div class="menu">
+                        <div class="item" data-value="all">All time</div>
+                        <div class="item" data-value="07:00">7:00 AM</div>
+                        <div class="item" data-value="07:30">7:30 AM</div>
+                        <div class="item" data-value="08:00">8:00 AM</div>
+                        <div class="item" data-value="08:30">8:30 AM</div>
+                        <div class="item" data-value="09:00">9:00 AM</div>
+                        <div class="item" data-value="09:30">9:30 AM</div>
+                        <div class="item" data-value="10:00">10:00 AM</div>
+                        <div class="item" data-value="10:30">10:30 AM</div>
+                        <div class="item" data-value="11:00">11:00 AM</div>
+                        <div class="item" data-value="11:30">11:30 AM</div>
+                        <div class="item" data-value="12:00">12:00 PM</div>
+                        <div class="item" data-value="12:30">12:30 PM</div>
+                        <div class="item" data-value="13:00">1:00 PM</div>
+                        <div class="item" data-value="13:30">1:30 PM</div>
+                        <div class="item" data-value="14:00">2:00 PM</div>
+                        <div class="item" data-value="14:30">2:30 PM</div>
+                        <div class="item" data-value="15:00">3:00 PM</div>
+                        <div class="item" data-value="15:30">3:30 PM</div>
+                        <div class="item" data-value="16:00">4:00 PM</div>
+                        <div class="item" data-value="16:30">4:30 PM</div>
+                        <div class="item" data-value="17:00">5:00 PM</div>
+                        <div class="item" data-value="17:30">5:30 PM</div>
+                        <div class="item" data-value="18:00">6:00 PM</div>
+                        <div class="item" data-value="18:30">6:30 PM</div>
+                        <div class="item" data-value="19:00">7:00 PM</div>
+                        <div class="item" data-value="19:30">7:30 PM</div>
+                        <div class="item" data-value="20:00">8:00 PM</div>
+                        <div class="item" data-value="20:30">8:30 PM</div>
+                        <div class="item" data-value="21:00">9:00 PM</div>
+                        <div class="item" data-value="21:30">9:30 PM</div>
+                        <div class="item" data-value="22:00">10:00 PM</div>
+                        <div class="item" data-value="22:30">10:30 PM</div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- <p id="be_back">
@@ -184,7 +292,7 @@
 
 <template name="search_result">
     {{#if courseDataReady}}
-        {{> reactiveTable class="ui selectable table" collection=courseData settings=settings_course}}
+        {{> reactiveTable class="ui stackable selectable fixed table" collection=courseData settings=settings_course}}
     {{else}}
         {{#if noResult}}
             <br>
@@ -205,29 +313,64 @@
             <a class="item" data-tab="third">Statistics</a>
         </div>
 
-        <div class="ui bottom attached active tab segment" data-tab="first">
+        <div class="ui bottom attached active tab segment" data-tab="first" tab-num="1">
             {{#if detailReady}}
-                <br>
-                <h3>Course </h3>{{courseInfo.name}}
+                <h3>Course </h3>
+                {{courseInfo.code}} - {{courseInfo.name}}
                 <h3>Description</h3>
                 {{courseInfo.description}}
-                <h3>Requirements </h3> {{#each r in courseInfo.requirements}}
-                                           {{r}},
-                                       {{/each}}
-                <h3>Majors </h3>{{#if majorInfo}}{{#each item in majorInfo}}{{item}}<br>{{/each}}{{else}}<div class="ui active inline loader"></div>{{/if}}
-                <h3>Sections </h3>{{#if sectionData}}{{> search_result_time_table}}{{else}}<div class="ui active inline loader"></div>{{/if}}
+                <h3>Requirements </h3> 
+                {{#each r in courseInfo.requirements}}
+                    {{r}} 
+                {{/each}}
+                <h3>Majors </h3>
+                {{#if majorInfo}}{{#each item in majorInfo}}{{item}}<br>{{/each}}{{else}}<div class="ui active inline loader"></div>{{/if}}
+                <h3>Sections </h3>
+                {{#if sectionData}}{{> search_result_time_table}}{{else}}<div class="ui active inline loader"></div>{{/if}}
             {{else}}
                 <br>
                 <div class="ui active inline loader"></div>
             {{/if}}
         </div>
 
-        <div class="ui bottom attached tab segment" data-tab="second">
-        <h3>Here's some information for sections</h3>
+        <div class="ui bottom attached tab segment" data-tab="second" tab-num="2">
+        {{#if sectionData}}
+            <div class="field">
+                <div class="four wide field">
+                    <label>Section: </label>
+                    <select name="section" class="js-section form-control">
+                        {{#each section in sectionData}}
+                            <option value="{{@index}}">Section {{sectionNum section.section}}</option>
+                        {{/each}}    
+                    </select>
+                </div>
+            </div>
+            <h3>Professor</h3>
+            {{#if profNameLoading sectionDetail.id}}<div class="ui active inline loader"></div>{{/if}}{{{getProfName sectionDetail.instructors sectionDetail.id}}}<br>
+            <h3>Time and Place</h3>
+            {{#if sectionDetail.times}}
+                {{#each time in sectionDetail.times}}
+                    {{#if notFirstTime @index}}<div class="ui horizontal divider"></div>{{/if}}        
+                    {{#if time.start}}<b>{{getSectionDays time.days}}:</b> {{convertTime time.start}} to {{convertTime time.end}}<br>{{else}}TBD<br>{{/if}}
+                    {{#if time.building}}{{time.building}} - {{time.room}}<br>{{else}}Please wait until Brandeis posts place information for this section<br>{{/if}}
+                    {{#if time.type}}<b>Type: </b>{{time.type}}{{/if}}
+                {{/each}}
+            {{else}}
+                <p>Please wait until Brandeis posts time and day information for this section</p>
+            {{/if}}
+            <h3>Enrollment</h3>
+            {{sectionDetail.enrolled}}/{{limitNum sectionDetail.limit}} - {{sectionDetail.status_text}}
+            <h3>Detailed Description</h3>
+            <p>{{#if sectionDetail.details}}{{sectionDetail.details}}{{else}}Currently no additional information for this section{{/if}}</p>
+            <h3>Textbook Information</h3>
+            <button class="ui basic button js-textbook" course-id="{{sectionDetail.course}}" section-num="{{sectionDetail.section}}"><i class="book icon"></i>Click to view</button>
+        {{else}}
+            <div class="ui active inline loader"></div>
+        {{/if}}
         </div>
 
-        <div class="ui bottom attached tab segment" data-tab="third">
-        <h3>Here are some statistics for this course</h3>
+        <div class="ui bottom attached tab segment" data-tab="third" tab-num="3">
+            <h3>Here are some statistics for this course</h3>
         </div>
     </div>
 </template>
@@ -246,5 +389,5 @@
 </template>
 
 <template name="search_result_time_table">
-    {{> reactiveTable class="ui table" collection=sectionData settings=settings_result}}
+    {{> reactiveTable class="ui table stackable" collection=sectionData settings=settings_result}}
 </template>
