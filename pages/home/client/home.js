@@ -223,13 +223,12 @@ Template.search_result.helpers({
 		return time;
 	},
 
-	getProfName: function(prof_id, section_id){
-		homeDict.set("instructorsName");
-		Meteor.call("searchInstructorArray", [prof_id], function(err, result){
+	getProfName: function(prof_list, section_id){	
+		Meteor.call("searchInstructorArray", prof_list, function(err, result){
 			if(result.includes("Staff")){
 				homeDict.set("instructorsName" + section_id, "Staff - This information will be updated once Brandeis posts the professor names for this section\n");
 			} else {
-				homeDict.set("instructorsName" + section_id, result.replace(/<br>/gi, "\n"));
+				homeDict.set("instructorsName" + section_id, result);
 			}
 		});
 
@@ -254,6 +253,10 @@ Template.search_result.helpers({
 		} else {
 			return limit;
 		}
+	},
+
+	notFirstTime: function(index){
+		return index != 0;
 	},
 })
 
@@ -307,6 +310,7 @@ Template.search_result.events({
 	"change .js-section": function(event){
 		event.preventDefault();
 		homeDict.set("sectionIndex", $(".js-section").val());
+		homeDict.set("instructorsName");
 	},
 })
 

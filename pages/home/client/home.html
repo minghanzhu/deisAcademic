@@ -342,16 +342,14 @@
                 </div>
             </div>
             <h3>Professor</h3>
-            {{#each prof in sectionDetail.instructors}}
-                {{#if profNameLoading sectionDetail.id}}<div class="ui active inline loader"></div>{{/if}}{{getProfName prof sectionDetail.id}}<br>
-            {{/each}}
+            {{#if profNameLoading sectionDetail.id}}<div class="ui active inline loader"></div>{{/if}}{{{getProfName sectionDetail.instructors sectionDetail.id}}}<br>
             <h3>Time and Place</h3>
             {{#if sectionDetail.times}}
                 {{#each time in sectionDetail.times}}
+                    {{#if notFirstTime @index}}<div class="ui horizontal divider"></div>{{/if}}        
                     {{#if time.start}}<b>{{getSectionDays time.days}}:</b> {{convertTime time.start}} to {{convertTime time.end}}<br>{{else}}TBD<br>{{/if}}
                     {{#if time.building}}{{time.building}} - {{time.room}}<br>{{else}}<p>Please wait until Brandeis posts place information for this section</p>{{/if}}
                     {{#if time.type}}<b>Type: </b>{{time.type}}{{/if}}
-                    <div class="ui horizontal divider"></div>
                 {{/each}}
             {{else}}
                 <p>Please wait until Brandeis posts time and day information for this section</p>

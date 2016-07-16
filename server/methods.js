@@ -256,14 +256,29 @@ Meteor.methods ({
 
   	searchInstructorArray: function(instrutorData){
       var instructors = "";
-      for (var i = 0; i < instrutorData.length; i++) {
-            const instru_id = instrutorData[i];//get the current professor id
-            const instru_obj = Instructor.findOne({id: instru_id});//get the professor object using the id
+      if(instrutorData.length == 1){
+        const instru_id = instrutorData[0];//get the current professor id
+        const instru_obj = Instructor.findOne({id: instru_id});//get the professor object using the id
 
-            var instru_name = instru_obj.first + " " + instru_obj.last;
-            if(instru_obj.first == "Staff" || instru_obj.last == "Staff") instru_name = "Staff";
-            instructors = instructors + instru_name + "<br>";
-          };
+        var instru_name = instru_obj.first + " " + instru_obj.last;
+        if(instru_obj.first == "Staff" || instru_obj.last == "Staff") instru_name = "Staff";
+        instructors = instructors + instru_name;
+      } else {
+        const instru_id_1st = instrutorData[0];//get the current professor id
+        const instru_obj_1st = Instructor.findOne({id: instru_id_1st});//get the professor object using the id
+
+        var instru_name_1st = instru_obj_1st.first + " " + instru_obj_1st.last;
+        if(instru_obj_1st.first == "Staff" || instru_obj_1st.last == "Staff") return "Staff";
+        instructors = instructors + instru_name_1st;
+
+        for (var i = 1; i < instrutorData.length; i++){
+          const instru_id = instrutorData[i];//get the current professor id
+          const instru_obj = Instructor.findOne({id: instru_id});//get the professor object using the id
+
+          var instru_name = instru_obj.first + " " + instru_obj.last;
+          instructors = instructors + "<br>" + instru_name ;
+        }
+      }
 
       return instructors;
   	},
