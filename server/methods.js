@@ -338,7 +338,7 @@ Meteor.methods ({
       return prof_name_and_id;
     },
 
-    removeCourse: function(obj){
-      UserTerms.remove({term: obj.term, course: obj.course});
+    removeCourse: function(course){
+      UserTerms.remove({term: course.term, term: course.term});
     }
 });
