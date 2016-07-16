@@ -288,7 +288,7 @@
 
 <template name="search_result">
     {{#if courseDataReady}}
-        {{> reactiveTable class="ui selectable table" collection=courseData settings=settings_course}}
+        {{> reactiveTable class="ui stackable selectable fixed table" collection=courseData settings=settings_course}}
     {{else}}
         {{#if noResult}}
             <br>
@@ -349,5 +349,5 @@
 </template>
 
 <template name="search_result_time_table">
-    {{> reactiveTable class="ui table" collection=sectionData settings=settings_result}}
+    {{> reactiveTable class="ui table stackable" collection=sectionData settings=settings_result}}
 </template>

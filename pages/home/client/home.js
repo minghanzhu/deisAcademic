@@ -154,11 +154,11 @@ Template.search_result.helpers({
 			showFilter: false,
 			showNavigationRowsPerPage: false,
 			fields:[
-				{key:'name', label: 'Course'},
-				{key:'code', label:'Code'},
-				{key:'requirements', label:'Requirements'},
-				{key:'description', label:'Description', tmpl:Template.description_detail},
-				{key:'term', label:'Term', fn: function(key, object){
+				{key:'name', label: 'Course',headerClass: "four wide"},
+				{key:'code', label:'Code', headerClass: "three wide"},
+				{key:'requirements', label:'Requirements', headerClass: "two wide"},
+				{key:'description', label:'Description', tmpl:Template.description_detail, headerClass: "five wide"},
+				{key:'term', label:'Term', headerClass: "two wide", fn: function(key, object){
 					Meteor.call("searchTerm", key, function(err, result){
 						homeDict.set("termName" + object.id, result);
 					});
@@ -261,8 +261,25 @@ Template.search_result_time_table.helpers({
 					for(var item of key){
 						//get days
 						days = "";
-						for(var day of item.days){
-							days = days + day + " ";
+						const day1 = "m";
+						const day2 = "tu";
+						const day3 = "w";
+						const day4 = "th";
+						const day5 = "f";
+						if($.inArray(day1,item.days) != -1){
+							days = days + day1 + " ";
+						}
+						if($.inArray(day2,item.days) != -1){
+							days = days + day2 + " ";
+						}
+						if($.inArray(day3,item.days) != -1){
+							days = days + day3 + " ";
+						}
+						if($.inArray(day4,item.days) != -1){
+							days = days + day4 + " ";
+						}
+						if($.inArray(day5,item.days) != -1){
+							days = days + day5 + " ";
 						}
 
 						//get times
