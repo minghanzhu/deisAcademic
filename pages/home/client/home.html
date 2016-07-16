@@ -358,6 +358,8 @@
             {{sectionDetail.enrolled}}/{{limitNum sectionDetail.limit}} - {{sectionDetail.status_text}}
             <h3>Detailed Description</h3>
             <p>{{#if sectionDetail.details}}{{sectionDetail.details}}{{else}}Currently no additional information for this section{{/if}}</p>
+            <h3>Textbook Information</h3>
+            <button class="ui basic button js-textbook" course-id="{{sectionDetail.course}}" section-num="{{sectionDetail.section}}"><i class="book icon"></i>Click to view</button>
         {{else}}
             <div class="ui active inline loader"></div>
         {{/if}}

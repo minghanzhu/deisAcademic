@@ -267,6 +267,7 @@ Template.search_result.events({
 		homeDict.set('majorDetail', []);
 		homeDict.set('instructors');
 		homeDict.set('courseInfo', this);
+		homeDict.set('courseCode', this.code);
 		homeDict.set("sectionIndex", 0);
 		//reset the default detail choice to be the first tab
 		$("#popup-tab .item.active").attr("class", "item");
@@ -311,6 +312,18 @@ Template.search_result.events({
 		event.preventDefault();
 		homeDict.set("sectionIndex", $(".js-section").val());
 		homeDict.set("instructorsName");
+	},
+
+	"click .js-textbook": function(event){
+		event.preventDefault();
+		const course_id = $(event)[0].target.attributes[1].value;
+		const course_code = homeDict.get("courseCode");
+		const section_num = $(event)[0].target.attributes[2].value;
+
+		window.open("http://www.bkstr.com/webapp/wcs/stores/servlet/booklookServlet?bookstore_id-1=1391&term_id-1=" + 
+			course_id.substring(0, course_id.indexOf("-")) + "&div-1=&dept-1=" + 
+			course_code.substring(0, course_code.indexOf(" ")) + "&course-1=" + 
+			course_code.substring(course_code.indexOf(" ") + 1) + "&sect-1=" + section_num);
 	},
 })
 
