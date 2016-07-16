@@ -1,0 +1,56 @@
+<template name="skelSched">
+
+<div class="ui grid container">
+
+  <div class="ui grid">
+    <div class="ten wide column"><h3>Term Planning</h3>
+      <div class="ui container">
+
+      <div class="ui top attached tabular menu js-pickTerm">
+        <a class="active item" id="fall16" data-tab="fall2016">Fall 2016</a>
+        <a class="item" id="spring17" data-tab="spring2017">Spring 2017</a>
+        <a class="item" id="fall17" data-tab="fall2017">Fall 2017</a>
+      </div>
+      <div class="ui bottom attached active tab segment" data-tab="fall2016">
+        Fall 2016 Test!
+      </div>
+      <div class="ui bottom attached tab segment" data-tab="spring2017">
+        Spring 2017 Test!
+      </div>
+      <div class="ui bottom attached tab segment" data-tab="fall2017">
+        Fall 2017 Test!
+      </div>
+
+    </div>
+  </div>
+
+    <div class="six wide column"><h3>Add Courses</h3>
+
+  {{> courseChecklist}}
+
+    </div>
+  </div>
+
+</div>
+
+
+
+</template>
+
+<template name="courseChecklist">
+
+  <div id="courseList" class="ui container">
+
+      <!-- {{theTerm}} -->
+
+ {{#each pickedCourses}}
+  <div class="ui checkbox">
+    <input type="checkbox" id="{{name}}" class="js-addCourse">
+    <label for="{{name}}">{{name}}</label>
+  </div>
+  {{/each}}
+
+
+</div>
+
+</template>
