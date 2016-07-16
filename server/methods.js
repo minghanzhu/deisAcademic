@@ -230,7 +230,7 @@ Meteor.methods ({
   	},
 
   	getSectionDetails: function(courseData){
-  		const section_key = courseData.id;//get the id of the course
+  	const section_key = courseData.id;//get the id of the course
 		return Section.find({course: section_key}).fetch();//an array of corresponding sections
   	},
 

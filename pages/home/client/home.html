@@ -309,7 +309,7 @@
             <a class="item" data-tab="third">Statistics</a>
         </div>
 
-        <div class="ui bottom attached active tab segment" data-tab="first">
+        <div class="ui bottom attached active tab segment" data-tab="first" tab-num="1">
             {{#if detailReady}}
                 <h3>Course </h3>{{courseInfo.name}}
                 <h3>Description</h3>
@@ -325,12 +325,44 @@
             {{/if}}
         </div>
 
-        <div class="ui bottom attached tab segment" data-tab="second">
-        <h3>Here's some information for sections</h3>
+        <div class="ui bottom attached tab segment" data-tab="second" tab-num="2">
+        {{#if sectionData}}
+            <div class="field">
+                <div class="four wide field">
+                    <label>Section: </label>
+                    <select name="section" class="js-section form-control">
+                        {{#each section in sectionData}}
+                            <option value="{{@index}}">Section {{sectionNum section.section}}</option>
+                        {{/each}}    
+                    </select>
+                </div>
+            </div>
+            <h3>Professor</h3>
+            {{#each prof in sectionDetail.instructors}}
+                {{#if profNameLoading sectionDetail.id}}<div class="ui active inline loader"></div>{{/if}}{{getProfName prof sectionDetail.id}}<br>
+            {{/each}}
+            <h3>Time and Place</h3>
+            {{#if sectionDetail.times}}
+                {{#each time in sectionDetail.times}}
+                    {{#if time.start}}<b>{{getSectionDays time.days}}:</b> {{convertTime time.start}} to {{convertTime time.end}}{{else}}TBD{{/if}}<br>
+                    {{#if time.building}}{{time.building}} - {{time.room}}{{else}}<p>Please wait until Brandeis posts place information for this section</p>{{/if}}<br>
+                    {{#if time.type}}<b>Type: </b>{{time.type}}{{/if}}
+                    <div class="ui horizontal divider"></div>
+                {{/each}}
+            {{else}}
+                <p>Please wait until Brandeis posts time and day information for this section</p>
+            {{/if}}
+            <h3>Enrollment</h3>
+            {{sectionDetail.enrolled}}/{{limitNum sectionDetail.limit}} - {{sectionDetail.status_text}}
+            <h3>Detailed Description</h3>
+            <p>{{#if sectionDetail.details}}{{sectionDetail.details}}{{else}}Currently no additional information for this section{{/if}}</p>
+        {{else}}
+            <div class="ui active inline loader"></div>
+        {{/if}}
         </div>
 
-        <div class="ui bottom attached tab segment" data-tab="third">
-        <h3>Here are some statistics for this course</h3>
+        <div class="ui bottom attached tab segment" data-tab="third" tab-num="3">
+            <h3>Here are some statistics for this course</h3>
         </div>
     </div>
 </template>
