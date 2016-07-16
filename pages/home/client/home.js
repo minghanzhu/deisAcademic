@@ -61,8 +61,9 @@ Template.home.events ({
 		const dept = $("#search-select input").val();//""for no option and "all" for all departments
 		const instructor = $(".js-prof input").val();
 		const if_indept = $(".js-if-indep").is(':checked');
+		const if_not_sure = $(".js-if-not-sure").is(':checked');
 
-		Meteor.call("searchCourse", keyword, term, req_names_array, dept, instructor, time_and_date, if_indept,
+		Meteor.call("searchCourse", keyword, term, req_names_array, dept, instructor, time_and_date, if_indept, if_not_sure,
 			function(err, result){
 				if(result.length == 0){
 					homeDict.set('noResult', true);
@@ -107,8 +108,9 @@ Template.home.events ({
 		const dept = $("#search-select input").val();
 		const instructor = $(".js-prof input").val();
 		const if_indept = $(".js-if-indep").is(':checked');
+		const if_not_sure = $(".js-if-not-sure").is(':checked');
 
-		Meteor.call("searchCourse", keyword, term, req_names_array, dept, instructor, time_and_date, if_indept,
+		Meteor.call("searchCourse", keyword, term, req_names_array, dept, instructor, time_and_date, if_indept, if_not_sure,
 			function(err, result){
 				if(result.length == 0){
 					homeDict.set('noResult', true);
