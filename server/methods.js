@@ -39,7 +39,9 @@ Meteor.methods ({
  	searchCourse: function(keyword, term, req_array, dept, prof, time, if_indept){
     keyword = keyword.replace(/ +/gi, " ");
     keyword = keyword.trim();
+    /*
     //this checks if hte string has a code in the format of (dept) + num + letter
+    let code_string = "(";
     for(let item of codes){
       //in the form of CODE + NUM + LETTER; for exmaple
       //cosi11a, coSi 11a, COsi 400, COsI400
@@ -47,28 +49,31 @@ Meteor.methods ({
         let indexOfSlash = item.indexOf("/");
         let first_half = item.substring(0, indexOfSlash);
         let second_half = item.substring(indexOfSlash + 1);
-        let regex_1 = new RegExp("( |^)" + first_half + "( ?)\\d{1,3}[A-Z]{0,1}( |$)", "i");
-        let regex_2 = new RegExp("( |^)" + second_half + "( ?)\\d{1,3}[A-Z]{0,1}( |$)", "i");
+        let regex_1 = new RegExp("( |^)" + first_half + "( |$)", "i");
+        let regex_2 = new RegExp("( |^)" + second_half + "( |$)", "i");
 
         if(keyword.match(regex_1)){ 
-          let code_token = keyword.match(regex_1)[0];
-          let code_key = item + " " +code_token.trim().substring(first_half.length).trim().toUpperCase();
-          keyword = code_key;
+          code_string = code_string + item +"|";
         } else if (keyword.match(regex_2)){
-          let code_token = keyword_string.match(regex_2)[0];
-          let code_key = item + " " + code_token.trim().substring(second_half.length).trim().toUpperCase();
-          keyword = code_key;
+          code_string = code_string + item +"|";
         }
 
       } else {
-        let regex = new RegExp("( |^)" + item + " ?\\d{1,3}[A-Z]{0,1}( |$)", "i");
+        let regex = new RegExp("( |^)" + item + "( |$)", "i");
         if(keyword.match(regex)){
-          let code_token = keyword.match(regex)[0];
-          let code_key = item + " " + code_token.trim().substring(item.length).trim().toUpperCase();
-          keyword = code_key;
+          code_string = code_string + item +"|";
         }
       }
     }
+    code_string = code_string.substring(0, code_string.lastIndexOf("|")) + ")";
+    if(code_string!==")"){
+      const code_num = keyword.match(/(^| )\\d{1,3}[A-Z]{0,1}( |$)/i);
+      if(code_num){
+        keyword = code_string + " " + code_num.trim();
+      } else {
+        keyword = code_string;
+      }
+    }*/
 
     var regexCode = new RegExp("^" + keyword, "i");
 		var regexTitle = new RegExp(keyword, "i");
