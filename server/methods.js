@@ -11,6 +11,24 @@ for(let person of profData){
   }
 }
 
+//this load all the course codes
+const codes = []; 
+
+for(let key of Course.find().fetch()){
+  let code = key.code.substring(0, key.code.indexOf(" "));
+  let inArray = false;
+  let if_continue = true;
+  for(let i = 0; i < codes.length && if_continue; i++){
+    if(codes[i] === code){
+      inArray = true;
+      if_continue = false;
+    }
+  }
+  if(!inArray){
+    codes.push(code);
+  }
+}
+
 Meteor.methods ({
   keywordInsert: function(keyword) {
     Keyword.insert({
@@ -19,6 +37,39 @@ Meteor.methods ({
   },
 
  	searchCourse: function(keyword, term, req_array, dept, prof, time, if_indept){
+    keyword = keyword.replace(/ +/gi, " ");
+    keyword = keyword.trim();
+    //this checks if hte string has a code in the format of (dept) + num + letter
+    for(let item of codes){
+      //in the form of CODE + NUM + LETTER; for exmaple
+      //cosi11a, coSi 11a, COsi 400, COsI400
+      if(item.includes("/")){//some code is in the form of COSI/MATH 
+        let indexOfSlash = item.indexOf("/");
+        let first_half = item.substring(0, indexOfSlash);
+        let second_half = item.substring(indexOfSlash + 1);
+        let regex_1 = new RegExp("( |^)" + first_half + "( ?)\\d{1,3}[A-Z]{0,1}( |$)", "i");
+        let regex_2 = new RegExp("( |^)" + second_half + "( ?)\\d{1,3}[A-Z]{0,1}( |$)", "i");
+
+        if(keyword.match(regex_1)){ 
+          let code_token = keyword.match(regex_1)[0];
+          let code_key = item + " " +code_token.trim().substring(first_half.length).trim().toUpperCase();
+          keyword = code_key;
+        } else if (keyword.match(regex_2)){
+          let code_token = keyword_string.match(regex_2)[0];
+          let code_key = item + " " + code_token.trim().substring(second_half.length).trim().toUpperCase();
+          keyword = code_key;
+        }
+
+      } else {
+        let regex = new RegExp("( |^)" + item + " ?\\d{1,3}[A-Z]{0,1}( |$)", "i");
+        if(keyword.match(regex)){
+          let code_token = keyword.match(regex)[0];
+          let code_key = item + " " + code_token.trim().substring(item.length).trim().toUpperCase();
+          keyword = code_key;
+        }
+      }
+    }
+
     var regexCode = new RegExp("^" + keyword, "i");
 		var regexTitle = new RegExp(keyword, "i");
     var regexTerm = new RegExp("^" + term, "i");
