@@ -22,6 +22,7 @@ Meteor.methods ({
     var regexCode = new RegExp("^" + keyword, "i");
 		var regexTitle = new RegExp(keyword, "i");
     var regexTerm = new RegExp("^" + term, "i");
+    let hasProfessor = false;
     const searchQuery = {term: regexTerm, $or: [{code: regexCode}, {name: regexTitle}]};
 
     //process the array of requirements
@@ -42,13 +43,14 @@ Meteor.methods ({
     }
 
     //instructor
+    let prof_id;//the id for this professor
     if(prof){
       let section_of_prof;//array of all sections taught by the professor
-      let prof_id;//array of the id's of these sections
       for(let item of prof_name_and_id){
         if(item.title === prof){
           prof_id = item.id;
           section_of_prof = Section.find({instructors: prof_id}).fetch();
+          hasProfessor = true;
           break;
         }
       } 
@@ -129,11 +131,52 @@ Meteor.methods ({
         }
 
         if(searchQuery.$and){
-          let time_id_or = {$or:[]};
-          for(let key of section_id_list_time){
-            time_id_or.$or.push({id:key})
+          if(!hasProfessor){
+            let time_id_or = {$or:[]};
+            for(let key of section_id_list_time){
+              time_id_or.$or.push({id:key})
+            }
+            searchQuery.$and.push(time_id_or);
+          } else {
+            //loop through the existring id list
+            for(let i = 0; i < searchQuery.$and.length; i++){
+              if (searchQuery.$and[i].$or[0].id){//make sure that the current node is an id search
+                for(let j = 0; j < searchQuery.$and[i].$or.length; j++){
+                  //get the section using the current id
+                  let current_section;
+                  if(days_array.length != 0){
+                    let section_time_query = {
+                      course: searchQuery.$and[i].$or[j].id,
+                      instructors: prof_id,
+                      'times.start': {$gte: search_start, $lte: 1440},
+                      'times.end': {$gte: 0, $lte: search_end}
+                    };
+                    section_time_query.$and = [];
+                    for(let day of days_array){
+                      section_time_query.$and.push({'times.days': day});
+                    }
+                    current_section = Section.findOne(section_time_query);
+                  } else {
+                    current_section = Section.findOne({
+                      course: searchQuery.$and[i].$or[j].id,
+                      instructors: prof_id,
+                      'times.start': {$gte: search_start, $lte: 1440},
+                      'times.end': {$gte: 0, $lte: search_end}
+                    });
+                  };
+                  
+                  if(!current_section) {
+                    searchQuery.$and[i].$or.splice(j, 1);
+                    j--;
+                  }
+                }
+              }
+              
+              if(searchQuery.$and[i].$or.length == 0){
+                return [];
+              }
+            }      
           }
-          searchQuery.$and.push(time_id_or);
         } else {
           const course_or = {$or:searchQuery.$or};
           let time_id_or = {$or:[]};

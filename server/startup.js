@@ -95,7 +95,7 @@ Meteor.startup(function() {
 
 
 
-
+    /*
     const codes = [];
     for (var key of Course.find().fetch()) {
         const code = key.code.substring(0, key.code.indexOf(" "));
@@ -114,8 +114,8 @@ Meteor.startup(function() {
     if (Instructor.find().count()>0) return;
     const fs = Npm.require('fs');
     fs.readFile(
-    // "D:\\Luyi's\\JBS2016\\deisAcademic\\public\\data\\classes.json", 'utf8',
-    "/Users/mhzhu/Desktop/deisAcademic/public/data/classes.json", 'utf8',
+    "D:\\Luyi's\\JBS2016\\deisAcademic\\public\\data\\classes.json", 'utf8',
+    //"/Users/mhzhu/Desktop/deisAcademic/public/data/classes.json", 'utf8',
       Meteor.bindEnvironment(function (err, data) {
           if (err) {
               console.log('Error: ' + err);
@@ -142,5 +142,5 @@ Meteor.startup(function() {
               console.log(d.type);
             }
           }
-      }));
+      }));*/
 })
