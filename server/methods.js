@@ -18,12 +18,17 @@ Meteor.methods ({
     });
   },
 
- 	searchCourse: function(keyword, term, req_array, dept, prof, time){
+ 	searchCourse: function(keyword, term, req_array, dept, prof, time, if_indept){
     var regexCode = new RegExp("^" + keyword, "i");
 		var regexTitle = new RegExp(keyword, "i");
     var regexTerm = new RegExp("^" + term, "i");
     let hasProfessor = false;
-    const searchQuery = {term: regexTerm, $or: [{code: regexCode}, {name: regexTitle}]};
+    let searchQuery;
+    if(if_indept){
+      searchQuery = {term: regexTerm, $or: [{code: regexCode}, {name: regexTitle}]};
+    } else {
+      searchQuery = {term: regexTerm, $or: [{code: regexCode}, {name: regexTitle}], independent_study: false};
+    }
 
     //process the array of requirements
     if(req_array.length != 0){

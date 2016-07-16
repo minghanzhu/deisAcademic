@@ -12,6 +12,7 @@ Template.home.onRendered(function(){
 	$('#search-select-start-time').dropdown();
 	$('#search-select-end-time').dropdown();
 	$('#multi-select-days').dropdown();
+	$('.ui.checkbox').checkbox();
 	Meteor.call("getProfData", function(err, result){
 		$('#prof-search').search({
     		source : result,
@@ -59,8 +60,9 @@ Template.home.events ({
 		};
 		const dept = $("#search-select input").val();//""for no option and "all" for all departments
 		const instructor = $(".js-prof input").val();
+		const if_indept = $(".js-if-indep").is(':checked');
 
-		Meteor.call("searchCourse", keyword, term, req_names_array, dept, instructor, time_and_date,
+		Meteor.call("searchCourse", keyword, term, req_names_array, dept, instructor, time_and_date, if_indept,
 			function(err, result){
 				if(result.length == 0){
 					homeDict.set('noResult', true);
@@ -104,8 +106,9 @@ Template.home.events ({
 		};
 		const dept = $("#search-select input").val();
 		const instructor = $(".js-prof input").val();
+		const if_indept = $(".js-if-indep").is(':checked');
 
-		Meteor.call("searchCourse", keyword, term, req_names_array, dept, instructor, time_and_date,
+		Meteor.call("searchCourse", keyword, term, req_names_array, dept, instructor, time_and_date, if_indept,
 			function(err, result){
 				if(result.length == 0){
 					homeDict.set('noResult', true);
