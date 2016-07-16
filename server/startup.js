@@ -132,4 +132,12 @@ Meteor.startup(function() {
             }
           }
       }));*/
+
+      const course1 = Course.findOne({code:"COSI 11A"});
+      const course2 = Course.findOne({code:"COSI 12B"});
+
+      UserPicks.remove({});
+
+      UserPicks.insert(course1);
+      UserPicks.insert(course2);
 })
