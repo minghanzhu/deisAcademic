@@ -213,12 +213,15 @@ Meteor.methods ({
   	},
 
   	getMajorDetails: function(courseData){
-  		const ids = [];//array of major names
+  	const ids = [];//array of major names
 		const major_key = courseData.subjects;//get the array of major id's
 
 		for(var i = 0; i < major_key.length; i++){
 			const maj_obj = Subject.findOne({id: major_key[i].id});//get the major object using the id
-			const maj_detail = maj_obj.segments[parseInt(major_key[i].segment)].name;//get the type of the major using the id
+			let maj_detail = "No special notes"; 
+      if(maj_obj.segments[parseInt(major_key[i].segment)]){
+        maj_detail = maj_obj.segments[parseInt(major_key[i].segment)].name;//get the type of the major using the id
+      }
 			const maj_name = maj_obj.name;
 			ids.push(maj_name + " - " + maj_detail);//add the major name to the array
 		};
