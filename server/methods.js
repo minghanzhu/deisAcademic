@@ -36,7 +36,7 @@ Meteor.methods ({
     });
   },
 
- 	searchCourse: function(keyword, term, req_array, dept, prof, time, if_indept){
+ 	searchCourse: function(keyword, term, req_array, dept, prof, time, if_indept, if_not_sure){
     keyword = keyword.replace(/ +/gi, " ");
     keyword = keyword.trim();
     const codes_record = [];//this records the user tokens
@@ -89,7 +89,11 @@ Meteor.methods ({
         new_keyword = new_keyword + "|" + keys_record[i];
       }
       new_keyword = new_keyword + ")";
-      regexCode = new RegExp("^" + new_keyword, "i");
+      if(!if_not_sure){
+        regexCode = new RegExp("^" + new_keyword + "([A-Z]{0,1})?$", "i");
+      } else {
+        regexCode = new RegExp("^" + new_keyword, "i");
+      };
     } else {
       regexCode = new RegExp("", "i");
     }
