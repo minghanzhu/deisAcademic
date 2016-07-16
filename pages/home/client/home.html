@@ -344,8 +344,8 @@
             <h3>Time and Place</h3>
             {{#if sectionDetail.times}}
                 {{#each time in sectionDetail.times}}
-                    {{#if time.start}}<b>{{getSectionDays time.days}}:</b> {{convertTime time.start}} to {{convertTime time.end}}{{else}}TBD{{/if}}<br>
-                    {{#if time.building}}{{time.building}} - {{time.room}}{{else}}<p>Please wait until Brandeis posts place information for this section</p>{{/if}}<br>
+                    {{#if time.start}}<b>{{getSectionDays time.days}}:</b> {{convertTime time.start}} to {{convertTime time.end}}<br>{{else}}TBD<br>{{/if}}
+                    {{#if time.building}}{{time.building}} - {{time.room}}<br>{{else}}<p>Please wait until Brandeis posts place information for this section</p>{{/if}}
                     {{#if time.type}}<b>Type: </b>{{time.type}}{{/if}}
                     <div class="ui horizontal divider"></div>
                 {{/each}}
