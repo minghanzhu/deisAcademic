@@ -380,19 +380,19 @@ Template.search_result_time_table.helpers({
 						const day4 = "th";
 						const day5 = "f";
 						if($.inArray(day1,item.days) != -1){
-							days = days + day1 + " ";
+							days = days + day1.toUpperCase() + " ";
 						}
 						if($.inArray(day2,item.days) != -1){
-							days = days + day2 + " ";
+							days = days + day2.toUpperCase() + " ";
 						}
 						if($.inArray(day3,item.days) != -1){
-							days = days + day3 + " ";
+							days = days + day3.toUpperCase() + " ";
 						}
 						if($.inArray(day4,item.days) != -1){
-							days = days + day4 + " ";
+							days = days + day4.toUpperCase() + " ";
 						}
 						if($.inArray(day5,item.days) != -1){
-							days = days + day5 + " ";
+							days = days + day5.toUpperCase() + " ";
 						}
 
 						//get times
