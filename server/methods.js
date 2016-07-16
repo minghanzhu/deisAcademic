@@ -12,7 +12,7 @@ for(let person of profData){
 }
 
 //this load all the course codes
-const codes = []; 
+const codes = [];
 
 for(let key of Course.find().fetch()){
   let code = key.code.substring(0, key.code.indexOf(" "));
@@ -43,14 +43,14 @@ Meteor.methods ({
     for(let item of codes){
       //in the form of CODE + NUM + LETTER; for exmaple
       //cosi11a, coSi 11a, COsi 400, COsI400
-      if(item.includes("/")){//some code is in the form of COSI/MATH 
+      if(item.includes("/")){//some code is in the form of COSI/MATH
         let indexOfSlash = item.indexOf("/");
         let first_half = item.substring(0, indexOfSlash);
         let second_half = item.substring(indexOfSlash + 1);
         let regex_1 = new RegExp("( |^)" + first_half + "( ?)\\d{1,3}[A-Z]{0,1}( |$)", "i");
         let regex_2 = new RegExp("( |^)" + second_half + "( ?)\\d{1,3}[A-Z]{0,1}( |$)", "i");
 
-        if(keyword.match(regex_1)){ 
+        if(keyword.match(regex_1)){
           let code_token = keyword.match(regex_1)[0];
           let code_key = item + " " +code_token.trim().substring(first_half.length).trim().toUpperCase();
           keyword = code_key;
@@ -89,7 +89,7 @@ Meteor.methods ({
       }
     };
 
-    //term-dept 
+    //term-dept
     if(term && dept && dept !== "all"){//make term-dept
       const dept_query = term + "-" + dept;
       searchQuery['subjects.id'] = dept_query;
@@ -109,7 +109,7 @@ Meteor.methods ({
           hasProfessor = true;
           break;
         }
-      } 
+      }
 
       //if no professor matches, return no result
       if(!section_of_prof){
@@ -144,9 +144,9 @@ Meteor.methods ({
             searchQuery.$and.push(item);
           }
         }
-      } 
+      }
     }
-    
+
     //time and date
     let days_array = time.days;
     let search_start = time.start;
@@ -157,7 +157,7 @@ Meteor.methods ({
         const start_hr = parseInt(search_start.substring(0, search_start.indexOf(":")));
         const start_min = parseInt(search_start.substring(search_start.indexOf(":") + 1));
         search_start = start_hr * 60 + start_min;
-      } 
+      }
 
       if(search_end){
         const end_hr = parseInt(search_end.substring(0, search_end.indexOf(":")));
@@ -220,18 +220,18 @@ Meteor.methods ({
                       'times.end': {$gte: 0, $lte: search_end}
                     });
                   };
-                  
+
                   if(!current_section) {
                     searchQuery.$and[i].$or.splice(j, 1);
                     j--;
                   }
                 }
               }
-              
+
               if(searchQuery.$and[i].$or.length == 0){
                 return [];
               }
-            }      
+            }
           }
         } else {
           const course_or = {$or:searchQuery.$or};
@@ -244,9 +244,9 @@ Meteor.methods ({
         }
       } else {
         return [];
-      }  
+      }
     }
-    
+
     return Course.find(searchQuery).fetch();
   },
 
@@ -289,7 +289,7 @@ Meteor.methods ({
 
 		for(var i = 0; i < major_key.length; i++){
 			const maj_obj = Subject.findOne({id: major_key[i].id});//get the major object using the id
-			let maj_detail = "No special notes"; 
+			let maj_detail = "No special notes";
       if(maj_obj.segments[parseInt(major_key[i].segment)]){
         maj_detail = maj_obj.segments[parseInt(major_key[i].segment)].name;//get the type of the major using the id
       }
@@ -308,4 +308,8 @@ Meteor.methods ({
     getProfData: function(){
       return prof_name_and_id;
     },
+
+    removeCourse: function(obj){
+      UserTerms.remove({term: obj.term, course: obj.course});
+    }
 });

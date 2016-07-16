@@ -12,13 +12,31 @@
         <a class="item" id="fall17" data-tab="fall2017">Fall 2017</a>
       </div>
       <div class="ui bottom attached active tab segment" data-tab="fall2016">
-        Fall 2016 Test!
+        <ul>
+          {{#each fillCourses}}
+          <li>
+            {{course}}
+          </li>
+          {{/each}}
+        </ul>
       </div>
       <div class="ui bottom attached tab segment" data-tab="spring2017">
-        Spring 2017 Test!
+        <ul>
+          {{#each fillCourses}}
+          <li>
+            {{course}}
+          </li>
+          {{/each}}
+        </ul>
       </div>
       <div class="ui bottom attached tab segment" data-tab="fall2017">
-        Fall 2017 Test!
+        <ul>
+          {{#each fillCourses}}
+          <li>
+            {{course}}
+          </li>
+          {{/each}}
+        </ul>
       </div>
 
     </div>
@@ -45,7 +63,7 @@
 
  {{#each pickedCourses}}
   <div class="ui checkbox">
-    <input type="checkbox" id="{{name}}" class="js-addCourse">
+    <input type="checkbox" id="{{name}}" class="js-addCourse" value="{{id}}">
     <label for="{{name}}">{{name}}</label>
   </div>
   {{/each}}
