@@ -223,7 +223,7 @@ Template.search_result.helpers({
 		return time;
 	},
 
-	getProfName: function(prof_list, section_id){	
+	getProfName: function(prof_list, section_id){
 		Meteor.call("searchInstructorArray", prof_list, function(err, result){
 			if(result.includes("Staff")){
 				homeDict.set("instructorsName" + section_id, "Staff - This information will be updated once Brandeis posts the professor names for this section\n");
@@ -274,34 +274,34 @@ Template.search_result.events({
 		$("#popup-tab [data-tab=first]").attr("class", "item active");
 		$(".ui.container.popup .segment.active").attr("class", "ui bottom attached tab segment");
 		$(".ui.container.popup [tab-num=1]").attr("class", "ui bottom attached tab segment active");
-		
+
 		let popup = $(".popup");
-		popup.css("top", (($(window).height() - popup.outerHeight()) / 2) + $(window).scrollTop() + 30 + "px");  
+		popup.css("top", (($(window).height() - popup.outerHeight()) / 2) + $(window).scrollTop() + 30 + "px");
 		$(".overlay, .popup").fadeToggle();
 
-		
+
 
 		if(!homeDict.get('courseInfo')){//continue only if the data is ready
 			return;
 		};
 
-		//get major details	
-		Meteor.call("getMajorDetails", homeDict.get('courseInfo'), 
+		//get major details
+		Meteor.call("getMajorDetails", homeDict.get('courseInfo'),
 			function(err, result){
 				homeDict.set('majorDetail', result);
 			}
 		);
 
 		//get section details
-		Meteor.call("getSectionDetails", homeDict.get('courseInfo'), 
+		Meteor.call("getSectionDetails", homeDict.get('courseInfo'),
 			function(err, result){
 				homeDict.set('sectionDetail', _.sortBy(result,
-					function(section){ 
-						return parseInt(section.section); 
+					function(section){
+						return parseInt(section.section);
 					}
 				));
 			}
-		);	
+		);
 	},
 
 	"click .overlay,.js-close-popup" :function(event){
@@ -320,9 +320,9 @@ Template.search_result.events({
 		const course_code = homeDict.get("courseCode");
 		const section_num = $(event)[0].target.attributes[2].value;
 
-		window.open("http://www.bkstr.com/webapp/wcs/stores/servlet/booklookServlet?bookstore_id-1=1391&term_id-1=" + 
-			course_id.substring(0, course_id.indexOf("-")) + "&div-1=&dept-1=" + 
-			course_code.substring(0, course_code.indexOf(" ")) + "&course-1=" + 
+		window.open("http://www.bkstr.com/webapp/wcs/stores/servlet/booklookServlet?bookstore_id-1=1391&term_id-1=" +
+			course_id.substring(0, course_id.indexOf("-")) + "&div-1=&dept-1=" +
+			course_code.substring(0, course_code.indexOf(" ")) + "&course-1=" +
 			course_code.substring(course_code.indexOf(" ") + 1) + "&sect-1=" + section_num);
 	},
 })

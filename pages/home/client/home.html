@@ -22,7 +22,7 @@
                     <option value="1163">Fall 2016</option>
                     <option value="1162">Summer 2016</option>
                     <option value="1161">Spring 2016</option>
-                    <option value="1153">Fall 2015</option>     
+                    <option value="1153">Fall 2015</option>
                 </select>
             </div>
 
@@ -46,7 +46,7 @@
                     <option value="USWI">USWI</option>
                     <option value="UWS">UWS</option>
                     <option value="WI">WI</option>
-                </select> 
+                </select>
             </div>
 
             <div class="four wide field">
@@ -174,7 +174,7 @@
                     <option value="w">Wednesday</option>
                     <option value="th">Thursday</option>
                     <option value="f">Friday</option>
-                </select> 
+                </select>
             </div>
 
             <div class="two wide field">
@@ -319,9 +319,9 @@
                 {{courseInfo.code}} - {{courseInfo.name}}
                 <h3>Description</h3>
                 {{courseInfo.description}}
-                <h3>Requirements </h3> 
+                <h3>Requirements </h3>
                 {{#each r in courseInfo.requirements}}
-                    {{r}} 
+                    {{r}}
                 {{/each}}
                 <h3>Majors </h3>
                 {{#if majorInfo}}{{#each item in majorInfo}}{{item}}<br>{{/each}}{{else}}<div class="ui active inline loader"></div>{{/if}}
@@ -341,7 +341,7 @@
                     <select name="section" class="js-section form-control">
                         {{#each section in sectionData}}
                             <option value="{{@index}}">Section {{sectionNum section.section}}</option>
-                        {{/each}}    
+                        {{/each}}
                     </select>
                 </div>
             </div>
@@ -350,7 +350,7 @@
             <h3>Time and Place</h3>
             {{#if sectionDetail.times}}
                 {{#each time in sectionDetail.times}}
-                    {{#if notFirstTime @index}}<div class="ui horizontal divider"></div>{{/if}}        
+                    {{#if notFirstTime @index}}<div class="ui horizontal divider"></div>{{/if}}
                     {{#if time.start}}<b>{{getSectionDays time.days}}:</b> {{convertTime time.start}} to {{convertTime time.end}}<br>{{else}}TBD<br>{{/if}}
                     {{#if time.building}}{{time.building}} - {{time.room}}<br>{{else}}Please wait until Brandeis posts place information for this section<br>{{/if}}
                     {{#if time.type}}<b>Type: </b>{{time.type}}{{/if}}

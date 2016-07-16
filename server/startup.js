@@ -175,6 +175,7 @@ Meteor.startup(function() {
     });
 
     UserPicks.remove({});
+    UserTerms.remove({});
 
     UserPicks.insert(course1);
     UserPicks.insert(course2);
