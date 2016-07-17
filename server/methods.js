@@ -351,7 +351,7 @@ Meteor.methods ({
       for(let prof of prof_list){
         let prof_email = " - " + Instructor.findOne({id: prof}).email;
         const prof_first = Instructor.findOne({id: prof}).first;
-        const prof_last = Instructor.findOne({id: prof}).first;
+        const prof_last = Instructor.findOne({id: prof}).last;
         if(!prof_email) prof_email = "";
         result = result + prof_first + " " + prof_last + prof_email + "<br>";
       }
