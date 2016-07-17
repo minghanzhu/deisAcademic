@@ -339,39 +339,69 @@
         </div>
 
         <div class="ui bottom attached tab segment" data-tab="second" tab-num="2">
-        {{#if sectionData}}
-            <div class="field">
-                <div class="four wide field">
-                    <label>Section: </label>
-                    <select name="section" class="js-section form-control">
-                        {{#each section in sectionData}}
-                            <option value="{{@index}}">Section {{sectionNum section.section}}</option>
-                        {{/each}}
-                    </select>
+            <div class="ui stackable grid">
+                <div class="eleven wide column">
+                    {{#if sectionData}}
+                        <div class="field">
+                            <div class="four wide field">
+                                <label>Section: </label>
+                                <select name="section" class="js-section form-control">
+                                    {{#each section in sectionData}}
+                                        <option value="{{@index}}">Section {{sectionNum section.section}}</option>
+                                    {{/each}}
+                                </select>
+                            </div>
+                        </div>
+                        <h3>Professor</h3>
+                        {{#if profNameLoading sectionDetail.id}}<div class="ui active inline loader"></div>{{/if}}{{{getProfInfo sectionDetail.instructors sectionDetail.id}}}<br>
+                        <h3>Time and Place</h3>
+                        {{#if sectionDetail.times}}
+                            {{#each time in sectionDetail.times}}
+                                {{#if notFirstTime @index}}<div class="ui horizontal divider"></div>{{/if}}
+                                {{#if time.start}}<b>{{getSectionDays time.days}}:</b> {{convertTime time.start}} to {{convertTime time.end}}<br>{{else}}TBD<br>{{/if}}
+                                {{#if time.building}}{{time.building}} - {{time.room}}<br>{{else}}Please wait until Brandeis posts place information for this section<br>{{/if}}
+                                {{#if time.type}}<b>Type: </b>{{time.type}}{{/if}}
+                            {{/each}}
+                        {{else}}
+                            <p>Please wait until Brandeis posts time and day information for this section</p>
+                        {{/if}}
+                        <h3>Enrollment</h3>
+                        {{sectionDetail.enrolled}}/{{limitNum sectionDetail.limit}} - {{sectionDetail.status_text}}
+                        <h3>Detailed Description</h3>
+                        <p>{{#if sectionDetail.details}}{{sectionDetail.details}}{{else}}Currently no additional information for this section{{/if}}</p>
+                        <h3>Textbook Information</h3>
+                        <button class="ui basic button js-textbook" course-id="{{sectionDetail.course}}" section-num="{{sectionDetail.section}}"><i class="book icon"></i>Click to view</button>
+                    {{else}}
+                        <div class="ui active inline loader"></div>
+                    {{/if}}
+                </div>
+
+                <div class="ui vertical divider">.</div>
+
+                <div class="five wide column">
+                    <div class="ui vertical labeled icon buttons">
+                        <button class="ui basic button js-add-to-list">
+                            <i class="plus icon"></i>
+                            Add to my wishlist
+                        </button>
+
+                        <button class="ui basic button">
+                            <i class="alarm icon"></i>
+                            Watch this section for any change
+                        </button>
+
+                        <button class="ui basic button">
+                            <i class="angle double up icon"></i>
+                            Previous section
+                        </button>
+
+                        <button class="ui basic button">
+                            <i class="angle double down icon"></i>
+                            Next section
+                        </button>
+                    </div>
                 </div>
             </div>
-            <h3>Professor</h3>
-            {{#if profNameLoading sectionDetail.id}}<div class="ui active inline loader"></div>{{/if}}{{{getProfInfo sectionDetail.instructors sectionDetail.id}}}<br>
-            <h3>Time and Place</h3>
-            {{#if sectionDetail.times}}
-                {{#each time in sectionDetail.times}}
-                    {{#if notFirstTime @index}}<div class="ui horizontal divider"></div>{{/if}}
-                    {{#if time.start}}<b>{{getSectionDays time.days}}:</b> {{convertTime time.start}} to {{convertTime time.end}}<br>{{else}}TBD<br>{{/if}}
-                    {{#if time.building}}{{time.building}} - {{time.room}}<br>{{else}}Please wait until Brandeis posts place information for this section<br>{{/if}}
-                    {{#if time.type}}<b>Type: </b>{{time.type}}{{/if}}
-                {{/each}}
-            {{else}}
-                <p>Please wait until Brandeis posts time and day information for this section</p>
-            {{/if}}
-            <h3>Enrollment</h3>
-            {{sectionDetail.enrolled}}/{{limitNum sectionDetail.limit}} - {{sectionDetail.status_text}}
-            <h3>Detailed Description</h3>
-            <p>{{#if sectionDetail.details}}{{sectionDetail.details}}{{else}}Currently no additional information for this section{{/if}}</p>
-            <h3>Textbook Information</h3>
-            <button class="ui basic button js-textbook" course-id="{{sectionDetail.course}}" section-num="{{sectionDetail.section}}"><i class="book icon"></i>Click to view</button>
-        {{else}}
-            <div class="ui active inline loader"></div>
-        {{/if}}
         </div>
 
         <div class="ui bottom attached tab segment" data-tab="third" tab-num="3">
