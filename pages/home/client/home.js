@@ -405,8 +405,8 @@ Template.search_result.helpers({
 		return time;
 	},
 
-	getProfName: function(prof_list, section_id){
-		Meteor.call("searchInstructorArray", prof_list, function(err, result){
+	getProfInfo: function(prof_list, section_id){
+		Meteor.call("getProfInfo", prof_list, function(err, result){
 			if(result.includes("Staff")){
 				homeDict.set("instructorsName" + section_id, "Staff - This information will be updated once Brandeis posts the professor names for this section\n");
 			} else {

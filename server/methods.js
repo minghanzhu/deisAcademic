@@ -346,6 +346,20 @@ Meteor.methods ({
       return prof_name_and_id;
     },
 
+    getProfInfo: function(prof_list){
+      let result = "";
+      for(let prof of prof_list){
+        let prof_email = " - " + Instructor.findOne({id: prof}).email;
+        const prof_first = Instructor.findOne({id: prof}).first;
+        const prof_last = Instructor.findOne({id: prof}).first;
+        if(!prof_email) prof_email = "";
+        result = result + prof_first + " " + prof_last + prof_email + "<br>";
+      }
+
+      result = result.substring(0, result.lastIndexOf("<br>"));
+      return result;
+    },
+
     removeCourse: function(course){
       UserTerms.remove({term: course.term, term: course.term});
     }
