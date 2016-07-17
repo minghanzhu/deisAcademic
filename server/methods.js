@@ -90,20 +90,26 @@ Meteor.methods ({
       }
       new_keyword = new_keyword + ")";
       if(!if_not_sure){
-        regexCode = new RegExp("^" + new_keyword + "([A-Z]{0,1})?$", "i");
+        if(!/\d/i.test(new_keyword)){
+          regexCode = new RegExp("^" + new_keyword + " \\d{1,3}([A-Z]{0,1})?$", "i");
+        } else{
+          regexCode = new RegExp("^" + new_keyword + " ?([A-Z]{0,1})?$", "i");
+        }
       } else {
-        regexCode = new RegExp("^" + new_keyword, "i");
+        regexCode = new RegExp("^" + new_keyword + " ?((\\d{1,3})?[A-Z]{0,1})?$", "i");
       };
     } else {
-      regexCode = new RegExp("", "i");
+      regexCode = new RegExp("^", "i");
     }
 
     var regexTitle;
     if(/^ +$/.test(keyword)){//this makes sure there's something left in the keyword string
-      regexTitle = new RegExp("", "i");
+      regexTitle = new RegExp("^", "i");
     } else {
       regexTitle = new RegExp(keyword.trim(),"i");
     };
+    console.log(regexCode);
+    console.log(regexTitle);
 
     var regexTerm = new RegExp("^" + term, "i");
     let hasProfessor = false;
