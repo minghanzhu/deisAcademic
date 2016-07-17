@@ -108,8 +108,6 @@ Meteor.methods ({
     } else {
       regexTitle = new RegExp(keyword.trim(),"i");
     };
-    console.log(regexCode);
-    console.log(regexTitle);
 
     var regexTerm = new RegExp("^" + term, "i");
     let hasProfessor = false;

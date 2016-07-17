@@ -68,7 +68,42 @@ Template.home.events ({
 				if(result.length == 0){
 					homeDict.set('noResult', true);
 				} else {
-					homeDict.set('courseData', result);
+					const sorted_result = result.sort(function(a, b) {
+    					if(parseInt(a.term) < parseInt(b.term)){
+        					return 1;  
+    					}else if(parseInt(a.term) > parseInt(b.term)){
+        					return -1;
+    					}else{
+        					//for a
+        					let course_num_a = parseInt(a.code.match(/\d+/gi)[0]);
+							if(course_num_a < 10) course_num_a = "00" + course_num_a;
+							if(course_num_a >= 10 && course_num_a < 100) course_num_a = "0" + course_num_a;
+							const course_dep_a = a.code.substring(0, a.code.indexOf(" "));
+							const last_a = a.code.charAt(a.code.length - 1);
+							let comp_string_a;
+							if(/\w/i.test(last_a)){
+								comp_string_a = course_dep_a + course_num_a + last_a;
+							} else{
+								comp_string_a = course_dep_a + course_num_a + 0;
+							};
+
+							//for b
+							let course_num_b = parseInt(b.code.match(/\d+/gi)[0]);
+							if(course_num_b < 10) course_num_b = "00" + course_num_b;
+							if(course_num_b >= 10 && course_num_b < 100) course_num_b = "0" + course_num_b;
+							const course_dep_b = b.code.substring(0, b.code.indexOf(" "));
+							const last_b = b.code.charAt(b.code.length - 1);
+							let comp_string_b;
+							if(/\w/i.test(last_b)){
+								comp_string_b = course_dep_b + course_num_b + last_b;
+							} else{
+								comp_string_b = course_dep_b + course_num_b + 0;
+							};
+							return comp_string_a.localeCompare(comp_string_b);
+    					}
+					});
+					console.log(sorted_result);
+					homeDict.set('courseData', sorted_result);
 					homeDict.set('noResult',false);
 				}
 
@@ -115,7 +150,41 @@ Template.home.events ({
 				if(result.length == 0){
 					homeDict.set('noResult', true);
 				} else {
-					homeDict.set('courseData', result);
+					const sorted_result = result.sort(function(a, b) {
+    					if(parseInt(a.term) < parseInt(b.term)){
+        					return 1;  
+    					}else if(parseInt(a.term) > parseInt(b.term)){
+        					return -1;
+    					}else{
+        					//for a
+        					let course_num_a = parseInt(a.code.match(/\d+/gi)[0]);
+							if(course_num_a < 10) course_num_a = "00" + course_num_a;
+							if(course_num_a >= 10 && course_num_a < 100) course_num_a = "0" + course_num_a;
+							const course_dep_a = a.code.substring(0, a.code.indexOf(" "));
+							const last_a = a.code.charAt(a.code.length - 1);
+							let comp_string_a;
+							if(/\w/i.test(last_a)){
+								comp_string_a = course_dep_a + course_num_a + last_a;
+							} else{
+								comp_string_a = course_dep_a + course_num_a + 0;
+							};
+
+							//for b
+							let course_num_b = parseInt(b.code.match(/\d+/gi)[0]);
+							if(course_num_b < 10) course_num_b = "00" + course_num_b;
+							if(course_num_b >= 10 && course_num_b < 100) course_num_b = "0" + course_num_b;
+							const course_dep_b = b.code.substring(0, b.code.indexOf(" "));
+							const last_b = b.code.charAt(b.code.length - 1);
+							let comp_string_b;
+							if(/\w/i.test(last_b)){
+								comp_string_b = course_dep_b + course_num_b + last_b;
+							} else{
+								comp_string_b = course_dep_b + course_num_b + 0;
+							};
+							return comp_string_a.localeCompare(comp_string_b);
+    					}
+					});
+					homeDict.set('courseData', sorted_result);
 					homeDict.set('noResult',false);
 				}
 
@@ -159,12 +228,13 @@ Template.search_result.helpers({
 			rowsPerPage: 10,
 			showFilter: false,
 			showNavigationRowsPerPage: false,
+			multiColumnSort: false,
 			fields:[
-				{key:'name', label: 'Course',headerClass: "four wide"},
-				{key:'code', label:'Code', headerClass: "three wide"},
-				{key:'requirements', label:'Requirements', headerClass: "two wide"},
-				{key:'description', label:'Description', tmpl:Template.description_detail, headerClass: "five wide"},
-				{key:'term', label:'Term', headerClass: "two wide", fn: function(key, object){
+				{key:'name', label: 'Course',headerClass: "four wide", sortable: false},
+				{key:'code', label:'Code', headerClass: "three wide", sortable: false},
+				{key:'requirements', label:'Requirements', headerClass: "two wide", sortable: false},
+				{key:'description', label:'Description', tmpl:Template.description_detail, headerClass: "five wide", sortable: false},
+				{key:'term', label:'Term', headerClass: "two wide", sortable: false, fn: function(key, object){
 					Meteor.call("searchTerm", key, function(err, result){
 						homeDict.set("termName" + object.id, result);
 					});
