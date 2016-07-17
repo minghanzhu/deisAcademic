@@ -188,16 +188,20 @@ Meteor.methods ({
     let search_end = time.end;
     if(days_array.length != 0 || (search_start && search_start !== "all") || (search_end && search_end !== "all")){
       const searchQuery_time = {$and:[]};
-      if(search_start){
+      if(search_start && search_start !== "all"){
         const start_hr = parseInt(search_start.substring(0, search_start.indexOf(":")));
         const start_min = parseInt(search_start.substring(search_start.indexOf(":") + 1));
         search_start = start_hr * 60 + start_min;
+      } else {
+        search_start = 0;
       }
 
-      if(search_end){
+      if(search_end && search_end !== "all"){
         const end_hr = parseInt(search_end.substring(0, search_end.indexOf(":")));
         const end_min = parseInt(search_end.substring(search_end.indexOf(":") + 1));
         search_end = end_hr * 60 + end_min;
+      } else {
+        search_end = 1440;
       }
 
       if(search_start >= "0" && search_start <= "1440"){
