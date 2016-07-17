@@ -102,7 +102,9 @@ Template.home.events ({
 							return comp_string_a.localeCompare(comp_string_b);
     					}
 					});
-					console.log(sorted_result);
+					for(let i = 0; i < sorted_result.length; i++){
+						sorted_result[i].index = i;
+					};
 					homeDict.set('courseData', sorted_result);
 					homeDict.set('noResult',false);
 				}
@@ -184,6 +186,9 @@ Template.home.events ({
 							return comp_string_a.localeCompare(comp_string_b);
     					}
 					});
+					for(let i = 0; i < sorted_result.length; i++){
+						sorted_result[i].index = i;
+					};
 					homeDict.set('courseData', sorted_result);
 					homeDict.set('noResult',false);
 				}
@@ -230,6 +235,7 @@ Template.search_result.helpers({
 			showNavigationRowsPerPage: false,
 			multiColumnSort: false,
 			fields:[
+				{key:'index', hidden:true},
 				{key:'name', label: 'Course',headerClass: "four wide", sortable: false},
 				{key:'code', label:'Code', headerClass: "three wide", sortable: false},
 				{key:'requirements', label:'Requirements', headerClass: "two wide", sortable: false},
