@@ -443,7 +443,7 @@ Template.search_result.helpers({
 })
 
 Template.search_result.events({
-	"click .reactive-table tbody tr": function(event){
+	"click .js-result-table tbody tr": function(event){
 		homeDict.set('courseInfo');
 		homeDict.set('sectionDetail', []);
 		homeDict.set('majorDetail', []);
