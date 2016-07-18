@@ -525,7 +525,7 @@ Template.description_detail.helpers({
 
 Template.search_result_time_table.helpers({
 	sectionData: function(){
-		return homeDict.get('sectionDetail');
+		return _.sortBy(homeDict.get('sectionDetail'), 'section');
 	},
 
 	settings_result: function(){
@@ -533,8 +533,9 @@ Template.search_result_time_table.helpers({
 			rowsPerPage: 5,
 			showFilter: false,
 			showNavigationRowsPerPage: false,
+			multiColumnSort: false,
 			fields:[
-				{key:'section', label: 'Section', fn: function(key){
+				{key:'section', label: 'Section', sortable:false, fn: function(key){
 					var section = key;
 					if(section < 10){
 						section = "0" + section;
@@ -542,7 +543,7 @@ Template.search_result_time_table.helpers({
 
 					return "Section " + section;
 				}},
-				{key:'enrolled', label:'Enrolled', fn: function(key, object){
+				{key:'enrolled', label:'Enrolled', sortable:false, fn: function(key, object){
 					var limit = object.limit;
 					if(!limit){
 						limit = 999;
@@ -550,8 +551,8 @@ Template.search_result_time_table.helpers({
 
 					return key + "/" + limit;
 				}},
-				{key:'status_text', label:'Status'},
-				{key:'times', label:'Times', fn:function(key){
+				{key:'status_text', label:'Status', sortable:false},
+				{key:'times', label:'Times', sortable:false, fn:function(key){
 					var result = "";
 					for(var item of key){
 						//get days
@@ -603,7 +604,7 @@ Template.search_result_time_table.helpers({
 						return "TBA";
 					};
 				}},
-				{key:'instructors', label:'Instructor', fn: function(key, object){
+				{key:'instructors', label:'Instructor', sortable:false, fn: function(key, object){
 					Meteor.call("searchInstructorArray", key, function(err, result){
 						homeDict.set("instructors" + object.id, result);
 					});
