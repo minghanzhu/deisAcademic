@@ -13,32 +13,32 @@
 </template>
 
 <template name="majorItem">
-	<div data-toggle="collapse" data-target=#{{m._id}}><b>{{{m.name}}}</b></div>
+	<a href="" data-toggle="collapse" data-target=#{{m._id}}><b style="font-size: 130%">{{{m.name}}}</b></a>
 	<div id={{m._id}} class="collapse">
 		<br>
-		<a data-toggle="collapse" data-target="#major{{m._id}}"><b>Major (BA/BS)</b></a>
+		<a href="" data-toggle="collapse" data-target="#major{{m._id}}"><b style="font-size: 120%">Major (BA/BS)</b></a>
 		<div id="major{{m._id}}" class="collapse">{{{m.major}}}</div>
 		<br>
 		{{#if m.minor}}
-		<a data-toggle="collapse" data-target="#minor{{m._id}}"><b>Minor</b></a>
+		<a href="" data-toggle="collapse" data-target="#minor{{m._id}}"><b style="font-size: 120%">Minor</b></a>
 		<div id="minor{{m._id}}" class="collapse">{{{m.minor}}}</div>
 		<br>
 		{{else}}
 		{{/if}}
 		{{#if m.master}}
-		<a data-toggle="collapse" data-target="#master{{m._id}}"><b>Master of Arts</b></a>
+		<a href="" data-toggle="collapse" data-target="#master{{m._id}}"><b style="font-size: 120%">Master of Arts</b></a>
 		<div id="master{{m._id}}" class="collapse">{{{m.master}}}</div>
 		<br>
 		{{else}}
 		{{/if}}
 		{{#if m.combined}}
-		<a data-toggle="collapse" data-target="#combined{{m._id}}"><b>Combined BA/MA</b></a>
+		<a href="" data-toggle="collapse" data-target="#combined{{m._id}}"><b style="font-size: 120%">Combined BA/MA</b></a>
 		<div id="combined{{m._id}}" class="collapse">{{{m.combined}}}</div>
 		<br>
 		{{else}}
 		{{/if}}
 		{{#if m.doctor}}
-		<a data-toggle="collapse" data-target="#doctor{{m._id}}"><b>Doctor of Philosophy</b></a>
+		<a href="" data-toggle="collapse" data-target="#doctor{{m._id}}"><b style="font-size: 120%">Doctor of Philosophy</b></a>
 		<div id="doctor{{m._id}}" class="collapse">{{{m.doctor}}}</div>
 		<br>
 		{{else}}
