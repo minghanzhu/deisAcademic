@@ -1,23 +1,35 @@
 Template.skelSched.onCreated(function() {
   //default the term to fall 2016
-  Session.set("selectedTerm", "fall16")
+  Session.set("selectedTerm", "fall16");
+  // checkList = new ReactiveDict();
+  // checkList.setDefault({
+  //   fall16: [],
+  // })
 })
 
 Template.skelSched.onRendered(function () {
   $('.top.menu .item').tab({
     'onLoad': function(){
       var term = $(".item.active")[0].id;
-      console.log(term);
+      // console.log(term);
       Session.set("selectedTerm", term);
-    }
-  })
+    },
+
+  //
+  // 'onVisible': function(){
+  //   var term = $(".item.active")[0].id;
+  //   // console.log(term);
+  //   for (checkbox in "#courseList") {
+  //     console.log(checkbox.value);
+  //   }
+  // }
+})
 })
 
 Template.skelSched.helpers({
   fillCourses: function(){
     const theTerm = Session.get("selectedTerm");
-    // console.log(theTerm);
-    return UserTerms.find({term: theTerm});
+    return UserTerms.findOne({term: theTerm});
   },
 })
 
@@ -51,24 +63,24 @@ Template.courseChecklist.helpers({
 Template.courseChecklist.events({
   "click .js-addCourse": function(event, instance){
 
-    term = Session.get("selectedTerm");
-    course = event.target.value;
+    const term = Session.get("selectedTerm");
+    const courseId = event.target.value;
+    const course = Course.findOne({id: courseId});
 
     if (event.target.checked) {
-      console.log("checked");
-      UserTerms.insert({term: term, course: course});
+      // console.log("checked");
+      Meteor.call("addCourse", {term: term, course: course});
     }
     else if (!event.target.checked){
-      console.log("unchecked")
+      // console.log("unchecked")
       Meteor.call("removeCourse", {term: term, course:course});
-      //UserTerms.remove({term: term, course: course});
     }
 
-    console.log(this);
-
-    console.log(event.target.id);
-    console.log(event.target.checked);
-    console.log(event.target.value);
+    // console.log(this);
+    //
+    // console.log(event.target.id);
+    // console.log(event.target.checked);
+    // console.log(event.target.value);
 
     // UserTerms.insert({term: term, course: course});
   },

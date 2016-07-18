@@ -13,27 +13,27 @@
       </div>
       <div class="ui bottom attached active tab segment" data-tab="fall2016">
         <ul>
-          {{#each fillCourses}}
+          {{#each c in fillCourses.courses}}
           <li>
-            {{course}}
+            {{c.name}}
           </li>
           {{/each}}
         </ul>
       </div>
       <div class="ui bottom attached tab segment" data-tab="spring2017">
         <ul>
-          {{#each fillCourses}}
+          {{#each c in fillCourses.courses}}
           <li>
-            {{course}}
+            {{c.name}}
           </li>
           {{/each}}
         </ul>
       </div>
       <div class="ui bottom attached tab segment" data-tab="fall2017">
         <ul>
-          {{#each fillCourses}}
+          {{#each c in fillCourses.courses}}
           <li>
-            {{course}}
+            {{c.name}}
           </li>
           {{/each}}
         </ul>
