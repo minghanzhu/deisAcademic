@@ -364,7 +364,25 @@ Meteor.methods ({
       return result;
     },
 
+    addCourse: function(course){
+      UserTerms.upsert({
+        term: course.term
+      }, {
+        $push: {
+          courses: course.course
+        }
+      })
+      // UserTerms.insert({course: course.course, term: course.term})
+    },
+
     removeCourse: function(course){
-      UserTerms.remove({term: course.term, term: course.term});
-    }
+      UserTerms.update({
+        term: course.term
+      }, {
+        $pull: {
+          courses: course.course
+        }
+    })
+    // UserTerms.remove({term: course.term, term: course.term});
+  },
 });
