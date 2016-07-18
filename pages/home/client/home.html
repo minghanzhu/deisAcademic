@@ -325,8 +325,8 @@
                 <h3>Description</h3>
                 {{courseInfo.description}}
                 <h3>Requirements </h3>
-                {{#each r in courseInfo.requirements}}
-                    {{r}}
+                {{#each r in getReq courseInfo.requirements}}
+                    {{r}} 
                 {{/each}}
                 <h3>Majors </h3>
                 {{#if majorInfo}}{{#each item in majorInfo}}{{item}}<br>{{/each}}{{else}}<div class="ui active inline loader"></div>{{/if}}

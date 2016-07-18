@@ -342,7 +342,17 @@ Template.search_result.helpers({
 				{key:'index', hidden:true},
 				{key:'name', label: 'Course',headerClass: "four wide", sortable: false},
 				{key:'code', label:'Code', headerClass: "three wide", sortable: false},
-				{key:'requirements', label:'Requirements', headerClass: "two wide", sortable: false},
+				{key:'requirements', label:'Requirements', headerClass: "two wide", sortable: false , fn:function(key){
+					if(key.length != 0){
+						let result = "";
+						for(let req of key){
+							result = result + req + " ";
+						};
+						return result;
+					} else {
+						return "/";
+					};
+				}},
 				{key:'description', label:'Description', tmpl:Template.description_detail, headerClass: "five wide", sortable: false},
 				{key:'term', label:'Term', headerClass: "two wide", sortable: false, fn: function(key, object){
 					Meteor.call("searchTerm", key, function(err, result){
@@ -439,6 +449,14 @@ Template.search_result.helpers({
 
 	notFirstTime: function(index){
 		return index != 0;
+	},
+
+	getReq: function(req_array){
+		if(req_array.length == 0){
+			return ["/"];
+		} else {
+			return req_array;
+		};
 	},
 })
 
