@@ -1,10 +1,10 @@
 Template.skelSched.onCreated(function() {
   //default the term to fall 2016
   Session.set("selectedTerm", "fall16");
-  // checkList = new ReactiveDict();
-  // checkList.setDefault({
-  //   fall16: [],
-  // })
+  schedDict = new ReactiveDict();
+  schedDict.setDefault({
+    "sectToCourse": new Map(),
+  })
 })
 
 Template.skelSched.onRendered(function () {
@@ -58,6 +58,46 @@ Template.courseChecklist.helpers({
     //tracks term currently selected by user
     return Session.get("selectedTerm");
   },
+
+  theSections: function(){
+
+    var sectOpts = [];
+
+    var cursor = UserPicks.find();
+
+    // combo = schedDict.get("sectToCourse");
+    combo = {};
+
+    cursor.forEach(function(course){
+
+      var sectCursor = Section.find({course: course.id});
+
+      sectCursor.forEach(function(sect) {
+        // console.log(sect);
+        sectOpts.push(sect);
+        combo[sect.id] = course.name;
+      })
+    })
+
+    console.log(sectOpts);
+    console.log(combo);
+
+    // theMap = new Map(combo);
+    // console.log(theMap);
+
+    schedDict.set("sectToCourse", combo);
+
+    return sectOpts;
+  },
+
+  sectLink: function(sect){
+    const sectId = sect.hash.sect
+    // console.log(sect.hash.sect);
+    var mapTest = schedDict.get("sectToCourse");
+    // console.log(mapTest);
+    console.log(mapTest[sectId]);
+    return mapTest[sectId];
+  }
 })
 
 Template.courseChecklist.events({
