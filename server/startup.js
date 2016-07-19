@@ -1,7 +1,7 @@
 Meteor.startup(function() {
     Keyword.remove({});
     Dept.remove({});
-    Major.remove({});
+    // Major.remove({});
 
     if (Wishlist.find().count() == 0) {
         Wishlist.insert({
@@ -23,7 +23,8 @@ Meteor.startup(function() {
             time: "M,W 2:00 PM–3:20 PM"
         });
     };
-
+    // TODO: JSON file of University Bulletin
+  if (Major.find().count() == 0) {
     Major.insert({
         name: "Computer Science",
         id: "1400",
@@ -130,6 +131,7 @@ Meteor.startup(function() {
         combined: false,
         doctor: "All of the requirements for the master's degree as well as the following: <p><strong>Residence Requirement<br></strong> The minimum residence requirement is three years. A student may obtain up to one year's residence credit toward the PhD requirements for graduate studies taken at another institution.</p><p><strong>Teaching Requirement<br></strong> It is required that all PhD candidates participate in undergraduate teaching during the course of their studies.</p><p><strong>Course Requirements<br></strong> In addition to the general requirements for advanced degree candidates, each student must also take two elective advanced physics courses, one of which is outside the student’s intended area of research. These must be chosen in consultation and with the approval of the graduate advisor. A total of at least nine semester courses in physics numbered above 160 are required for the doctoral degree.</p><p>Each summer, full-time PhD students are required to do work related to their research area under the supervision of a faculty member. The work can take the form of dissertation research, or can involve an industrial internship. Students doing dissertation research over the summer should register for CONT 250. Students doing an industrial internship must have the consent of their advisor and should register for PHYS 393g.</p><p><strong>Qualifying Examination<br></strong> PHYS 161a, 162a,b and 163a with grades of B or above, in addition to the requirements listed for the master's degree.</p><p><strong>Advanced Examinations<br></strong> Advanced examinations are in topics partitioned in the several areas of research interest of the faculty. Faculty members working in each general area function as a committee for this purpose and provide information about their work through informal discussions and seminars. The advanced examination requirement consists of a written paper and an oral examination. Although no original research by the student is required, it is hoped that a proposal for a possible thesis topic will emerge. It is expected that the candidates will take the advanced examination in the field they wish to pursue for the PhD thesis by the middle of the fourth term in order to qualify for continued departmental support beyond the second year.</p><p><strong>Thesis Research<br></strong> After passing the advanced examination, the student begins work with an adviser, who guides his or her research program. The adviser should be a member of the Brandeis faculty but in special circumstances may be a scientist associated with another research institution. The graduate committee of the physics faculty will appoint a dissertation committee to supervise the student's research. The student's dissertation adviser will be the chair of the dissertation committee.</p><p><strong>Dissertation and Final Oral Examination<br></strong> The doctoral dissertation must represent research of a standard acceptable to the faculty committee appointed for each PhD candidate. The final oral examination, or defense, is an examination in which the student will be asked questions pertaining to the dissertation research.</p><h4>Requirements for the Degree of Doctor of Philosophy in Physics with Specialization in Quantitative Biology</h4><p><strong>Program of Study<br></strong> Students wishing to obtain the specialization must first gain approval of the graduate program chair. This should be done as early as possible, ideally during the first year of graduate studies. In order to receive the PhD in physics with additional specialization in quantitative biology, candidates must complete (a) the requirements for the PhD described above and (b) the course requirements for the quantitative biology specialization that are described in the quantitative biology section of this <em>Bulletin</em>.</p><p>Any alteration to the quantitative biology course requirements must be approved by the graduate program chair and by the quantitative biology program faculty advisory committee.</p>",
     });
+  };
 
     Major.insert({
         name: "Economics",
@@ -216,7 +218,7 @@ Meteor.startup(function() {
             }
           }
       }));*/
-
+    /*
     const course1 = Course.findOne({
         code: "COSI 11A"
     });
@@ -233,5 +235,5 @@ Meteor.startup(function() {
     UserTerms.insert({term: "fall16", courses: []});
     UserTerms.insert({term: "spring17", courses: []});
     UserTerms.insert({term: "fall17", courses: []});
-    UserTerms.insert({termList: ["fall16", "spring17", "fall17"]})
+    UserTerms.insert({termList: ["fall16", "spring17", "fall17"]})*/
 })
