@@ -1,15 +1,32 @@
 <template name="majorPlan">
-	<div class="ui container">
+	<!-- <div class="ui container">
 		Welcome to major plan
-	</div>
-	<ul>
+	</div> -->
+
+	<div class="ui grid">
+  <div class="eight wide column">
+		{{> planSearch}}
+  </div>
+
+  <div class="eight wide column">
+		<ul>
+			{{#each m in majors}}
+			<li>
+				{{> majorItem m = m}}
+				<br>
+			</li>
+			<hr> {{/each}}
+		</ul>
+  </div>
+</div>
+	<!-- <ul>
 		{{#each m in majors}}
 		<li>
 			{{> majorItem m = m}}
 			<br>
 		</li>
 		<hr> {{/each}}
-	</ul>
+	</ul> -->
 </template>
 
 <template name="majorItem">
@@ -25,9 +42,15 @@
 		<br>
 		{{else}}
 		{{/if}}
-		{{#if m.master}}
-		<a href="" data-toggle="collapse" data-target="#master{{m._id}}"><b style="font-size: 120%">Master of Arts</b></a>
-		<div id="master{{m._id}}" class="collapse">{{{m.master}}}</div>
+		{{#if m.MA}}
+		<a href="" data-toggle="collapse" data-target="#MA{{m._id}}"><b style="font-size: 120%">Master of Arts</b></a>
+		<div id="MA{{m._id}}" class="collapse">{{{m.MA}}}</div>
+		<br>
+		{{else}}
+		{{/if}}
+		{{#if m.MS}}
+		<a href="" data-toggle="collapse" data-target="#MS{{m._id}}"><b style="font-size: 120%">Master of Science</b></a>
+		<div id="MS{{m._id}}" class="collapse">{{{m.MS}}}</div>
 		<br>
 		{{else}}
 		{{/if}}
