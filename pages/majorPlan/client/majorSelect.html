@@ -1,6 +1,4 @@
 <template name="majorSelect">
-<br><br><br><br><br><br><br><br>
-
 	<div id="advSearch_form" class="ui form">
 		<div class="fields">
 
@@ -126,14 +124,12 @@
 
 
 <template name="decidemajor">
-
-	<br><br><br>
 	<div class="ui grid">
 		<div class="two wide column"></div>
 		<div class="four wide column"><h2><i class="book icon"></i>School of Science</h2>
 			{{#each m in majors}}
 			  <ul class="ui list">
-			    <li>{{> majorItem m = m}}</li>
+			    <li></li>
 		    </ul>
 			{{/each}}
 		</div>
@@ -147,45 +143,4 @@
 
 
 
-</template>
-
-
-
-
-<template name="majorItem">
-<div class="container">
-
-	<div data-toggle="collapse" data-target=#{{m._id}}><b>{{{m.name}}}</b></div>
-	<div id={{m._id}} class="collapse">
-		<br>
-		<a data-toggle="collapse" data-target="#major{{m._id}}"><b>Major (BA/BS)</b></a>
-		<div id="major{{m._id}}" class="collapse">{{{m.major}}}</div>
-		<br>
-		{{#if m.minor}}
-		<a data-toggle="collapse" data-target="#minor{{m._id}}"><b>Minor</b></a>
-		<div id="minor{{m._id}}" class="collapse">{{{m.minor}}}</div>
-		<br>
-		{{else}}
-		{{/if}}
-		{{#if m.master}}
-		<a data-toggle="collapse" data-target="#master{{m._id}}"><b>Master of Arts</b></a>
-		<div id="master{{m._id}}" class="collapse">{{{m.master}}}</div>
-		<br>
-		{{else}}
-		{{/if}}
-		{{#if m.combined}}
-		<a data-toggle="collapse" data-target="#combined{{m._id}}"><b>Combined BA/MA</b></a>
-		<div id="combined{{m._id}}" class="collapse">{{{m.combined}}}</div>
-		<br>
-		{{else}}
-		{{/if}}
-		{{#if m.doctor}}
-		<a data-toggle="collapse" data-target="#doctor{{m._id}}"><b>Doctor of Philosophy</b></a>
-		<div id="doctor{{m._id}}" class="collapse">{{{m.doctor}}}</div>
-		<br>
-		{{else}}
-		{{/if}}
-	</div>
-
-</div>
 </template>

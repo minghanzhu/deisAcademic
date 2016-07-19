@@ -17,7 +17,7 @@ Template.majorSelect.events({
 })
 
 
-
+/*
 Template.decidemajor.helpers({
   	majors: function(){return Major.find();},
 })
@@ -25,4 +25,4 @@ Template.decidemajor.helpers({
 
 Template.decidemajor.events({
 
-})
+})*/
