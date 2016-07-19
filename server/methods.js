@@ -387,7 +387,6 @@ Meteor.methods ({
   },
 
   "addUserProfile_Google": function(date){
-    console.log("this gets called")
     //check if the user id valid
     if(!this.userId){
       console.log("Invalid insert: No such user");
@@ -410,7 +409,8 @@ Meteor.methods ({
     if (user_obj == null){
       const profile_obj = {
         userName: user_username,
-        userYear: "Junior!@@#$@wahahahha",
+        userYear: "Junior",
+        userId: this.userId,
         wishlist: [],
         majorPlanList:[],
         liked: [],

@@ -286,7 +286,17 @@
             <li><a href="{{pathFor 'home'}}">Search</a></li>
             <li><a href="{{pathFor 'schedule'}}">My Schedule</a></li>
             <li><a href="{{pathFor 'majorPlan'}}">Major Planning</a></li>
-            {{#if currentUser}}<li><a href="{{pathFor 'myProfile'}}">My Profile</a></li>{{else}}<li><a class="js-login">Login with Brandeis account</a></li>{{/if}}
+            {{#if currentUser}}
+                {{#if existsProfile}}
+                    <li><a href="{{pathFor 'myProfile'}}">My Profile</a></li>
+                    <li><a class="js-log-out">Log Out</a></li>
+                {{else}}
+                    {{createAccount}}
+                    <div class="ui active inline loader"></div>
+                {{/if}}
+            {{else}}
+                <li><a class="js-login">Login with Brandeis account</a></li>
+            {{/if}}
         </ul>
     </div>
 
