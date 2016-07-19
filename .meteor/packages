@@ -30,5 +30,6 @@ juliancwirko:postcss
 easysearch:components
 easy:search
 easysearch:core
-autopublish
 session
+autopublish
+mizzao:jquery-ui
