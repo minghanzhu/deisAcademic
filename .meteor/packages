@@ -32,3 +32,8 @@ easy:search
 easysearch:core
 autopublish
 session
+aldeed:simple-schema
+aldeed:collection2
+accounts-google
+accounts-password
+accounts-ui

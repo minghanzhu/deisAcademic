@@ -301,6 +301,27 @@ Template.home.events ({
 			}
 		);
  	},
+
+ 	"click .js-login": function(event){
+ 		event.preventDefault();
+ 		const user_id = Meteor.loginWithGoogle(function(err, result){
+			if(err){
+				console.log(Meteor.userId());
+				if(err.toString() === "Error: Please sign-up with a Brandeis Google account. [400]"){
+					window.alert(err);
+					console.log(result);
+					return;
+				} 
+				console.log(err);
+				console.log(result);
+				return;
+			};
+		});
+ 		//console.log(user_id)
+		if(user_id && Meteor.userId()){
+			Meteor.call("addUserProfile_Google",(new Date()).toLocaleString());
+		};
+ 	}
 })
 
 Template.search_result.helpers({
