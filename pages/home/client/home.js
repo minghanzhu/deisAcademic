@@ -119,6 +119,17 @@ Template.home.helpers ({
 	showTable: function(){
 		return homeDict.get('showTable');
 	},
+
+	createAccount: function(){
+		if(Meteor.userId()){
+			Meteor.call("addUserProfile_Google",(new Date()).toLocaleString());
+		};
+	},
+
+	existsProfile: function(){
+		//return homeDict.get("existsProfile");
+		return UserProfilePnc.findOne({userId: Meteor.userId()})
+	},
 })
 
 Template.home.events ({
@@ -300,6 +311,25 @@ Template.home.events ({
     			homeDict.set('showTable', true);
 			}
 		);
+ 	},
+
+ 	"click .js-login": function(event){
+ 		event.preventDefault();
+ 		Meteor.loginWithGoogle(function(err, result){
+			if(err){
+				if(err.toString() === "Error: Please sign-up with a Brandeis Google account. [400]"){
+					window.alert(err);
+					return;
+				} 
+				return;
+			};
+		});
+ 	},
+
+ 	"click .js-log-out": function(event){
+ 		event.preventDefault();
+ 		Meteor.logout();
+ 		Router.go('/');
  	},
 })
 
