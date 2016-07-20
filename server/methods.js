@@ -29,6 +29,34 @@ for(let key of Course.find().fetch()){
   }
 }
 
+//this determines what are the current and future terms
+const date_now = new Date();
+const current_year = date_now.getFullYear();
+const current_month = date_now.getMonth() + 1;//1-12
+const current_date = date_now.getDate();//1-31
+let season;
+if(current_month >= 1 && current_month < 6){
+  season = "Spring ";
+} else if(current_month >= 6 && current_month < 9){
+  if(current_month == 8 && current_date > 15){
+    season = "Fall ";
+  } else {
+    season = "Summer ";
+  }
+} else {
+  season = "Fall ";
+};
+const curren_semester = season + current_year;
+const current_term = Term.findOne({name: curren_semester}).id;
+const future_terms = Term.find({id:{$gt: current_term}}).fetch();
+console.log("Current Term: " + curren_semester);
+let future_terms_string = "";
+for(let term of future_terms){
+  future_terms_string = future_terms_string + term.name + " ";
+}
+console.log("Future Term(s): " + future_terms_string);
+
+
 Meteor.methods ({
   keywordInsert: function(keyword) {
     Keyword.insert({
