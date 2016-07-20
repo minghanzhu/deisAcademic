@@ -30,10 +30,12 @@ juliancwirko:postcss
 easysearch:components
 easy:search
 easysearch:core
-autopublish
 session
+autopublish
+mizzao:jquery-ui
 aldeed:simple-schema
 aldeed:collection2
 accounts-google
 accounts-password
 accounts-ui
+rzymek:fullcalendar
