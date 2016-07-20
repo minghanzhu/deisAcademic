@@ -1,23 +1,23 @@
 //Global reactive-dict
-homeDict = new ReactiveDict();
-homeDict.set('showTable', false);
-homeDict.set('majorDetail', []);
-homeDict.set('sectionDetail', []);
-homeDict.set("sectionIndex", 0);
-homeDict.set('courseData');
-homeDict.set("majorId", "1400");
+planSearchDict = new ReactiveDict();
+planSearchDict.set('showTable', false);
+planSearchDict.set('majorDetail', []);
+planSearchDict.set('sectionDetail', []);
+planSearchDict.set("sectionIndex", 0);
+planSearchDict.set('courseData');
+planSearchDict.set("majorId", "1400");
 
 
 
 Template.planSearch.onRendered(function() {
-    homeDict.set('showTable', false);
-    homeDict.set('majorDetail', []);
-    homeDict.set('sectionDetail', []);
-    homeDict.set('courseData');
-    homeDict.set('termName');
-    homeDict.set('noResult', false);
+    planSearchDict.set('showTable', false);
+    planSearchDict.set('majorDetail', []);
+    planSearchDict.set('sectionDetail', []);
+    planSearchDict.set('courseData');
+    planSearchDict.set('termName');
+    planSearchDict.set('noResult', false);
 
-    const dept = homeDict.get("majorId"); //""for no option and "all" for all departments
+    const dept = planSearchDict.get("majorId"); //""for no option and "all" for all departments
 
     Meteor.call("searchCourse", "", "", [], dept, "", {
             days: [],
@@ -26,7 +26,7 @@ Template.planSearch.onRendered(function() {
         }, false, false,
         function(err, result) {
             if (result.length == 0) {
-                homeDict.set('noResult', true);
+                planSearchDict.set('noResult', true);
             } else {
                 const sorted_result = result.sort(function(a, b) {
                     //for a
@@ -67,22 +67,22 @@ Template.planSearch.onRendered(function() {
                 for (let i = 0; i < sorted_result.length; i++) {
                     sorted_result[i].index = i;
                 };
-                homeDict.set('courseData', sorted_result);
-                homeDict.set('noResult', false);
+                planSearchDict.set('courseData', sorted_result);
+                planSearchDict.set('noResult', false);
             }
 
-            homeDict.set('showTable', true);
+            planSearchDict.set('showTable', true);
         }
     );
     /*this does the search when user press enter
 	$('body').keydown(function (e){
     	if(e.keyCode == 13){
-        	homeDict.set('showTable', false);
-    		homeDict.set('majorDetail', []);
-			homeDict.set('sectionDetail', []);
-			homeDict.set('courseData');
-			homeDict.set('termName');
-			homeDict.set('noResult', false);
+        	planSearchDict.set('showTable', false);
+    		planSearchDict.set('majorDetail', []);
+			planSearchDict.set('sectionDetail', []);
+			planSearchDict.set('courseData');
+			planSearchDict.set('termName');
+			planSearchDict.set('noResult', false);
 
 			const keyword = $(".js-submit-search").val();
 			const term = $(".js-term").val();
@@ -111,7 +111,7 @@ Template.planSearch.onRendered(function() {
 			Meteor.call("searchCourse", keyword, term, req_names_array, dept, instructor, time_and_date, if_indept, if_not_sure,
 				function(err, result){
 					if(result.length == 0){
-						homeDict.set('noResult', true);
+						planSearchDict.set('noResult', true);
 					} else {
 						const sorted_result = result.sort(function(a, b) {
     					//for a
@@ -156,11 +156,11 @@ Template.planSearch.onRendered(function() {
 						for(let i = 0; i < sorted_result.length; i++){
 							sorted_result[i].index = i;
 						};
-						homeDict.set('courseData', sorted_result);
-						homeDict.set('noResult',false);
+						planSearchDict.set('courseData', sorted_result);
+						planSearchDict.set('noResult',false);
 					}
 
-    				homeDict.set('showTable', true);
+    				planSearchDict.set('showTable', true);
 				}
 			);
     	}
@@ -177,7 +177,7 @@ Template.planSearch.onRendered(function() {
 
 Template.planSearch.helpers({
     showTable: function() {
-        return homeDict.get('showTable');
+        return planSearchDict.get('showTable');
     },
 })
 
@@ -187,12 +187,12 @@ Template.planSearch.events({
     /* this does search when user changes the term
   	"change .js-term": function(event){
  		event.preventDefault();
-    	homeDict.set('showTable', false);
-    	homeDict.set('majorDetail', []);
-		homeDict.set('sectionDetail', []);
-		homeDict.set('courseData');
-		homeDict.set('termName');
-		homeDict.set('noResult', false);
+    	planSearchDict.set('showTable', false);
+    	planSearchDict.set('majorDetail', []);
+		planSearchDict.set('sectionDetail', []);
+		planSearchDict.set('courseData');
+		planSearchDict.set('termName');
+		planSearchDict.set('noResult', false);
 
 		const keyword = $(".js-submit-search").val();
 		const term = $(".js-term").val();
@@ -221,7 +221,7 @@ Template.planSearch.events({
 		Meteor.call("searchCourse", keyword, term, req_names_array, dept, instructor, time_and_date, if_indept, if_not_sure,
 			function(err, result){
 				if(result.length == 0){
-					homeDict.set('noResult', true);
+					planSearchDict.set('noResult', true);
 				} else {
 					const sorted_result = result.sort(function(a, b) {
     					//for a
@@ -266,11 +266,11 @@ Template.planSearch.events({
 					for(let i = 0; i < sorted_result.length; i++){
 						sorted_result[i].index = i;
 					};
-					homeDict.set('courseData', sorted_result);
-					homeDict.set('noResult',false);
+					planSearchDict.set('courseData', sorted_result);
+					planSearchDict.set('noResult',false);
 				}
 
-    			homeDict.set('showTable', true);
+    			planSearchDict.set('showTable', true);
 			}
 		);
  	},*/
@@ -278,31 +278,31 @@ Template.planSearch.events({
 
 Template.plan_result.helpers({
     detailReady: function() {
-        return homeDict.get('courseInfo') != null;
+        return planSearchDict.get('courseInfo') != null;
     },
 
     courseDataReady: function() {
-        return homeDict.get('courseData') != null;
+        return planSearchDict.get('courseData') != null;
     },
 
     courseData: function() {
-        return homeDict.get('courseData');
+        return planSearchDict.get('courseData');
     },
 
     courseInfo: function() {
-        return homeDict.get('courseInfo');
+        return planSearchDict.get('courseInfo');
     },
 
     majorInfo: function() {
-        return homeDict.get('majorDetail');
+        return planSearchDict.get('majorDetail');
     },
 
     sectionData: function() {
-        return homeDict.get('sectionDetail');
+        return planSearchDict.get('sectionDetail');
     },
 
     noResult: function() {
-        return homeDict.get('noResult');
+        return planSearchDict.get('noResult');
     },
 
     settings_course: function() {
@@ -343,10 +343,10 @@ Template.plan_result.helpers({
                     }
                     // fn: function(key, object) {
                     //     Meteor.call("searchTerm", key, function(err, result) {
-                    //         homeDict.set("termName" + object.id, result);
+                    //         planSearchDict.set("termName" + object.id, result);
                     //     });
                     //
-                    //     const term_name = homeDict.get("termName" + object.id);
+                    //     const term_name = planSearchDict.get("termName" + object.id);
                     //     if (!term_name) {
                     //         return new Spacebars.SafeString("<div class=\"ui active inline loader\"></div>");
                     //     } else {
