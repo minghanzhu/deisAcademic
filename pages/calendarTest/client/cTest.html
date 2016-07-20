@@ -17,9 +17,14 @@
 
 		<div class="four wide column">
   			<div class="ui container" id="courseList">
-				{{#each course in getCourseList}}	
-  					<button class="fluid ui button" id="{{getContId course}}">{{getCode course}}</button>
-  				{{/each}}
+				{{#if getCourseList}}
+					{{#each course in getCourseList}}	
+  						<button class="fluid ui button" id="{{course.continuity_id}}">{{course.code}}</button>
+  					{{/each}}
+  				{{else}}
+  					{{pullUserCourseList}}
+  					<div class="ui active inline loader"></div>
+  				{{/if}}
   				<p>
 					<input type='checkbox' id='drop-remove' />
 					<label for='drop-remove'>remove after drop</label>
