@@ -1,0 +1,146 @@
+<template name="majorSelect">
+	<div id="advSearch_form" class="ui form">
+		<div class="fields">
+
+			<div class="four wide field"></div>
+	    <div class="seven wide field">
+				<div class="ui fluid search selection dropdown js-major" id="search-select">
+					<input type="hidden" name="major" value="">
+					<i class="dropdown icon"></i><div class="default text">Please  choose  your  intended  major</div>
+					<div class="menu">
+	                        <div class="item" data-value="100">African and Afro</div>
+	                        <div class="item" data-value="200">American Studies</div>
+	                        <div class="item" data-value="300">Anthropology</div>
+	                        <div class="item" data-value="400">Arabic Language and Literature</div>
+	                        <div class="item" data-value="425">Architectural Studies</div>
+	                        <div class="item" data-value="450">Art History</div>
+	                        <div class="item" data-value="500">Biochemistry</div>
+	                        <div class="item" data-value="510">Biochemistry and Biophysics</div>
+	                        <div class="item" data-value="600">Biological Physics</div>
+	                        <div class="item" data-value="700">Biology</div>
+	                        <div class="item" data-value="810">Biophysics and Structural Biology</div>
+	                        <div class="item" data-value="850">Biotechnology</div>
+	                        <div class="item" data-value="900">Business</div>
+	                        <div class="item" data-value="1000">Chemistry</div>
+	                        <div class="item" data-value="1100">Chinese</div>
+	                        <div class="item" data-value="1200">Classical Studies</div>
+	                        <div class="item" data-value="1250">Comparative Humanities</div>
+	                        <div class="item" data-value="1300">Comparative Literature and Culture</div>
+	                        <div class="item" data-value="1400">Computer Science</div>
+	                        <div class="item" data-value="1425">Creative Writing</div>
+	                        <div class="item" data-value="1475">Creativity, the Arts, and Social Transformation</div>
+	                        <div class="item" data-value="1500">East Asian Studies</div>
+	                        <div class="item" data-value="1600">Economics</div>
+	                        <div class="item" data-value="1700">Education</div>
+	                        <div class="item" data-value="1800">English</div>
+	                        <div class="item" data-value="1850">English as a Second Language</div>
+	                        <div class="item" data-value="1900">Environmental Studies</div>
+	                        <div class="item" data-value="2000">European Cultural Studies</div>
+	                        <div class="item" data-value="2050">Experiential Learning Practicum</div>
+	                        <div class="item" data-value="2100">Film, Television and Interactive Media</div>
+	                        <div class="item" data-value="2300">Fine Arts</div>
+	                        <div class="item" data-value="8000">First Year Seminars (FYS)</div>
+	                        <div class="item" data-value="2400">French and Francophone Studies</div>
+	                        <div class="item" data-value="2450">Genetic Counseling</div>
+	                        <div class="item" data-value="2500">German Studies</div>
+	                        <div class="item" data-value="2525">German, Russian, and Asian Languages and Literature</div>
+	                        <div class="item" data-value="2535">Global Studies</div>
+	                        <div class="item" data-value="2550">Greek</div>
+	                        <div class="item" data-value="2700">Health: Science, Society, and Policy</div>
+	                        <div class="item" data-value="2800">Hebrew</div>
+	                        <div class="item" data-value="2900">Heller School for Social Policy and Management</div>
+	                        <div class="item" data-value="2950">Hindi</div>
+	                        <div class="item" data-value="6600">Hispanic Studies</div>
+	                        <div class="item" data-value="3000">History</div>
+	                        <div class="item" data-value="3100">History of Ideas</div>
+	                        <div class="item" data-value="3200">Hornstein Jewish Professional Leadership Program</div>
+	                        <div class="item" data-value="3300">Independent Interdisciplinary Major</div>
+	                        <div class="item" data-value="3400">International and Global Studies</div>
+	                        <div class="item" data-value="3600">International Business School</div>
+	                        <div class="item" data-value="3700">Internship</div>
+	                        <div class="item" data-value="3900">Islamic and Middle Eastern Studies</div>
+	                        <div class="item" data-value="4000">Italian Studies</div>
+	                        <div class="item" data-value="4100">Japanese</div>
+	                        <div class="item" data-value="4200">Journalism</div>
+	                        <div class="item" data-value="4225">Justice Brandeis Semester</div>
+	                        <div class="item" data-value="4235">Korean</div>
+	                        <div class="item" data-value="4600">Language and Linguistics</div>
+	                        <div class="item" data-value="4250">Latin</div>
+	                        <div class="item" data-value="4300">Latin American and Latino Studies</div>
+	                        <div class="item" data-value="4400">Legal Studies</div>
+	                        <div class="item" data-value="4700">Mathematics</div>
+	                        <div class="item" data-value="4800">Medieval and Renaissance Studies</div>
+	                        <div class="item" data-value="4900">Molecular and Cell Biology</div>
+	                        <div class="item" data-value="5000">Music</div>
+	                        <div class="item" data-value="5100">Near Eastern and Judaic Studies</div>
+	                        <div class="item" data-value="5200">Neuroscience</div>
+	                        <div class="item" data-value="5300">Peace, Conflict, and Coexistence Studies</div>
+	                        <div class="item" data-value="5400">Philosophy</div>
+	                        <div class="item" data-value="5500">Physical Education</div>
+	                        <div class="item" data-value="5600">Physics</div>
+	                        <div class="item" data-value="5700">Politics</div>
+	                        <div class="item" data-value="5750">Portuguese</div>
+	                        <div class="item" data-value="5800">Postbaccalaureate Premedical Studies</div>
+	                        <div class="item" data-value="5900">Psychology</div>
+	                        <div class="item" data-value="5950">Quantitative Biology</div>
+	                        <div class="item" data-value="6000">Religious Studies</div>
+	                        <div class="item" data-value="6100">Romance Studies</div>
+	                        <div class="item" data-value="6300">Russian Studies</div>
+	                        <div class="item" data-value="6325">Sculpture</div>
+	                        <div class="item" data-value="6350">Sexuality and Queer Studies</div>
+	                        <div class="item" data-value="6400">Social Justice and Social Policy</div>
+	                        <div class="item" data-value="6500">Sociology</div>
+	                        <div class="item" data-value="6550">South Asian Studies</div>
+	                        <div class="item" data-value="6625">Spanish Language and Literature</div>
+	                        <div class="item" data-value="6675">Studio Art</div>
+	                        <div class="item" data-value="6700">Theater Arts</div>
+	                        <div class="item" data-value="6900">Women's, Gender, and Sexuality Studies</div>
+	                        <div class="item" data-value="7050">University Writing (COMP and UWS)</div>
+	                        <div class="item" data-value="7000">Yiddish</div>
+	                    </div>
+	                  </div>
+	                </div>
+
+      <div class="four wide field">
+				<button class="medium ui primary button js-majorgo">Go</button>
+			</div>
+		</div>
+	</div>
+
+  <br><br><br><br><br><br><br><br><br><br><br><br><br>
+	<div id="advSearch_form" class="ui form">
+		<div class="fields">
+			<div class="five wide field"></div>
+
+			<div class="five wide field">
+				<button class="fluid large ui primary button js-majorhelp">Help me decide a major</button>
+			</div>
+		</div>
+	</div>
+
+</template>
+
+
+
+
+<template name="decidemajor">
+	<div class="ui grid">
+		<div class="two wide column"></div>
+		<div class="four wide column"><h2><i class="book icon"></i>School of Science</h2>
+			{{#each m in majors}}
+			  <ul class="ui list">
+			    <li></li>
+		    </ul>
+			{{/each}}
+		</div>
+
+		<div class="five wide column"><h2><i class="book icon"></i>School of Social Science</h2>
+		</div>
+
+		<div class="four wide column"><h2><i class="book icon"></i>School of Humanities</h2>
+		</div>
+	</div>
+
+
+
+</template>

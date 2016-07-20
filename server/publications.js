@@ -1,0 +1,1 @@
+Meteor.publish("userProfilePnc", function(){return UserProfilePnc.find({userId: this.userId})});

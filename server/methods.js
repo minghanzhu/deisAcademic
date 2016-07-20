@@ -385,4 +385,40 @@ Meteor.methods ({
     })
     // UserTerms.remove({term: course.term, term: course.term});
   },
+
+  "addUserProfile_Google": function(date){
+    //check if the user id valid
+    if(!this.userId){
+      console.log("Invalid insert: No such user");
+      return;
+    };
+
+    //check if the user id is in record
+    const user_data = Meteor.users.findOne(this.userId);
+    if(!user_data){
+      console.log("Invalid insert: No such user");
+      return;
+    };
+
+    var user_name = user_data.profile.name;
+    var user_email = user_data.services.google.email;
+    var user_username = user_email.substring(0, user_email.indexOf("@"));
+
+    //get the current user object in users collection if there is
+    const user_obj = UserProfilePnc.findOne({userId: this.userId});
+    if (user_obj == null){
+      const profile_obj = {
+        userName: user_username,
+        userYear: "Junior",
+        userId: this.userId,
+        wishlist: [],
+        majorPlanList:[],
+        liked: [],
+        watched: [],
+        scheduleList: [],
+        courseRate: []
+      }
+      UserProfilePnc.insert(profile_obj);
+    };
+  },
 });

@@ -69,6 +69,41 @@
   {{/each}}
 
 
+
+
 </div>
+
+<h3>Sections:</h3><br>
+
+{{#each s in theSections}}
+
+  <!-- {{s.course}}<br> -->
+
+  {{sectLink sect=s.id}}<br>
+
+    {{#each t in s.times}}
+
+      {{#each d in t.days}}
+
+        {{d}}
+
+      {{/each}}
+
+      Start: {{t.start}}
+      End: {{t.end}}
+
+      <br>
+
+    {{/each}}
+
+    {{#each i in s.instructors}}
+
+      Instructor: {{i}}<br>
+
+    {{/each}}
+
+  <br><br>
+
+{{/each}}
 
 </template>
