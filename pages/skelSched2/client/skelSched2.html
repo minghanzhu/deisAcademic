@@ -1,9 +1,12 @@
-<template name="skelSched">
+<template name="skelSched2">
 
 <div class="ui grid container">
 
   <div class="ui grid">
     <div class="ten wide column"><h3>Term Planning</h3>
+
+<br>{{theCourse}}<br><br>
+
       <div class="ui container">
 
       <div class="ui top attached tabular menu js-pickTerm">
@@ -55,11 +58,11 @@
 
 </template>
 
-<!-- <template name="courseChecklist">
+<template name="courseChecklist">
 
   <div id="courseList" class="ui container">
 
-      {{theTerm}}
+      <!-- {{theTerm}} -->
 
  {{#each pickedCourses}}
   <div class="ui checkbox">
@@ -73,11 +76,14 @@
 
 </div>
 
+
+
+
 <h3>Sections:</h3><br>
 
 {{#each s in theSections}}
 
-  {{s.course}}<br>
+  <!-- {{s.course}}<br> -->
 
   {{sectLink sect=s.id}}<br>
 
@@ -106,4 +112,4 @@
 
 {{/each}}
 
-</template> -->
+</template>
