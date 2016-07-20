@@ -61,9 +61,14 @@ Template.calendarTest.onRendered(function(){
 			}
 		}                         
     })
+	Template.instance().calendarDict.set("chosenTerm", $(".js-term").val());
 })
 
 Template.calendarTest.helpers({
+	calendarDict: function(){
+		return Template.instance().calendarDict;
+	},
+
 	getCourseList: function(){
 		return Template.instance().calendarDict.get('courseList');
 	},
@@ -140,9 +145,14 @@ Template.calendarTest.helpers({
 	getCode: function(courseId){
 		return Course.findOne({id: courseId}).code;
 	},
+
+
 })
 
 Template.calendarTest.events({
+	"change .js-term": function(){
+		Template.instance().calendarDict.set("chosenTerm", $(".js-term").val());
+	}
 	/*
 	"click .js-create-event": function(event){
 		event.preventDefault();
@@ -203,4 +213,49 @@ Template.calendarTest.events({
 				}
 		});
 	},*/
+})
+
+Template.scheduleCourseList.onCreated(function(){
+	this.schCourseDict = new ReactiveDict();
+})
+
+Template.scheduleCourseList.onRendered(function(){
+	$('.accordion').accordion();
+})
+
+Template.scheduleCourseList.helpers({
+	getSections: function(courseContId, dict){
+		const courseId = dict.get("chosenTerm") + "-" + courseContId;
+		return Meteor.call("getSections", courseId, function(err, result){
+			if(err){
+				window.alert(err);
+				return;
+			}
+			if(result.length == 0){
+				dict.set("sectionInfo" + courseId, "NR");
+				return;
+			}
+
+			const sorted_result = result.sort(function(a, b) {
+    			return a.section - b.section;
+			});
+
+			dict.set("sectionInfo" + courseId, sorted_result);
+		});
+	},
+
+	hasSectionInfo: function(courseContId, dict){
+		const courseId = dict.get("chosenTerm") + "-" + courseContId;
+		return !!dict.get("sectionInfo" + courseId);
+	},
+
+	sectionInfo: function(courseContId, dict){
+		const courseId = dict.get("chosenTerm") + "-" + courseContId;
+		return dict.get("sectionInfo" + courseId);
+	},
+
+	noResult: function(courseContId, dict){
+		const courseId = dict.get("chosenTerm") + "-" + courseContId;
+		return dict.get("sectionInfo" + courseId) === "NR";
+	}
 })
