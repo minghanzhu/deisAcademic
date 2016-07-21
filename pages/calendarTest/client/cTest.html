@@ -43,7 +43,14 @@
             Not Available
           {{else}}
             {{#each section in (sectionInfo c.continuity_id dict)}}
-              <a class="item js-add-section" id="{{section.id}}">Section{{section.section}}</a>
+              <a class="item js-add-section" id="{{section.id}}" course-code="{{c.code}}" course-name="{{c.name}}">Section{{section.section}}</a>
+              {{#if hasTimes section.times}}
+                {{#each time in section.times}}
+                      <p>{{getSectionDays time.days}}: {{convertTime time.start}} {{convertTime time.end}}</p>
+                {{/each}}
+              {{else}}
+                Time not available
+              {{/if}}
             {{/each}}
           {{/if}}
         {{else}}

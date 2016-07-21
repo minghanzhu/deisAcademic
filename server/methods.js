@@ -651,6 +651,10 @@ Meteor.methods ({
       return Section.find({course:courseId}).fetch();
     },
 
+    getSection: function(sectionId){
+      return Section.findOne({id: sectionId}, {fields:{_id:0, type:0}});
+    },
+
     addCourse: function(course){
       UserTerms.upsert({
         term: course.term
