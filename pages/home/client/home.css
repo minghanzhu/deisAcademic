@@ -122,3 +122,8 @@ a:hover {
 .ui.popup:before {
     opacity: 0;
 }
+
+#nav > li, a {
+    cursor: hand;
+    cursor: pointer;
+}
