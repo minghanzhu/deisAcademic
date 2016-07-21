@@ -13,8 +13,6 @@
 
   <h2>Speech Results</h2>
 
-  <br>
-
   <h4>HTML5 Speech Recognition Parsing:</h4><br>
 
   {{getSpeechResults}}
@@ -31,24 +29,16 @@
 
   {{/with}}
 
-  <br><br>
+  <br>
 
   <h4>planDeis Search Results:</h4><br>
 
   <ul>
-
     {{#each r in getSearchResults}}
 
-    <li>
-
-      {{r.id}}: {{r.name}}
-
-    </li>
-
-    <br>
+    <li>{{r.id}}: {{r.name}}</li><br>
 
     {{/each}}
-
   </ul>
 
 </template>
