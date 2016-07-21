@@ -1,8 +1,15 @@
-planDict = new ReactiveDict();
-planDict.setDefault({
-  "chosenCourse": ["001651","001722"],
-  "selectedTerm": "fall16",
-})
+
+
+
+// PRESENTLY UNUSED
+
+
+
+// planDict = new ReactiveDict();
+// planDict.setDefault({
+//   "chosenCourse": ["001651","001722"],
+//   "selectedTerm": "fall16",
+// })
 
 
 Template.skelSched2.onCreated(function() {
