@@ -285,7 +285,7 @@
         <ul>
             <li><a href="{{pathFor 'home'}}">Search</a></li>
             <li><a href="{{pathFor 'schedule'}}">My Schedule</a></li>
-            <li><a href="{{pathFor 'majorPlan'}}">Major Planning</a></li>
+            <li><a href="{{pathFor 'majorSelect'}}">Major Planning</a></li>
             {{#if currentUser}}
                 {{#if existsProfile}}
                     <li><a href="{{pathFor 'myProfile'}}">My Profile</a></li>
@@ -336,7 +336,7 @@
                 {{courseInfo.description}}
                 <h3>Requirements </h3>
                 {{#each r in getReq courseInfo.requirements}}
-                    {{r}} 
+                    {{r}}
                 {{/each}}
                 <h3>Majors </h3>
                 {{#if majorInfo}}{{#each item in majorInfo}}{{item}}<br>{{/each}}{{else}}<div class="ui active inline loader"></div>{{/if}}

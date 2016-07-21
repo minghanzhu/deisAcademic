@@ -5,9 +5,6 @@ planSearchDict.set('majorDetail', []);
 planSearchDict.set('sectionDetail', []);
 planSearchDict.set("sectionIndex", 0);
 planSearchDict.set('courseData');
-planSearchDict.set("majorId", "1400");
-
-
 
 Template.planSearch.onRendered(function() {
     planSearchDict.set('showTable', false);
@@ -373,6 +370,6 @@ Template.plan_result.events({
     },
 
     "click .js-addCourse": function(event) {
-      
+
     }
 })
