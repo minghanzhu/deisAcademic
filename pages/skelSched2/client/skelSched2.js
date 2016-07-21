@@ -1,3 +1,10 @@
+planDict = new ReactiveDict();
+planDict.setDefault({
+  "chosenCourse": ["001651","001722"],
+  "selectedTerm": "fall16",
+})
+
+
 Template.skelSched2.onCreated(function() {
   //default the term to fall 2016
   Session.set("selectedTerm", "fall16");
@@ -5,12 +12,10 @@ Template.skelSched2.onCreated(function() {
   schedDict.setDefault({
     "sectToCourse": new Map(),
   })
-  planDict = new ReactiveDict();
-  planDict.setDefault({
-    "chosenCourse": ["001651","012337"],
-    "selectedTerm": "fall16",
-    
-  })
+
+
+
+
 })
 
 Template.skelSched2.onRendered(function () {
@@ -21,15 +26,15 @@ Template.skelSched2.onRendered(function () {
       planDict.set("selectedTerm", term);
     },
 
-  //
-  // 'onVisible': function(){
-  //   var term = $(".item.active")[0].id;
-  //   // console.log(term);
-  //   for (checkbox in "#courseList") {
-  //     console.log(checkbox.value);
-  //   }
-  // }
-})
+    //
+    // 'onVisible': function(){
+    //   var term = $(".item.active")[0].id;
+    //   // console.log(term);
+    //   for (checkbox in "#courseList") {
+    //     console.log(checkbox.value);
+    //   }
+    // }
+  })
 })
 
 Template.skelSched2.helpers({
@@ -37,6 +42,22 @@ Template.skelSched2.helpers({
   theCourse: function(){
     const currCourse = planDict.get("chosenCourse");
     return currCourse[0];
+  },
+
+  getSects: function(){
+    const term = "1163";
+    // console.log(planDict.get("chosenCourse"));
+    const courseCursor = planDict.get("chosenCourse");
+    // console.log(courseCursor);
+    var tempSects = [];
+    courseCursor.forEach(function(item) {
+      tempSects.push(Section.find({course: term + "-" + item}).fetch());
+    })
+    // const tempSects = Section.find({course: term + "-" + currCourse[0]});
+
+    // console.log(tempSects);
+
+    return tempSects;
   },
 
   fillCourses: function(){
@@ -50,17 +71,17 @@ Template.skelSched2.helpers({
 })
 
 // $('#courseList').checkbox({
-  // 'onChange': function(){
-  //   console.log("yay");
-  //   var checked = $('#courseList input:checkbox:checked.id');
-  //   console.log(checked);
-  //   UserTerms.insert({term:Session.get("selectedTerm"), course:checked})
-  // }
+// 'onChange': function(){
+//   console.log("yay");
+//   var checked = $('#courseList input:checkbox:checked.id');
+//   console.log(checked);
+//   UserTerms.insert({term:Session.get("selectedTerm"), course:checked})
+// }
 // });
 
 Template.courseChecklist.onRendered(function(){
   //enable checkboxes
- $('.ui.checkbox').checkbox();
+  $('.ui.checkbox').checkbox();
 })
 
 
@@ -75,55 +96,128 @@ Template.courseChecklist.helpers({
     return planDict.get("selectedTerm");
   },
 
-  theSections: function(){
-
-    //ARRAY OF COURSES TO ARRAY OF THEIR SECTIONS
-
-    var sectOpts = [];
-
-    var cursor = UserPicks.find();
-
-    // combo = schedDict.get("sectToCourse");
-    combo = {};
-
-    combo2 = {};
-
-    cursor.forEach(function(course){
-
-      combo2[course.name] = [];
-
-      var sectCursor = Section.find({course: course.id});
-
-      sectCursor.forEach(function(sect) {
-        // console.log(sect);
-        sectOpts.push(sect);
-        combo[sect.id] = course.name;
-        combo2[course.name].push(sect.id);
-      })
-    })
-
-    console.log(sectOpts);
-    console.log(combo);
-    console.log(combo2);
-
-    // theMap = new Map(combo);
-    // console.log(theMap);
-
-    schedDict.set("sectToCourse", combo);
-
-    console.log(sectOpts);
-
-    return sectOpts;
+  getSects: function(cid){
+    // console.log(cid);
+    const courseContId = cid.hash.cid;
+    // console.log(courseContId);
+    const term = "1163";
+    const cursor = Section.find({course: term + "-" + courseContId});
+    return cursor;
   },
 
-  sectLink: function(sect){
-    const sectId = sect.hash.sect
-    // console.log(sect.hash.sect);
-    var mapTest = schedDict.get("sectToCourse");
-    // console.log(mapTest);
-    console.log(mapTest[sectId]);
-    return mapTest[sectId];
-  }
+  getCourseName: function(theId){
+    const courseContId = theId.hash.theId;
+    const courseObj = Course.findOne({continuity_id: courseContId});
+    if (courseObj){
+      const courseName = courseObj.name;
+      return courseName;
+    }
+  },
+
+  courseDiv: function(){
+    return planDict.get("chosenCourse");
+  },
+
+  // theSections: function(){
+  //
+  //   //ARRAY OF COURSES TO ARRAY OF THEIR SECTIONS
+  //
+  //
+  //   const term = "1163";
+  //   console.log(planDict.get("chosenCourse"));
+  //
+  //   // var tempSects = [];
+  //   // courseCursor.forEach(function(item) {
+  //   //   tempSects.push(Section.find({course: term + "-" + item}).fetch());
+  //   // })
+  //   // // const tempSects = Section.find({course: term + "-" + currCourse[0]});
+  //   //
+  //   // console.log(tempSects);
+  //   //
+  //   // return tempSects;
+  //
+  //   var sectOpts = [];
+  //
+  //   const courseCursor = planDict.get("chosenCourse");
+  //
+  //   // combo = schedDict.get("sectToCourse");
+  //   combo = {};
+  //
+  //   combo2 = {};
+  //
+  //   courseCursor.forEach(function(courseContId){
+  //
+  //     const courseName = "Cont. ID: " + courseContId;
+  //
+  //     combo2[courseName] = [];
+  //
+  //     var sectCursor = Section.find({course: term + "-" + courseContId});
+  //
+  //     sectCursor.forEach(function(sect) {
+  //       // console.log(sect);
+  //       sectOpts.push(sect);
+  //       combo[sect.id] = courseContId;
+  //       combo2[courseName].push(sect);
+  //     })
+  //   })
+  //
+  //   // console.log(sectOpts);
+  //   // console.log(combo);
+  //   console.log(combo2);
+  //
+  //   // theMap = new Map(combo);
+  //   // console.log(theMap);
+  //
+  //   planDict.set("sectToCourse", combo2);
+  //
+  //   // console.log(sectOpts);
+  //
+  //   return combo2;
+  // },
+  // secid:function(){
+  //   console.log(this);
+  //   return this;
+  // },
+  // sectLink: function(sect){
+  //   const sectId = sect.hash.sect
+  //   // console.log(sect.hash.sect);
+  //   var mapTest = schedDict.get("sectToCourse");
+  //   // console.log(mapTest);
+  //   console.log(mapTest[sectId]);
+  //   return mapTest[sectId];
+  // },
+  //
+  // testing: function(){
+  //
+  //   //ARRAY OF COURSES TO ARRAY OF THEIR SECTIONS
+  //
+  //   var sectOpts = [];
+  //
+  //   var cursor = UserPicks.find();
+  //
+  //   // combo = schedDict.get("sectToCourse");
+  //   combo = {};
+  //
+  //   combo2 = {};
+  //
+  //   cursor.forEach(function(course){
+  //
+  //     combo2[course.name] = [];
+  //
+  //     var sectCursor = Section.find({course: course.id});
+  //
+  //     sectCursor.forEach(function(sect) {
+  //       // console.log(sect);
+  //       sectOpts.push(sect);
+  //       combo[sect.id] = course.name;
+  //       combo2[course.name].push(sect.id);
+  //     })
+  //   })
+  //
+  //   console.log(sectOpts);
+  //   console.log(combo);
+  //   console.log(combo2);
+  // }
 })
 
 Template.courseChecklist.events({
