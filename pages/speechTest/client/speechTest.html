@@ -11,4 +11,24 @@
   </button>
 
 
+  <h2>Speech Results</h2>
+
+  <br>
+
+  <h4>HTML5 Speech Recognition Parsing:</h4><br>
+
+  {{getSpeechResults}}
+
+  <br><br>
+
+  <h4>API.ai Results:</h4><br>
+
+  {{#with getAPIResults}}
+
+    Intent: {{data.result.metadata.intentName}}<br>
+    Identified Department: {{data.result.parameters.Department}}<br>
+    Identified Course Number: {{data.result.parameters.CourseNumber}}<br>
+
+  {{/with}}
+
 </template>
