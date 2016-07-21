@@ -86,7 +86,7 @@
             <h3>Detailed Description</h3>
             <p>{{#if sectionObj.details}}{{sectionObj.details}}{{else}}Currently no additional information for this section{{/if}}</p>
             <h3>Textbook Information</h3>
-            <button class="ui basic button js-textbook" course-id="{{sectionObj.course}}" section-num="{{sectionObj.section}}"><i class="book icon"></i>Click to view</button>
+            <button class="ui basic button js-textbook" course-code="{{courseInfo.code}}" course-id="{{sectionObj.course}}" section-num="{{sectionObj.section}}"><i class="book icon"></i>Click to view</button>
           {{/if}}
         </div>
 

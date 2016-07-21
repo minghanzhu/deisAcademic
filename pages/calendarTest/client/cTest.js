@@ -267,8 +267,9 @@ Template.calendarTest.events({
 
 	"click .js-textbook": function(event){
 		event.preventDefault();
+		console.log(event);
 		const course_id = $(event)[0].target.attributes[1].value;
-		const course_code = homeDict.get("courseCode");
+		const course_code = $(event)[0].target.attributes[3].value;
 		const section_num = $(event)[0].target.attributes[2].value;
 
 		window.open("http://www.bkstr.com/webapp/wcs/stores/servlet/booklookServlet?bookstore_id-1=1391&term_id-1=" +
