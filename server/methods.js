@@ -719,7 +719,6 @@ Meteor.methods ({
 
 
   "sendJSONtoAPI_ai": function(parsedText){
-
     var theAPIKey = Meteor.settings.apiSpeechKey;
 
     const z = HTTP.call(
@@ -740,8 +739,7 @@ Meteor.methods ({
         //   // return result;
         // }
       )
-        console.log(z);
+        // console.log(z);
         return z;
-
   }
 });

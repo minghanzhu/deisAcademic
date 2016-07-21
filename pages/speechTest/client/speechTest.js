@@ -1,3 +1,5 @@
+robDict = new ReactiveDict();
+
 Template.speechTest.helpers({
 
   getSpeechResults: function(){
@@ -11,6 +13,25 @@ Template.speechTest.helpers({
     return theAPIResults;
   },
 
+  getSearchResults: function(){
+    const apiRes = Session.get("apiResults");
+
+    if (apiRes) {
+      const dept = apiRes.data.result.parameters.Department;
+      const courseNum = apiRes.data.result.parameters.CourseNumber;
+
+      const theResults = dept + " " + courseNum;
+      console.log(theResults);
+
+      Meteor.call("searchCourse", theResults, "", [], null, null, {days:[],start:"",end:""}, false, false, function(error,result) {
+        console.log(result);
+        robDict.set("theSearchResults", result);
+
+      })
+
+      return robDict.get("theSearchResults");
+    }
+  },
 })
 
 Template.speechTest.events({

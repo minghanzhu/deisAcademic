@@ -25,10 +25,30 @@
 
   {{#with getAPIResults}}
 
-    Intent: {{data.result.metadata.intentName}}<br>
-    Identified Department: {{data.result.parameters.Department}}<br>
-    Identified Course Number: {{data.result.parameters.CourseNumber}}<br>
+  Intent: {{data.result.metadata.intentName}}<br>
+  Identified Department: {{data.result.parameters.Department}}<br>
+  Identified Course Number: {{data.result.parameters.CourseNumber}}<br>
 
   {{/with}}
+
+  <br><br>
+
+  <h4>planDeis Search Results:</h4><br>
+
+  <ul>
+
+    {{#each r in getSearchResults}}
+
+    <li>
+
+      {{r.id}}: {{r.name}}
+
+    </li>
+
+    <br>
+
+    {{/each}}
+
+  </ul>
 
 </template>
