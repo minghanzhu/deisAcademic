@@ -39,18 +39,18 @@ Template.speechTest.events({
     //     recognition.lang = "en-US";
     //     recognition.start();
   },
-
-  "click .js-apiTest": function(){
-    HTTP.get("https://api.api.ai/v1/query?query=can%20i%20look%20at%20cosi%2011%20a&lang=en&confidence=0.6",
-    {headers:
-      {"Authorization": "Bearer ___________"}
-    },
-    function(error,result){
-      console.log(result)
-      console.log(result.data.result.parameters);
-      console.log("Intent" + result.data.result.metadata.intentName);
-    })
-  },
+  //
+  // "click .js-apiTest": function(){
+  //   HTTP.get("https://api.api.ai/v1/query?query=can%20i%20look%20at%20cosi%2011%20a&lang=en&confidence=0.6",
+  //   {headers:
+  //     {"Authorization": "Bearer ___________"}
+  //   },
+  //   function(error,result){
+  //     console.log(result)
+  //     console.log(result.data.result.parameters);
+  //     console.log("Intent" + result.data.result.metadata.intentName);
+  //   })
+  // },
 
   "click .js-test2": function(){
 
@@ -87,7 +87,7 @@ Template.speechTest.events({
       "POST",
       "https://api.api.ai/v1/query/",
       {headers:
-        {"Authorization": "Bearer ________",
+        {"Authorization": "Bearer ________", //API.ai token here (from API.ai account)
 
         "Content-Type": "application/json; charset=utf-8"},
         data: {"query": text, "lang": "en"}},
