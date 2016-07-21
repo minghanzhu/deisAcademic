@@ -114,6 +114,16 @@
               Next section
             </button>
 
+            {{#if isSectionChosen}}
+              <button class="ui active toggle basic button js-take" section-id="{{sectionObj.id}}">
+                Sage Code: {{getSageCode sectionObj.id}}
+              </button>
+            {{else}}
+              <button class="ui basic green button js-take" section-id="{{sectionObj.id}}">
+                Decided to take
+              </button>
+            {{/if}}
+
             <button class="ui basic red button js-delete-section" section-id="{{sectionObj.id}}">
               <i class="remove icon"></i>
               Delete this section on calendar
