@@ -86,7 +86,7 @@
             <h3>Detailed Description</h3>
             <p>{{#if sectionObj.details}}{{sectionObj.details}}{{else}}Currently no additional information for this section{{/if}}</p>
             <h3>Textbook Information</h3>
-            <button class="ui basic button js-textbook" course-id="{{sectionObj.course}}" section-num="{{sectionObj.section}}"><i class="book icon"></i>Click to view</button>
+            <button class="ui basic button js-textbook" course-code="{{courseInfo.code}}" course-id="{{sectionObj.course}}" section-num="{{sectionObj.section}}"><i class="book icon"></i>Click to view</button>
           {{/if}}
         </div>
 
@@ -114,7 +114,18 @@
               Next section
             </button>
 
-            <button class="ui basic red button js-delete-section" section-id="{{sectionObj.id}}">
+            {{#if isSectionChosen}}
+              <button class="ui blue button js-take" section-id="{{sectionObj.id}}">
+                Sage Code: {{getSageCode sectionObj.id}}
+              </button>
+            {{else}}
+              <button class="ui basic blue button js-take" section-id="{{sectionObj.id}}">
+                <i class="checkmark icon"></i>
+                Decided to take
+              </button>
+            {{/if}}
+
+            <button class="ui basic orange button js-delete-section" section-id="{{sectionObj.id}}">
               <i class="remove icon"></i>
               Delete this section on calendar
             </button>

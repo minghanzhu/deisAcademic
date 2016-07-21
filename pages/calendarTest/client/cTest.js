@@ -37,8 +37,10 @@ Template.calendarTest.onRendered(function(){
     		dict.set("sectionObj");
     		dict.set("majorDetail");
     		dict.set("instructorsName");
+    		dict.set("sectionChosen")
     		dict.set("courseId", calEvent.section_obj.course);
     		dict.set("sectionObj", calEvent.section_obj);
+    		dict.set("sectionChosen", calEvent.chosen);
     		//reset the default detail choice to be the first tab
 			$("#popup-tab .item.active").attr("class", "item");
 			$("#popup-tab [data-tab=first]").attr("class", "item active");
@@ -253,7 +255,15 @@ Template.calendarTest.helpers({
 
 	sectionReady: function(){
 		return !!Template.instance().calendarDict.get('sectionObj');
-	}
+	},
+
+	isSectionChosen: function(){
+		return Template.instance().calendarDict.get('sectionChosen');
+	},
+
+	getSageCode: function(sectionId){
+		return sectionId.substring(sectionId.indexOf("-") + 1, sectionId.lastIndexOf("-"));
+	},
 })
 
 Template.calendarTest.events({
@@ -267,8 +277,9 @@ Template.calendarTest.events({
 
 	"click .js-textbook": function(event){
 		event.preventDefault();
+		console.log(event);
 		const course_id = $(event)[0].target.attributes[1].value;
-		const course_code = homeDict.get("courseCode");
+		const course_code = $(event)[0].target.attributes[3].value;
 		const section_num = $(event)[0].target.attributes[2].value;
 
 		window.open("http://www.bkstr.com/webapp/wcs/stores/servlet/booklookServlet?bookstore_id-1=1391&term_id-1=" +
@@ -289,6 +300,15 @@ Template.calendarTest.events({
     	dict.set("sectionObj");
     	dict.set("majorDetail");
     	dict.set("instructorsName");
+	},
+
+	"click .js-take": function(event){
+		const section_id = event.target.attributes[1].value;
+		const event_obj = $("#calendar").fullCalendar('clientEvents', [section_id])[0]
+		event_obj.chosen = !event_obj.chosen;
+		$("#calendar").fullCalendar('updateEvent', event_obj);
+		Template.instance().calendarDict.set("sectionChosen", event_obj.chosen);
+		$("#calendar").fullCalendar('refetchEvents');
 	},
 })
 
@@ -420,6 +440,7 @@ Template.scheduleCourseList.events({
 							title: course_code,
 							start: "2000-01-" + dayNum(day) + "T" + convertTime(time.start) + "-05:00",
 							end: "2000-01-" + dayNum(day) + "T" + convertTime(time.end) + "-05:00",
+							chosen: false,
 							section_obj: result
 						};
 
