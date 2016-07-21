@@ -30,12 +30,12 @@
 </template>
 
 <template name="majorItem">
-	<a href="" data-toggle="collapse" data-target=#{{m._id}}><b style="font-size: 130%; color: #2874A6">{{{m.name}}}</b></a>
-	<div id={{m._id}} class="collapse">
+	<a href=""> <b style="font-size: 130%; color: #2874A6">{{{m.name}}}</b></a>
+	<!-- <div id={{m._id}} class="collapse"> -->
+		<br>
 		<br>
 		<a href="" data-toggle="collapse" data-target="#major{{m._id}}"><b style="font-size: 120%; color: #2874A6">Major (BA/BS)</b></a>
 		<div id="major{{m._id}}" class="collapse">{{{m.major}}}</div>
-
 		<br>
 		{{#if m.minor}}
 		<a href="" data-toggle="collapse" data-target="#minor{{m._id}}"><b style="font-size: 120%; color: #2874A6">Minor</b></a>
@@ -67,5 +67,5 @@
 		<br>
 		{{else}}
 		{{/if}}
-	</div>
+	<!-- </div> -->
 </template>

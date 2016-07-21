@@ -131,7 +131,7 @@ Meteor.methods ({
       const dept_query = term + "-" + dept;
       searchQuery['subjects.id'] = dept_query;
     } else if (!term && dept && dept !== "all"){
-      let regexDept = new RegExp(dept + "$", "i");
+      let regexDept = new RegExp("-" + dept + "$", "i");
       searchQuery['subjects.id'] = regexDept;
     }
 

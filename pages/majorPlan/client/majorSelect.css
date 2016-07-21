@@ -1,0 +1,35 @@
+
+.bulletin-overlay {
+    position:fixed;
+    display:none;
+
+    /* color with alpha transparency */
+    background-color: rgba(0, 0, 0, 0.7);
+
+    /* stretch to screen edges */
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+
+    z-index: 999!important;
+}
+.ui.container.popup-bulletin {
+    position: absolute;
+    /*min-width: 500px;*/
+    /*min-height: 500px;*/
+    display: none;
+    background-color: white;
+    text-align: left;
+    /*position: relative;*/
+    margin: 0 auto;
+
+    /* center it ? */
+    /*left: 0;*/
+
+    z-index: 1000!important;
+}
+
+.ui.popup:before {
+    opacity: 0;
+}
