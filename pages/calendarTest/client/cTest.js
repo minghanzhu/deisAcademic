@@ -276,6 +276,20 @@ Template.calendarTest.events({
 			course_code.substring(0, course_code.indexOf(" ")) + "&course-1=" +
 			course_code.substring(course_code.indexOf(" ") + 1) + "&sect-1=" + section_num);
 	},
+
+	"click .js-delete-section": function(event){
+		event.preventDefault();
+		const dict = Template.instance().calendarDict;
+		const section_id = $(event)[0].target.attributes[1].value;
+		$("#calendar").fullCalendar('removeEventSource', section_id);
+		$(".overlay-calendar, .popup-calendar").fadeToggle();
+		$("#calendar").fullCalendar('refetchEvents');
+		dict.set("courseId");
+    	dict.set("courseObj");
+    	dict.set("sectionObj");
+    	dict.set("majorDetail");
+    	dict.set("instructorsName");
+	},
 })
 
 Template.scheduleCourseList.onCreated(function(){
@@ -423,10 +437,11 @@ Template.scheduleCourseList.events({
 				}
 
 				$("#calendar").fullCalendar("addEventSource", {
-					events: events_array
+					events: events_array,
+					id: result.id
 				})
 
-				$("#calendar").fullCalendar( 'refetchEvents' )
+				$("#calendar").fullCalendar('refetchEvents');
 			}
 		});
 	},

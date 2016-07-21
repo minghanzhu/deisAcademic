@@ -37,7 +37,7 @@
       <a class="item" data-tab="third">Statistics</a>
     </div>
 
-    <div class="ui bottom attached active tab segment" data-tab="seciond" tab-num="2">
+    <div class="ui bottom attached active tab segment" data-tab="second" tab-num="2">
       {{#if detailReady}}
         <h3>Course </h3>
         {{courseInfo.code}} - {{courseInfo.name}}
@@ -114,7 +114,7 @@
               Next section
             </button>
 
-            <button class="ui basic red button">
+            <button class="ui basic red button js-delete-section" section-id="{{sectionObj.id}}">
               <i class="remove icon"></i>
               Delete this section on calendar
             </button>
