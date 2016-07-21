@@ -2,15 +2,10 @@ import fullCalendar from 'fullcalendar';
 
 Template.calendarTest.onCreated(function(){
 	this.calendarDict = new ReactiveDict();
-	/*
-	this.calendarDict.set('courseList', [
-		"1163-001651", //COSI 11A, 1163
-		"1163-005186", //MATH 10a, 1163
-		"1163-005363", //MUS 101A, 1163
-	]);*/
 })
 
 Template.calendarTest.onRendered(function(){
+	const dict = Template.instance().calendarDict;
 	$('#calendar').fullCalendar({
         // put your options and callbacks here
         defaultView: 'agendaWeek',
@@ -34,7 +29,26 @@ Template.calendarTest.onRendered(function(){
     	                         //Wednesday:2000-1-5
     	                         //Thursday: 2000-1-6
     	                         //Friday:   2000-1-7
-    	editable: false,                   
+    	editable: false, 
+    	eventClick: function(calEvent, jsEvent, view){
+    		$('#popup-tab .item').tab();
+    		dict.set("courseId");
+    		dict.set("courseObj");
+    		dict.set("sectionObj");
+    		dict.set("majorDetail");
+    		dict.set("instructorsName");
+    		dict.set("courseId", calEvent.section_obj.course);
+    		dict.set("sectionObj", calEvent.section_obj);
+    		//reset the default detail choice to be the first tab
+			$("#popup-tab .item.active").attr("class", "item");
+			$("#popup-tab [data-tab=first]").attr("class", "item active");
+			$(".ui.container.popup-calendar .segment.active").attr("class", "ui bottom attached tab segment");
+			$(".ui.container.popup-calendar [tab-num=1]").attr("class", "ui bottom attached tab segment active");
+
+			let popup = $(".popup-calendar");
+			popup.css("top", (($(window).height() - popup.outerHeight()) / 2) + $(window).scrollTop() + 30 + "px");
+			$(".overlay-calendar, .popup-calendar").fadeToggle();
+    	},                  
     })
 
 	Template.instance().calendarDict.set("chosenTerm", $(".js-term").val());
@@ -52,7 +66,6 @@ Template.calendarTest.helpers({
 	pullUserCourseList: function(event){
 		const dict = Template.instance().calendarDict;
 		if(dict.get("courseList")){
-			console.log("called!")
 			return;
 		};
 
@@ -122,13 +135,147 @@ Template.calendarTest.helpers({
 		return Course.findOne({id: courseId}).code;
 	},
 
+	getCourseInfo: function(){
+		const dict = Template.instance().calendarDict;
+		const courseId = dict.get("courseId");
+		Meteor.call("getCourse", courseId, function(err, result){
+			if(err){
+				return;
+			}
 
+			dict.set("courseObj", result);
+		})
+	},
+
+	courseInfo: function(){
+		return Template.instance().calendarDict.get("courseObj");
+	},
+
+	detailReady: function(){
+		return !!Template.instance().calendarDict.get("courseObj");
+	},
+
+	hasMajorInfo: function(){
+		return !!Template.instance().calendarDict.get('majorDetail');
+	},
+
+	majorInfo: function(){
+		return Template.instance().calendarDict.get('majorDetail');
+	},
+
+	getMajorDetails: function(){
+		const dict = Template.instance().calendarDict;
+		Meteor.call("getMajorDetails", dict.get('courseObj'),
+			function(err, result){
+				if(err){
+					return;
+				}
+				dict.set('majorDetail', result);
+			}
+		);
+	},
+
+	getReq: function(req_array){
+		if(req_array.length == 0){
+			return ["/"];
+		} else {
+			return req_array;
+		};
+	},
+
+	sectionObj: function(){
+		return Template.instance().calendarDict.get('sectionObj');
+	},
+
+	profNameLoading: function(section_id){
+		return !Template.instance().calendarDict.get("instructorsName");
+	},
+
+	getProfInfo: function(prof_list){
+		const dict = Template.instance().calendarDict; 
+		Meteor.call("getProfInfo", prof_list, function(err, result){
+			if(result.includes("Staff")){
+				dict.set("instructorsName", "Staff - This information will be updated once Brandeis posts the professor names for this section\n");
+			} else {
+				dict.set("instructorsName", result);
+			}
+		});
+
+		return dict.get("instructorsName");
+	},
+
+	notFirstTime: function(index){
+		return index != 0;
+	},
+
+	getSectionDays: function(days_array){
+		days = "";
+		const day1 = "m";
+		const day2 = "tu";
+		const day3 = "w";
+		const day4 = "th";
+		const day5 = "f";
+		if($.inArray(day1, days_array) != -1){
+			days = days + day1.toUpperCase() + " ";
+		}
+		if($.inArray(day2, days_array) != -1){
+			days = days + day2.toUpperCase() + " ";
+		}
+		if($.inArray(day3, days_array) != -1){
+			days = days + day3.toUpperCase() + " ";
+		}
+		if($.inArray(day4, days_array) != -1){
+			days = days + day4.toUpperCase() + " ";
+		}
+		if($.inArray(day5, days_array) != -1){
+			days = days + day5.toUpperCase() + " ";
+		}
+		return days;
+	},
+
+	convertTime: function(time){
+		var min = Math.floor(time % 60);
+		if(min < 10){
+			min = "0" + min;
+		}
+
+		var time = Math.floor(time / 60) + ":" + min;
+		return time;
+	},
+
+	limitNum: function(limit){
+		if(!limit){
+			return "999";
+		} else {
+			return limit;
+		}
+	},
+
+	sectionReady: function(){
+		return !!Template.instance().calendarDict.get('sectionObj');
+	}
 })
 
 Template.calendarTest.events({
 	"change .js-term": function(){
 		Template.instance().calendarDict.set("chosenTerm", $(".js-term").val());
-	}
+	},
+
+	"click .overlay-calendar,.js-close-popup" :function(event){
+		$(".overlay-calendar, .popup-calendar").fadeToggle();
+	},
+
+	"click .js-textbook": function(event){
+		event.preventDefault();
+		const course_id = $(event)[0].target.attributes[1].value;
+		const course_code = homeDict.get("courseCode");
+		const section_num = $(event)[0].target.attributes[2].value;
+
+		window.open("http://www.bkstr.com/webapp/wcs/stores/servlet/booklookServlet?bookstore_id-1=1391&term_id-1=" +
+			course_id.substring(0, course_id.indexOf("-")) + "&div-1=&dept-1=" +
+			course_code.substring(0, course_code.indexOf(" ")) + "&course-1=" +
+			course_code.substring(course_code.indexOf(" ") + 1) + "&sect-1=" + section_num);
+	},
 })
 
 Template.scheduleCourseList.onCreated(function(){
@@ -217,7 +364,6 @@ Template.scheduleCourseList.helpers({
 
 Template.scheduleCourseList.events({
 	"click .js-add-section": function(event){
-		console.log("clicked!");
 		const section_id = event.target.attributes[1].nodeValue;
 		const course_code = event.target.attributes[2].nodeValue;
 		const course_name = event.target.attributes[3].nodeValue;
@@ -227,7 +373,6 @@ Template.scheduleCourseList.events({
 				return;
 			};
 
-			console.log(result);
 			if(result.times.length != 0){
 				const events_array = [];
 				for(let time of result.times){
@@ -260,10 +405,10 @@ Template.scheduleCourseList.events({
 							id: result.id,
 							title: course_code,
 							start: "2000-01-" + dayNum(day) + "T" + convertTime(time.start) + "-05:00",
-							end: "2000-01-" + dayNum(day) + "T" + convertTime(time.end) + "-05:00"
+							end: "2000-01-" + dayNum(day) + "T" + convertTime(time.end) + "-05:00",
+							section_obj: result
 						};
 
-						console.log(event_obj);
 						events_array.push(event_obj);
 					}
 				}
@@ -282,7 +427,6 @@ Template.scheduleCourseList.events({
 				})
 
 				$("#calendar").fullCalendar( 'refetchEvents' )
-				console.log();
 			}
 		});
 	},
