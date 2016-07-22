@@ -420,7 +420,12 @@ Template.scheduleCourseList.events({
 								min = "0" + min;
 							}
 
-							var time = Math.floor(time / 60) + ":" + min + ":00";
+							var hr = Math.floor(time / 60);
+							if(hr < 10){
+								hr = "0" + hr;
+							}
+
+							var time = hr + ":" + min + ":00";
 							return time;
 						};
 
