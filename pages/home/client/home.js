@@ -9,21 +9,26 @@ homeDict.set('courseData');
 
 
 Template.home.onRendered(function(){
+	//these initialize the semantic ui components
 	$('#multi-select').dropdown();
 	$('#search-select').dropdown();
 	$('#search-select-start-time').dropdown();
 	$('#search-select-end-time').dropdown();
 	$('#multi-select-days').dropdown();
 	$('.ui.checkbox').checkbox();
+	//this monitors the pressing of enter, if so, do a search
 	$('body').keydown(function (e){
     	if(e.keyCode == 13){
-        	homeDict.set('showTable', false);
-    		homeDict.set('majorDetail', []);
-			homeDict.set('sectionDetail', []);
-			homeDict.set('courseData');
-			homeDict.set('termName');
-			homeDict.set('noResult', false);
+        	//these reset the home dict so that the popup won't read wrong information
+        	//and also the loading indicators can work
+        	homeDict.set('showTable', false);//this determines if the table should shows up
+    		homeDict.set('majorDetail', []);//this shows the major names and notes for a given section
+			homeDict.set('sectionDetail', []);//this holds the section objects
+			homeDict.set('courseData');//this holds the course object
+			homeDict.set('termName');//this saves the term name
+			homeDict.set('noResult', false);//this determines if showing no results
 
+			//these get all the keywords for search
 			const keyword = $(".js-submit-search").val();
 			const term = $(".js-term").val();
 			const req_array = $(".js-req .ui.label.transition.visible").toArray();
@@ -48,13 +53,18 @@ Template.home.onRendered(function(){
 			const if_indept = $(".js-if-indep").is(':checked');
 			const if_not_sure = $(".js-if-not-sure").is(':checked');
 
+			//call the meteor method to do the search and get results
 			Meteor.call("searchCourse", keyword, term, req_names_array, dept, instructor, time_and_date, if_indept, if_not_sure,
 				function(err, result){
 					if(result.length == 0){
 						homeDict.set('noResult', true);
 					} else {
+						//sort the results so that the reactive table can read a sorted array
 						const sorted_result = result.sort(function(a, b) {
     					//for a
+    					//this turns the course code into a form that the natural sorting can compare
+    					//for example cosi 2b is larger than cosi 2a
+    					//and cosi 11a is larger than cosi 5b
         				let course_num_a = parseInt(a.code.match(/\d+/gi)[0]);
 						if(course_num_a < 10) course_num_a = "00" + course_num_a;
 						if(course_num_a >= 10 && course_num_a < 100) course_num_a = "0" + course_num_a;
@@ -68,6 +78,9 @@ Template.home.onRendered(function(){
 						};
 
 						//for b
+						//this turns the course code into a form that the natural sorting can compare
+    					//for example cosi 2b is larger than cosi 2a
+    					//and cosi 11a is larger than cosi 5b
 						let course_num_b = parseInt(b.code.match(/\d+/gi)[0]);
 						if(course_num_b < 10) course_num_b = "00" + course_num_b;
 						if(course_num_b >= 10 && course_num_b < 100) course_num_b = "0" + course_num_b;
@@ -80,19 +93,23 @@ Template.home.onRendered(function(){
 							comp_string_b = course_num_b + "0";
 						};
 
+						//first priority: term
     					if(parseInt(a.term) < parseInt(b.term)){
         					return 1;  
     					}else if(parseInt(a.term) > parseInt(b.term)){
         					return -1;
-    					}else{
+    					}else{//second priority: major code. For example, COSI, MATH, and MUS
         					const major_comp = course_dep_a.localeCompare(course_dep_b);
         					if(major_comp != 0){
         						return major_comp;
-        					} else {
+        					} else {//thrid priority: course number. For example, 1a, 12b and 131a
         						return comp_string_a.localeCompare(comp_string_b);
         					}
     					}
 					});
+						//this add an index field to each object so that 
+						//the reactive table can read the index as a hidden column
+						//thus won't make the data out of order
 						for(let i = 0; i < sorted_result.length; i++){
 							sorted_result[i].index = i;
 						};
@@ -105,6 +122,9 @@ Template.home.onRendered(function(){
 			);
     	}
 	})
+	
+	//this gets all the professors names and initialize the search selection
+	//so that the user can search a professor name
 	Meteor.call("getProfData", function(err, result){
 		$('#prof-search').search({
     		source : result,
@@ -118,6 +138,16 @@ Template.home.onRendered(function(){
 Template.home.helpers ({
 	showTable: function(){
 		return homeDict.get('showTable');
+	},
+
+	createAccount: function(){
+		if(Meteor.userId()){
+			Meteor.call("addUserProfile_Google",(new Date()).toLocaleString());
+		};
+	},
+
+	existsProfile: function(){
+		return UserProfilePnc.findOne({userId: Meteor.userId()})
 	},
 })
 
@@ -300,6 +330,25 @@ Template.home.events ({
     			homeDict.set('showTable', true);
 			}
 		);
+ 	},
+
+ 	"click .js-login": function(event){
+ 		event.preventDefault();
+ 		Meteor.loginWithGoogle(function(err, result){
+			if(err){
+				if(err.toString() === "Error: Please sign-up with a Brandeis Google account. [400]"){
+					window.alert(err);
+					return;
+				} 
+				return;
+			};
+		});
+ 	},
+
+ 	"click .js-log-out": function(event){
+ 		event.preventDefault();
+ 		Meteor.logout();
+ 		Router.go('/');
  	},
 })
 
@@ -559,7 +608,7 @@ Template.search_result_time_table.helpers({
 						section = "0" + section;
 					};
 
-					return "Section " + section;
+					return "Section " + section;//section 01,02,...,09,10,11 so that reactive table can sort correctly
 				}},
 				{key:'enrolled', label:'Enrolled', sortable:false, fn: function(key, object){
 					var limit = object.limit;
@@ -567,7 +616,7 @@ Template.search_result_time_table.helpers({
 						limit = 999;
 					};
 
-					return key + "/" + limit;
+					return key + "/" + limit;//shows enrollment as enrolled/limit
 				}},
 				{key:'status_text', label:'Status', sortable:false},
 				{key:'times', label:'Times', sortable:false, fn:function(key){

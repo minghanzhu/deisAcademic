@@ -6,8 +6,6 @@ planSearchDict.set('sectionDetail', []);
 planSearchDict.set("sectionIndex", 0);
 planSearchDict.set('courseData');
 
-
-
 Template.planSearch.onRendered(function() {
     planSearchDict.set('showTable', false);
     planSearchDict.set('majorDetail', []);

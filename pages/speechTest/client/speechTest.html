@@ -1,0 +1,44 @@
+<template name="speechTest">
+
+  <h2>Speech Test Page</h2>
+
+  <button class="ui button js-speech">
+    Record speech
+  </button>
+
+  <button class="ui button js-apiSubmit">
+    Send recorded speech to API.ai
+  </button>
+
+
+  <h2>Speech Results</h2>
+
+  <h4>HTML5 Speech Recognition Parsing:</h4><br>
+
+  {{getSpeechResults}}
+
+  <br><br>
+
+  <h4>API.ai Results:</h4><br>
+
+  {{#with getAPIResults}}
+
+  Intent: {{data.result.metadata.intentName}}<br>
+  Identified Department: {{data.result.parameters.Department}}<br>
+  Identified Course Number: {{data.result.parameters.CourseNumber}}<br>
+
+  {{/with}}
+
+  <br>
+
+  <h4>planDeis Search Results:</h4><br>
+
+  <ul>
+    {{#each r in getSearchResults}}
+
+    <li>{{r.id}}: {{r.name}}</li><br>
+
+    {{/each}}
+  </ul>
+
+</template>

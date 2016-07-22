@@ -29,6 +29,34 @@ for(let key of Course.find().fetch()){
   }
 }
 
+//this determines what are the current and future terms
+const date_now = new Date();
+const current_year = date_now.getFullYear();
+const current_month = date_now.getMonth() + 1;//1-12
+const current_date = date_now.getDate();//1-31
+let season;
+if(current_month >= 1 && current_month < 6){
+  season = "Spring ";
+} else if(current_month >= 6 && current_month < 9){
+  if(current_month == 8 && current_date > 15){
+    season = "Fall ";
+  } else {
+    season = "Summer ";
+  }
+} else {
+  season = "Fall ";
+};
+const curren_semester = season + current_year;
+const current_term = Term.findOne({name: curren_semester}).id;
+const future_terms = Term.find({id:{$gt: current_term}}).fetch();
+console.log("Current Term: " + curren_semester);
+let future_terms_string = "";
+for(let term of future_terms){
+  future_terms_string = future_terms_string + term.name + " ";
+}
+console.log("Future Term(s): " + future_terms_string);
+
+
 Meteor.methods ({
   keywordInsert: function(keyword) {
     Keyword.insert({
@@ -37,6 +65,273 @@ Meteor.methods ({
   },
 
  	searchCourse: function(keyword, term, req_array, dept, prof, time, if_indept, if_not_sure){
+    //this removed any extra spaces
+    keyword = keyword.replace(/ +/gi, " ");
+    keyword = keyword.trim();
+
+
+    const codes_record = [];//this records the user tokens
+    const keys_record = [];//this records all the matches
+    for(let item of codes){
+      //in the form of CODE + NUM + LETTER; for exmaple
+      //cosi11a, coSi 11a, COsi 400, COsI400
+      if(item.includes("/")){//some code is in the form of COSI/MATH
+        //the separates the string to two parts
+        //and do the same thing as the one for normal code below
+        let indexOfSlash = item.indexOf("/");
+        let first_half = item.substring(0, indexOfSlash);
+        let second_half = item.substring(indexOfSlash + 1);
+        let regex_1 = new RegExp("( |^)" + first_half + " ?(\\d{1,3}[A-Z]{0,1})?( |$)", "i");
+        let regex_2 = new RegExp("( |^)" + second_half + " ?(\\d{1,3}[A-Z]{0,1})?( |$)", "i");
+
+        if(keyword.match(regex_1)){
+          let code_token = keyword.match(regex_1)[0];
+          let code_key = item + " " + code_token.trim().substring(first_half.length).trim().toUpperCase();
+          codes_record.push(code_token);
+          keys_record.push(code_key.trim());
+        } else if (keyword.match(regex_2)){
+          let code_token = keyword.match(regex_2)[0];
+          let code_key = item + " " + code_token.trim().substring(second_half.length).trim().toUpperCase();
+          codes_record.push(code_token);
+          keys_record.push(code_key.trim());
+        }
+      } else {//for normal code like COSI, MUS, MATH
+        let regex = new RegExp("( |^)" + item + " ?(\\d{1,3}[A-Z]{0,1})?( |$)", "i");
+
+        if(keyword.match(regex)){
+          let code_token = keyword.match(regex)[0];
+          let code_key = item + " " + code_token.trim().substring(item.length).trim().toUpperCase();
+          codes_record.push(code_token);
+          keys_record.push(code_key.trim());
+        }
+      }
+    }
+
+    //this extracts the code token out of the keyword string
+    //so that it won't be part of the search for course title
+    for(let key of codes_record){
+      if(keyword.match(key)){
+        keyword = keyword.replace(key, " ");
+        keyword = keyword.replace(/ {2, }/i, " ");
+      }
+    }
+
+    //this generates the regex for the actual search for course code
+    var regexCode;
+    if(keys_record.length != 0){
+      //this put together all the matches by logical OR
+      let new_keyword = "(" + keys_record[0];
+      for(let i = 1; i < keys_record.length; i++){
+        new_keyword = new_keyword + "|" + keys_record[i];
+      }
+      new_keyword = new_keyword + ")";
+
+      //this checks if the user wants to do a strict match
+      //if so, math10 or math 10 won't return math 100
+      //if not, cosi 1 can return any cosi course that has 
+      //1 as the beginning of course code
+      if(!if_not_sure){
+        if(!/\d/i.test(new_keyword)){
+          regexCode = new RegExp("^" + new_keyword + " \\d{1,3}([A-Z]{0,1})?$", "i");
+        } else{
+          regexCode = new RegExp("^" + new_keyword + " ?([A-Z]{0,1})?$", "i");
+        }
+      } else {
+        regexCode = new RegExp("^" + new_keyword + " ?((\\d{1,3})?[A-Z]{0,1})?$", "i");
+      };
+    } else {
+      regexCode = new RegExp("^", "i");
+    }
+
+    //this turns the rest of the key word string into a regex for course title search
+    var regexTitle;
+    if(/^ +$/.test(keyword)){//this makes sure there's something left in the keyword string
+      regexTitle = new RegExp("^", "i");
+    } else {
+      regexTitle = new RegExp(keyword.trim(),"i");
+    };
+
+    //this generates the regex for term search
+    var regexTerm = new RegExp("^" + term, "i");
+
+    //this creates the first query object
+    let searchQuery;
+    if(if_indept){//if the user choose to also search independent studies
+      searchQuery = {term: regexTerm, code: regexCode, name: regexTitle};
+    } else {
+      searchQuery = {term: regexTerm, code: regexCode, name: regexTitle, independent_study: false};
+    }
+
+    //process the array of requirements
+    if(req_array.length != 0){
+      searchQuery.$and = [];
+      for(let node of req_array){//if there's requirement, add it to the qeury object
+        searchQuery.$and.push({requirements: node});
+      }
+    };
+
+    //process the department
+    if(term && dept && dept !== "all"){//if there's term and department
+      const dept_query = term + "-" + dept;
+      searchQuery['subjects.id'] = dept_query;
+    } else if (!term && dept && dept !== "all"){//is there's only department
+      let regexDept = new RegExp("-" + dept + "$", "i");
+      searchQuery['subjects.id'] = regexDept;
+    }
+
+    //process professor name
+    let hasProfessor = false;
+    let prof_id;//the id for this professor
+    if(prof){
+      let section_of_prof;//array of all sections taught by the professor
+      for(let item of prof_name_and_id){
+        if(item.title === prof){//loop through the professor names and see if anything matches
+          prof_id = item.id;
+          section_of_prof = Section.find({instructors: prof_id}).fetch();
+          hasProfessor = true;
+          break;
+        }
+      }
+
+      //if no professor matches, return no result
+      if(!section_of_prof){
+        return [];
+      } else if (section_of_prof.length == 0){
+        return [];
+      };
+
+      //else add the course id's to the query
+      if(prof_id && section_of_prof){
+        let req_and = [];//saves the original $and field
+        if(req_array.length != 0){//up to now, only requirements use $and field
+          req_and = searchQuery.$and;
+        }
+
+        const course_id_list = [];//turns the id of section into id of courses
+
+        for(let item of section_of_prof){
+          course_id_list.push({id: item.course});
+        }
+        const prof_or = {'$or':course_id_list};//create a $or field
+        searchQuery.$and = [prof_or];//put the course id's to the query
+
+
+        if(req_and.length != 0){//if there's requirements, put them to the query
+          for(let item of req_and){
+            searchQuery.$and.push(item);
+          }
+        }
+      }
+    }
+
+    //time and date
+    let days_array = time.days;
+    let search_start = time.start;
+    let search_end = time.end;
+    //make sure there's actual request on time and date
+    if(days_array.length != 0 || (search_start && search_start !== "all") || (search_end && search_end !== "all")){
+      const searchQuery_time = {$and:[]};//create the inital search query for time and date
+      if(search_start && search_start !== "all"){//turns the time into minutes after 0:00 AM
+        const start_hr = parseInt(search_start.substring(0, search_start.indexOf(":")));
+        const start_min = parseInt(search_start.substring(search_start.indexOf(":") + 1));
+        search_start = start_hr * 60 + start_min;
+      } else {//if there's no request, make it 0, so it starts from the begining of the day
+        search_start = 0;
+      }
+
+      if(search_end && search_end !== "all"){
+        const end_hr = parseInt(search_end.substring(0, search_end.indexOf(":")));
+        const end_min = parseInt(search_end.substring(search_end.indexOf(":") + 1));
+        search_end = end_hr * 60 + end_min;
+      } else {
+        search_end = 1440;
+      }
+
+      if(search_start >= "0" && search_start <= "1440"){//add the start time to the search if there's any
+        searchQuery_time.$and.push({'times.start': {$gte: search_start, $lte: 1440}});
+      }
+
+      if(search_end >= "0" && search_end <= "1440"){//add the end time to the search if there's any
+        searchQuery_time.$and.push({'times.end': {$gte: 0, $lte: search_end}});
+      }
+
+      if(days_array.length != 0){//add the days to the search if there's any
+        for(let day of days_array){
+          searchQuery_time.$and.push({'times.days': day});
+        }
+      }
+
+      const section_at_time = Section.find(searchQuery_time).fetch();//get the results of the time search
+      //make sure there's result 
+      if(section_at_time.length != 0){
+        const course_id_list_time = [];
+        for(let item of section_at_time){
+         course_id_list_time.push({id: item.course});
+        }
+
+        if(searchQuery.$and){
+          if(!hasProfessor){//if there's no request for prof., add an $or search to the existing $and field
+            searchQuery.$and.push({$or:course_id_list_time});
+          } else {//if there is, find the course id list and do a compare
+            //loop through the existing id list
+            for(let i = 0; i < searchQuery.$and.length; i++){
+              if (searchQuery.$and[i].$or){
+                if (searchQuery.$and[i].$or.length != 0){
+                  if (searchQuery.$and[i].$or[0].id){//make sure that the current node is an id search
+                    for(let j = 0; j < searchQuery.$and[i].$or.length; j++){
+                      //Using the id in the prof course id list to search for time
+                      //so that if the section does not meet the time request,
+                      //remove it from the course id list
+                      let current_section;
+                      if(days_array.length != 0){
+                        let section_time_query = {
+                          course: searchQuery.$and[i].$or[j].id,
+                          instructors: prof_id,
+                          'times.start': {$gte: search_start, $lte: 1440},
+                          'times.end': {$gte: 0, $lte: search_end}
+                        };
+                        section_time_query.$and = [];
+                        for(let day of days_array){
+                          section_time_query.$and.push({'times.days': day});
+                        }
+                        current_section = Section.findOne(section_time_query);
+                      } else {
+                        current_section = Section.findOne({
+                          course: searchQuery.$and[i].$or[j].id,
+                          instructors: prof_id,
+                          'times.start': {$gte: search_start, $lte: 1440},
+                          'times.end': {$gte: 0, $lte: search_end}
+                        });
+                      };
+
+                      if(!current_section) {//if can't find matching section, remove it from the list
+                        searchQuery.$and[i].$or.splice(j, 1);
+                        j--;
+                      }
+                    }
+                  }
+
+                  //if at any point, the list becomes empty, return null
+                  if(searchQuery.$and[i].$or.length == 0){
+                    return [];
+                  }
+                }
+              }
+            }
+          }
+        } else {//if there no $and field (no prof. and no requirement)
+          searchQuery.$and = {$or:course_id_list_time};
+        }
+      } else {// if there's no result, simply return null and end the search
+        return [];
+      }
+    }
+
+    return Course.find(searchQuery).fetch();
+  },
+
+  //this returns results with limited fields
+  searchCourseWithP: function(keyword, term, req_array, dept, prof, time, if_indept, if_not_sure){
     keyword = keyword.replace(/ +/gi, " ");
     keyword = keyword.trim();
     const codes_record = [];//this records the user tokens
@@ -131,7 +426,7 @@ Meteor.methods ({
       const dept_query = term + "-" + dept;
       searchQuery['subjects.id'] = dept_query;
     } else if (!term && dept && dept !== "all"){
-      let regexDept = new RegExp("-" + dept + "$", "i");
+      let regexDept = new RegExp(dept + "$", "i");
       searchQuery['subjects.id'] = regexDept;
     }
 
@@ -288,13 +583,16 @@ Meteor.methods ({
       }
     }
 
-    return Course.find(searchQuery).fetch();
+    return Course.find(searchQuery,{fields:{_id:0,credits:0,requirements:0,subjects:0,type:0,term:0,independent_study:0}}).fetch();
   },
 
   	searchTerm: function(key){
   		return Term.findOne({id: key}).name;
   	},
 
+    //this takes an array of prof. id's and return results 
+    //so that each line is one <prof. name>
+    //and prevents fencepost error
   	searchInstructorArray: function(instrutorData){
       var instructors = "";
       if(instrutorData.length == 1){
@@ -324,6 +622,8 @@ Meteor.methods ({
       return instructors;
   	},
 
+    //takes a course object and turns it's subjects array into
+    //an array so that each item is <major name> + <major type>
   	getMajorDetails: function(courseData){
   	const ids = [];//array of major names
 		const major_key = courseData.subjects;//get the array of major id's
@@ -341,15 +641,19 @@ Meteor.methods ({
 		return ids.sort();
   	},
 
+    //takes a course object and returns all the sections of it
   	getSectionDetails: function(courseData){
   	const section_key = courseData.id;//get the id of the course
 		return Section.find({course: section_key}).fetch();//an array of corresponding sections
   	},
 
+    //returns the array of prof. name and id
     getProfData: function(){
       return prof_name_and_id;
     },
 
+    //takes an array of prof. id's and return a string
+    //so that each line is <prof. name> + <prof. email>
     getProfInfo: function(prof_list){
       let result = "";
       for(let prof of prof_list){
@@ -362,6 +666,21 @@ Meteor.methods ({
 
       result = result.substring(0, result.lastIndexOf("<br>"));
       return result;
+    },
+
+    //takes a course object and returns all the sections of it
+    getSections: function(courseId){
+      return Section.find({course:courseId}).fetch();
+    },
+
+    //takes a section id and returns the section object
+    getSection: function(sectionId){
+      return Section.findOne({id: sectionId}, {fields:{_id:0, type:0}});
+    },
+
+    //takes a course id and returns the course object
+    getCourse: function(courseId){
+      return Course.findOne({id: courseId});
     },
 
     addCourse: function(course){
@@ -385,4 +704,67 @@ Meteor.methods ({
     })
     // UserTerms.remove({term: course.term, term: course.term});
   },
+  
+  //this creates our profile for the current user
+  "addUserProfile_Google": function(date){
+    //check if the user id valid
+    if(!this.userId){
+      console.log("Invalid insert: No such user");
+      return;
+    };
+
+    //check if the user id is in record
+    const user_data = Meteor.users.findOne(this.userId);
+    if(!user_data){
+      console.log("Invalid insert: No such user");
+      return;
+    };
+
+    var user_name = user_data.profile.name;
+    var user_email = user_data.services.google.email;
+    var user_username = user_email.substring(0, user_email.indexOf("@"));
+
+    //get the current user object in users collection if there is
+    const user_obj = UserProfilePnc.findOne({userId: this.userId});
+    if (user_obj == null){
+      const profile_obj = {
+        userName: user_username,
+        userYear: "Junior",
+        userId: this.userId,
+        wishlist: [],
+        majorPlanList:[],
+        liked: [],
+        watched: [],
+        scheduleList: [],
+        courseRate: []
+      }
+      UserProfilePnc.insert(profile_obj);
+    };
+  },
+
+
+  "sendJSONtoAPI_ai": function(parsedText){
+    var theAPIKey = Meteor.settings.apiSpeechKey;
+
+    const z = HTTP.call(
+      "POST",
+      "https://api.api.ai/v1/query/",
+      {headers:
+        {"Authorization": "Bearer" + theAPIKey, //API.ai token here (from API.ai account)
+
+        "Content-Type": "application/json; charset=utf-8"},
+        data: {"query": parsedText, "lang": "en"}},
+        // function(error,result){
+        //   console.log(result);
+        //   // var params = result.data.result.parameters;
+        //   // console.log(params);
+        //   // console.log("Params: " + params[0] + params[1]);
+        //   console.log("Intent: " + result.data.result.metadata.intentName);
+        //   // Session.set("apiResults", result);
+        //   // return result;
+        // }
+      )
+        // console.log(z);
+        return z;
+  }
 });
