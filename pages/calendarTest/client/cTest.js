@@ -31,28 +31,30 @@ Template.calendarTest.onRendered(function(){
     	                         //Friday:   2000-1-7
     	editable: false, 
     	eventClick: function(calEvent, jsEvent, view){
-    		$('#popup-tab .item').tab();
-    		dict.set("courseId");
-    		dict.set("courseObj");
-    		dict.set("sectionObj");
-    		dict.set("majorDetail");
-    		dict.set("instructorsName");
-    		dict.set("sectionChosen")
+    		$('#popup-tab .item').tab();//this initialize the tabs for the popup
+    		dict.set("courseId");//this holds the course id of the current chosen event
+    		dict.set("courseObj");//this holds the actual course object for the current chosen event
+    		dict.set("sectionObj");//this holds the actual section object for the current chosen event
+    		dict.set("majorDetail");//this holds the major names and notes for the current chosen event
+    		dict.set("instructorsName");//this hold the instructor names and emails for the current chosen event
+    		dict.set("sectionChosen")//this hold the boolean value if this section is decided to take by the user
     		dict.set("courseId", calEvent.section_obj.course);
     		dict.set("sectionObj", calEvent.section_obj);
     		dict.set("sectionChosen", calEvent.chosen);
-    		//reset the default detail choice to be the first tab
+    		//reset the default detail choice to be the second tab. which is the section detail tab
 			$("#popup-tab .item.active").attr("class", "item");
 			$("#popup-tab [data-tab=first]").attr("class", "item active");
 			$(".ui.container.popup-calendar .segment.active").attr("class", "ui bottom attached tab segment");
 			$(".ui.container.popup-calendar [tab-num=1]").attr("class", "ui bottom attached tab segment active");
 
+			//then pops up the popup window
 			let popup = $(".popup-calendar");
+			//this makes sure that the popup in the center of the screen
 			popup.css("top", (($(window).height() - popup.outerHeight()) / 2) + $(window).scrollTop() + 30 + "px");
 			$(".overlay-calendar, .popup-calendar").fadeToggle();
     	},                  
     })
-
+	//this saves the current chosen term
 	Template.instance().calendarDict.set("chosenTerm", $(".js-term").val());
 })
 
@@ -401,7 +403,7 @@ Template.scheduleCourseList.events({
 		const section_id = event.target.attributes[1].nodeValue;
 		const course_code = event.target.attributes[2].nodeValue;
 		const course_name = event.target.attributes[3].nodeValue;
-		//start  : '2010-01-09T12:30:00',
+		//start  : '2010-01-09T12:30:00-5:00',this is the format of the time
 		Meteor.call("getSection", section_id, function(err, result){
 			if(err){
 				return;
@@ -411,6 +413,7 @@ Template.scheduleCourseList.events({
 				const events_array = [];
 				for(let time of result.times){
 					for(let day of time.days){
+						//turn time from minuets form into a real time form (HH:MM:SS)
 						function convertTime(time){
 							var min = Math.floor(time % 60);
 							if(min < 10){
@@ -421,6 +424,7 @@ Template.scheduleCourseList.events({
 							return time;
 						};
 
+						//turns day names into date
 						function dayNum(day){
 							if(day === "m"){
 								return "03";
@@ -436,12 +440,12 @@ Template.scheduleCourseList.events({
 						};
 
 						const event_obj = {
-							id: result.id,
+							id: result.id,//this holds the section id so events at different tiems are associated
 							title: course_code,
 							start: "2000-01-" + dayNum(day) + "T" + convertTime(time.start) + "-05:00",
 							end: "2000-01-" + dayNum(day) + "T" + convertTime(time.end) + "-05:00",
 							chosen: false,
-							section_obj: result
+							section_obj: result//this hold the actual section object for later use
 						};
 
 						events_array.push(event_obj);
@@ -456,12 +460,13 @@ Template.scheduleCourseList.events({
 						}
 					}
 				}
-
+				//add the source which contains all the events at different times for the same section into the calendar
 				$("#calendar").fullCalendar("addEventSource", {
 					events: events_array,
 					id: result.id
 				})
 
+				//this read the current sources and re-render it on the calendar
 				$("#calendar").fullCalendar('refetchEvents');
 			}
 		});

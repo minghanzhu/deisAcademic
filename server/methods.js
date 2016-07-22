@@ -65,14 +65,19 @@ Meteor.methods ({
   },
 
  	searchCourse: function(keyword, term, req_array, dept, prof, time, if_indept, if_not_sure){
+    //this removed any extra spaces
     keyword = keyword.replace(/ +/gi, " ");
     keyword = keyword.trim();
+
+
     const codes_record = [];//this records the user tokens
     const keys_record = [];//this records all the matches
     for(let item of codes){
       //in the form of CODE + NUM + LETTER; for exmaple
       //cosi11a, coSi 11a, COsi 400, COsI400
       if(item.includes("/")){//some code is in the form of COSI/MATH
+        //the separates the string to two parts
+        //and do the same thing as the one for normal code below
         let indexOfSlash = item.indexOf("/");
         let first_half = item.substring(0, indexOfSlash);
         let second_half = item.substring(indexOfSlash + 1);
@@ -90,7 +95,7 @@ Meteor.methods ({
           codes_record.push(code_token);
           keys_record.push(code_key.trim());
         }
-      } else {
+      } else {//for normal code like COSI, MUS, MATH
         let regex = new RegExp("( |^)" + item + " ?(\\d{1,3}[A-Z]{0,1})?( |$)", "i");
 
         if(keyword.match(regex)){
@@ -103,6 +108,7 @@ Meteor.methods ({
     }
 
     //this extracts the code token out of the keyword string
+    //so that it won't be part of the search for course title
     for(let key of codes_record){
       if(keyword.match(key)){
         keyword = keyword.replace(key, " ");
@@ -110,13 +116,20 @@ Meteor.methods ({
       }
     }
 
+    //this generates the regex for the actual search for course code
     var regexCode;
     if(keys_record.length != 0){
+      //this put together all the matches by logical OR
       let new_keyword = "(" + keys_record[0];
       for(let i = 1; i < keys_record.length; i++){
         new_keyword = new_keyword + "|" + keys_record[i];
       }
       new_keyword = new_keyword + ")";
+
+      //this checks if the user wants to do a strict match
+      //if so, math10 or math 10 won't return math 100
+      //if not, cosi 1 can return any cosi course that has 
+      //1 as the beginning of course code
       if(!if_not_sure){
         if(!/\d/i.test(new_keyword)){
           regexCode = new RegExp("^" + new_keyword + " \\d{1,3}([A-Z]{0,1})?$", "i");
@@ -130,6 +143,7 @@ Meteor.methods ({
       regexCode = new RegExp("^", "i");
     }
 
+    //this turns the rest of the key word string into a regex for course title search
     var regexTitle;
     if(/^ +$/.test(keyword)){//this makes sure there's something left in the keyword string
       regexTitle = new RegExp("^", "i");
@@ -137,10 +151,12 @@ Meteor.methods ({
       regexTitle = new RegExp(keyword.trim(),"i");
     };
 
+    //this generates the regex for term search
     var regexTerm = new RegExp("^" + term, "i");
-    let hasProfessor = false;
+
+    //this creates the first query object
     let searchQuery;
-    if(if_indept){
+    if(if_indept){//if the user choose to also search independent studies
       searchQuery = {term: regexTerm, code: regexCode, name: regexTitle};
     } else {
       searchQuery = {term: regexTerm, code: regexCode, name: regexTitle, independent_study: false};
@@ -149,26 +165,27 @@ Meteor.methods ({
     //process the array of requirements
     if(req_array.length != 0){
       searchQuery.$and = [];
-      for(let node of req_array){
+      for(let node of req_array){//if there's requirement, add it to the qeury object
         searchQuery.$and.push({requirements: node});
       }
     };
 
-    //term-dept
-    if(term && dept && dept !== "all"){//make term-dept
+    //process the department
+    if(term && dept && dept !== "all"){//if there's term and department
       const dept_query = term + "-" + dept;
       searchQuery['subjects.id'] = dept_query;
-    } else if (!term && dept && dept !== "all"){
+    } else if (!term && dept && dept !== "all"){//is there's only department
       let regexDept = new RegExp("-" + dept + "$", "i");
       searchQuery['subjects.id'] = regexDept;
     }
 
-    //instructor
+    //process professor name
+    let hasProfessor = false;
     let prof_id;//the id for this professor
     if(prof){
       let section_of_prof;//array of all sections taught by the professor
       for(let item of prof_name_and_id){
-        if(item.title === prof){
+        if(item.title === prof){//loop through the professor names and see if anything matches
           prof_id = item.id;
           section_of_prof = Section.find({instructors: prof_id}).fetch();
           hasProfessor = true;
@@ -183,26 +200,23 @@ Meteor.methods ({
         return [];
       };
 
+      //else add the course id's to the query
       if(prof_id && section_of_prof){
-        let req_and = [];
-        if(req_array.length != 0){
+        let req_and = [];//saves the original $and field
+        if(req_array.length != 0){//up to now, only requirements use $and field
           req_and = searchQuery.$and;
         }
 
-        const section_id_list = [];
+        const course_id_list = [];//turns the id of section into id of courses
 
         for(let item of section_of_prof){
-          section_id_list.push(item.course);
+          course_id_list.push({id: item.course});
         }
+        const prof_or = {'$or':course_id_list};//create a $or field
+        searchQuery.$and = [prof_or];//put the course id's to the query
 
-        const prof_or = {'$or':[]};
 
-        for(let item of section_id_list){
-          prof_or.$or.push({id:item})
-        }
-        searchQuery.$and = [prof_or];
-
-        if(req_and.length != 0){
+        if(req_and.length != 0){//if there's requirements, put them to the query
           for(let item of req_and){
             searchQuery.$and.push(item);
           }
@@ -214,13 +228,14 @@ Meteor.methods ({
     let days_array = time.days;
     let search_start = time.start;
     let search_end = time.end;
+    //make sure there's actual request on time and date
     if(days_array.length != 0 || (search_start && search_start !== "all") || (search_end && search_end !== "all")){
-      const searchQuery_time = {$and:[]};
-      if(search_start && search_start !== "all"){
+      const searchQuery_time = {$and:[]};//create the inital search query for time and date
+      if(search_start && search_start !== "all"){//turns the time into minutes after 0:00 AM
         const start_hr = parseInt(search_start.substring(0, search_start.indexOf(":")));
         const start_min = parseInt(search_start.substring(search_start.indexOf(":") + 1));
         search_start = start_hr * 60 + start_min;
-      } else {
+      } else {//if there's no request, make it 0, so it starts from the begining of the day
         search_start = 0;
       }
 
@@ -232,42 +247,41 @@ Meteor.methods ({
         search_end = 1440;
       }
 
-      if(search_start >= "0" && search_start <= "1440"){
+      if(search_start >= "0" && search_start <= "1440"){//add the start time to the search if there's any
         searchQuery_time.$and.push({'times.start': {$gte: search_start, $lte: 1440}});
       }
 
-      if(search_end >= "0" && search_end <= "1440"){
+      if(search_end >= "0" && search_end <= "1440"){//add the end time to the search if there's any
         searchQuery_time.$and.push({'times.end': {$gte: 0, $lte: search_end}});
       }
 
-      if(days_array.length != 0){
+      if(days_array.length != 0){//add the days to the search if there's any
         for(let day of days_array){
           searchQuery_time.$and.push({'times.days': day});
         }
       }
 
-      const section_at_time = Section.find(searchQuery_time).fetch();
+      const section_at_time = Section.find(searchQuery_time).fetch();//get the results of the time search
+      //make sure there's result 
       if(section_at_time.length != 0){
-        const section_id_list_time = [];
+        const course_id_list_time = [];
         for(let item of section_at_time){
-         section_id_list_time.push(item.course);
+         course_id_list_time.push({id: item.course});
         }
 
         if(searchQuery.$and){
-          if(!hasProfessor){
-            let time_id_or = {$or:[]};
-            for(let key of section_id_list_time){
-              time_id_or.$or.push({id:key})
-            }
-            searchQuery.$and.push(time_id_or);
-          } else {
-            //loop through the existring id list
+          if(!hasProfessor){//if there's no request for prof., add an $or search to the existing $and field
+            searchQuery.$and.push({$or:course_id_list_time});
+          } else {//if there is, find the course id list and do a compare
+            //loop through the existing id list
             for(let i = 0; i < searchQuery.$and.length; i++){
               if (searchQuery.$and[i].$or){
                 if (searchQuery.$and[i].$or.length != 0){
                   if (searchQuery.$and[i].$or[0].id){//make sure that the current node is an id search
                     for(let j = 0; j < searchQuery.$and[i].$or.length; j++){
-                      //get the section using the current id
+                      //Using the id in the prof course id list to search for time
+                      //so that if the section does not meet the time request,
+                      //remove it from the course id list
                       let current_section;
                       if(days_array.length != 0){
                         let section_time_query = {
@@ -290,13 +304,14 @@ Meteor.methods ({
                         });
                       };
 
-                      if(!current_section) {
+                      if(!current_section) {//if can't find matching section, remove it from the list
                         searchQuery.$and[i].$or.splice(j, 1);
                         j--;
                       }
                     }
                   }
 
+                  //if at any point, the list becomes empty, return null
                   if(searchQuery.$and[i].$or.length == 0){
                     return [];
                   }
@@ -304,14 +319,10 @@ Meteor.methods ({
               }
             }
           }
-        } else {
-          let time_id_or = {$or:[]};
-          for(let key of section_id_list_time){
-            time_id_or.$or.push({id:key})
-          }
-          searchQuery.$and = [time_id_or];
+        } else {//if there no $and field (no prof. and no requirement)
+          searchQuery.$and = {$or:course_id_list_time};
         }
-      } else {
+      } else {// if there's no result, simply return null and end the search
         return [];
       }
     }
@@ -319,6 +330,7 @@ Meteor.methods ({
     return Course.find(searchQuery).fetch();
   },
 
+  //this returns results with limited fields
   searchCourseWithP: function(keyword, term, req_array, dept, prof, time, if_indept, if_not_sure){
     keyword = keyword.replace(/ +/gi, " ");
     keyword = keyword.trim();
@@ -578,6 +590,9 @@ Meteor.methods ({
   		return Term.findOne({id: key}).name;
   	},
 
+    //this takes an array of prof. id's and return results 
+    //so that each line is one <prof. name>
+    //and prevents fencepost error
   	searchInstructorArray: function(instrutorData){
       var instructors = "";
       if(instrutorData.length == 1){
@@ -607,6 +622,8 @@ Meteor.methods ({
       return instructors;
   	},
 
+    //takes a course object and turns it's subjects array into
+    //an array so that each item is <major name> + <major type>
   	getMajorDetails: function(courseData){
   	const ids = [];//array of major names
 		const major_key = courseData.subjects;//get the array of major id's
@@ -624,15 +641,19 @@ Meteor.methods ({
 		return ids.sort();
   	},
 
+    //takes a course object and returns all the sections of it
   	getSectionDetails: function(courseData){
   	const section_key = courseData.id;//get the id of the course
 		return Section.find({course: section_key}).fetch();//an array of corresponding sections
   	},
 
+    //returns the array of prof. name and id
     getProfData: function(){
       return prof_name_and_id;
     },
 
+    //takes an array of prof. id's and return a string
+    //so that each line is <prof. name> + <prof. email>
     getProfInfo: function(prof_list){
       let result = "";
       for(let prof of prof_list){
@@ -647,14 +668,17 @@ Meteor.methods ({
       return result;
     },
 
+    //takes a course object and returns all the sections of it
     getSections: function(courseId){
       return Section.find({course:courseId}).fetch();
     },
 
+    //takes a section id and returns the section object
     getSection: function(sectionId){
       return Section.findOne({id: sectionId}, {fields:{_id:0, type:0}});
     },
 
+    //takes a course id and returns the course object
     getCourse: function(courseId){
       return Course.findOne({id: courseId});
     },
@@ -680,7 +704,8 @@ Meteor.methods ({
     })
     // UserTerms.remove({term: course.term, term: course.term});
   },
-
+  
+  //this creates our profile for the current user
   "addUserProfile_Google": function(date){
     //check if the user id valid
     if(!this.userId){
