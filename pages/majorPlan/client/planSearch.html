@@ -271,16 +271,23 @@
             </div>
         </div>
     </div> -->
-    {{#if showTable}}
-        {{> plan_result}}
+    {{passMajor dict}}
+    {{#if hasMajor}}
+        {{getData}}
+        {{#if showTable}}
+            {{> plan_result planDict=planSearchDict}}
+        {{/if}}
+
+        <button class="ui button js-makeSchedule">Next</button>
+        {{#if hasClickedNext}}{{clickedNext dict}}{{/if}}
     {{/if}}
 </template>
 
 <template name="plan_result">
-    {{#if courseDataReady}}
-        {{> reactiveTable class="ui stackable selectable fixed table js-result-table" collection=courseData settings=settings_course}}
+    {{#if courseDataReady planDict}}
+        {{> reactiveTable class="ui stackable selectable fixed table js-result-table" collection=(courseData planDict) settings=(settings_course planDict)}}
     {{else}}
-        {{#if noResult}}
+        {{#if noResult planDict}}
             <br>
            <h2>No Result</h2>
         {{else}}

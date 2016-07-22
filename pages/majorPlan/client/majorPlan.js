@@ -1,6 +1,6 @@
 Template.majorPlan.helpers({
-    majors: function() {
-      return Major.find({id:planSearchDict.get("majorId")});
+    majors: function(dict) {
+      return Major.find({id:dict.get("chosenMajor")});
       // return Major.find({id:"1400"});
     },
 });

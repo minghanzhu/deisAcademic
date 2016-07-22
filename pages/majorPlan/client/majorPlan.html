@@ -5,12 +5,12 @@
 
 	<div class="ui grid">
   <div class="nine wide column">
-		{{> planSearch}}
+		{{> planSearch dict=dict}}
   </div>
 
   <div class="seven wide column">
 		<ul>
-			{{#each m in majors}}
+			{{#each m in (majors dict)}}
 			<li>
 				{{> majorItem m = m}}
 				<br>

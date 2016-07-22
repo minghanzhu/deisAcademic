@@ -1,22 +1,50 @@
+Template.majorSelect.onCreated(function(){
+	this.majorSelectDict = new ReactiveDict();
+	this.majorSelectDict.set("clickedGo", false);
+	this.majorSelectDict.set("clickedHelp", false);
+})
+
 Template.majorSelect.onRendered(function(){
 	$('#search-select').dropdown();
-  const major = $("#search-select input").val();
+  	const major = $("#search-select input").val();
 
 });
+
+Template.majorSelect.helpers({
+	clickedGo: function(dict){
+		dict.set("pageName", "chooseCourse");
+		dict.set("chosenMajor", $("#search-select input").val());
+	},
+
+	hasClickedGo: function(){
+		return Template.instance().majorSelectDict.get("clickedGo");
+	},
+
+	clickedHelp: function(dict){
+		dict.set("pageName", "helpChooseMajor");
+		dict.set("chosenMajor", $("#search-select input").val());
+	},
+
+	hasClickedHelp: function(){
+		return Template.instance().majorSelectDict.get("clickedHelp");
+	},
+
+})
 
 Template.majorSelect.events({
   "click .js-majorGo": function(){
     event.preventDefault();
 		const majorId = $("#search-select input").val();
 		// console.log(majorId);
-		planSearchDict.set("majorId", majorId);
-		Router.go('majorPlan');
+		//planSearchDict.set("majorId", majorId);
+		Template.instance().majorSelectDict.set("clickedGo", true);
   },
 
   "click .js-majorBulletin": function(){
     event.preventDefault();
-    Router.go('majorList');
+		Template.instance().majorSelectDict.set("clickedHelp", true);
   },
+
 });
 
 
@@ -36,7 +64,7 @@ Template.majorList.helpers({
 		major: function() {
 			// return Major.find({name: homeDict.get('majorName')}).fetch()[0];
 			return Major.findOne({name: homeDict.get('majorName')});
-		}
+		},	
 });
 
 

@@ -104,6 +104,7 @@
 
 			<div class="four wide field">
 				<button class="medium ui primary button js-majorGo">Go</button>
+				{{#if hasClickedGo}}{{clickedGo dict}}{{/if}}
 			</div>
 		</div>
 	</div>
@@ -128,6 +129,7 @@
 
 			<div class="five wide field">
 				<button class="fluid large ui primary button js-majorBulletin">Help me decide a major</button>
+				{{#if hasClickedHelp}}{{clickedHelp dict}}{{/if}}
 			</div>
 		</div>
 	</div>
