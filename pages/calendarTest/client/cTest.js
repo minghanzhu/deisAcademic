@@ -320,6 +320,9 @@ Template.scheduleCourseList.onCreated(function(){
 
 Template.scheduleCourseList.onRendered(function(){
 	$('.accordion').accordion();
+	$('.ui.sticky').sticky({
+    	context: '#courseList'
+  	});
 })
 
 Template.scheduleCourseList.helpers({
