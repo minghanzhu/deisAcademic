@@ -14,14 +14,14 @@
 
 		<div class="four wide column">
   			<div class="ui container" id="courseList">
-				  {{#if getCourseList}}     
+				  {{#if hasCourseList}}     
             <div class="ui vertical accordion menu">
               {{#each course in getCourseList}} 
                 {{> scheduleCourseList c=course dict=calendarDict}}
               {{/each}}
             </div>
   				{{else}}
-  					{{pullUserCourseList}}
+  					{{pullUserCourseList dict}}
   					<div class="ui active inline loader"></div>
   				{{/if}}
   			</div>	

@@ -3,13 +3,9 @@ Template.planSearch.onCreated(function(){
     this.planSearchDict.set('showTable', false);
     this.planSearchDict.set('majorDetail', []);
     this.planSearchDict.set('sectionDetail', []);
-    this.planSearchDict.set("sectionIndex", 0);
+    this.planSearchDict.set('sectionIndex', 0);
     this.planSearchDict.set('courseData');
     this.planSearchDict.set('clickedNext', false);
-})
-
-Template.planSearch.onRendered(function() {
-    
 })
 
 Template.planSearch.helpers({
@@ -22,19 +18,20 @@ Template.planSearch.helpers({
     },
 
     hasClickedNext: function(){
-        return Template.instance().planSearchDict.get("clickedNext");
+        return Template.instance().planSearchDict.get('clickedNext');
     },
 
     clickedNext: function(dict){
-        dict.set("pageName", "makeSchedule");
+        dict.set("pageName", 'makeSchedule');
     },
 
     passMajor: function(dict){
-        Template.instance().planSearchDict.set("majorId", dict.get("chosenMajor"));
+        Template.instance().planSearchDict.set('majorId', dict.get('chosenMajor'));
+        Template.instance().masterDict = dict;
     },
 
     hasMajor: function(){
-        return !!Template.instance().planSearchDict.get("majorId");
+        return !!Template.instance().planSearchDict.get('majorId');
     },
 
     getData: function(){
@@ -46,7 +43,7 @@ Template.planSearch.helpers({
         planDict.set('termName');
         planDict.set('noResult', false);
 
-        const dept = planDict.get("majorId"); //""for no option and "all" for all departments
+        const dept = planDict.get('majorId'); //""for no option and "all" for all departments
 
         Meteor.call("searchCourse", "", "", [], dept, "", {
             days: [],
@@ -118,14 +115,24 @@ Template.planSearch.helpers({
 Template.planSearch.events({
     "click .js-makeSchedule": function(event){
         event.preventDefault();
-        Template.instance().planSearchDict.set("clickedNext", true);
+        const courseList = Template.instance().masterDict.get("courseList");
+        if(!courseList){
+            window.alert("You haven't chosen any course yet!");
+            return;
+        } else {
+            if(courseList.length == 0) {
+                window.alert("You haven't chosen any course yet!");
+                return;
+            } 
+        };
+
+        Template.instance().planSearchDict.set('clickedNext', true);
     },
 })
 
 Template.plan_result.onCreated(function(){
     this.planResultDict = new ReactiveDict();
-    this.planResultDict.set("masterDict");
-    this.planResultDict.set("chosenCourse", []);
+    this.planResultDict.set('chosenCourse', []);
 })
 
 Template.plan_result.onRendered(function() {
@@ -134,7 +141,7 @@ Template.plan_result.onRendered(function() {
 
 Template.plan_result.helpers({
     setMasterDict: function(dict){
-        Template.instance().planResultDict.set("masterDict", dict);
+        Template.instance().masterDict = dict;//save the dict to the template
     },
 
     detailReady: function(planDict) {
@@ -166,7 +173,7 @@ Template.plan_result.helpers({
     },
 
     settings_course: function() {
-        const chosen_course = Template.instance().planResultDict.get("chosenCourse");
+        const chosen_course = Template.instance().planResultDict.get('chosenCourse');
         return {
             rowsPerPage: 10,
             showFilter: false,
@@ -195,30 +202,16 @@ Template.plan_result.helpers({
                 key: 'add',
                 label: 'Add',
                 headerClass: "two wide",
-
                 sortable: false,
                 fn: function(key, object) {
-                        const courseId = object.continuity_id;
-                        if($.inArray(courseId, chosen_course) != -1){
-                            return new Spacebars.SafeString("<div class=\"ui fitted slider checkbox\"> <input type='checkbox' id=\"" + courseId + "\" checked='checked'> <label></label> </div>");
-                        } else {
-                            return new Spacebars.SafeString("<div class=\"ui fitted slider checkbox\"> <input type='checkbox' id=\"" + courseId + "\"> <label></label> </div>");
-                        }
-                        
-                    }
-                    // fn: function(key, object) {
-                    //     Meteor.call("searchTerm", key, function(err, result) {
-                    //         planSearchDict.set("termName" + object.id, result);
-                    //     });
-                    //
-                    //     const term_name = planSearchDict.get("termName" + object.id);
-                    //     if (!term_name) {
-                    //         return new Spacebars.SafeString("<div class=\"ui active inline loader\"></div>");
-                    //     } else {
-                    //         return term_name;
-                    //     }
-                    // }
-            }, ],
+                    const courseId = object.continuity_id;
+                    if($.inArray(courseId, chosen_course) != -1){
+                        return new Spacebars.SafeString("<div class=\"ui fitted slider checkbox\"> <input type='checkbox' id=\"" + courseId + "\" checked='checked'> <label></label> </div>");
+                    } else {
+                        return new Spacebars.SafeString("<div class=\"ui fitted slider checkbox\"> <input type='checkbox' id=\"" + courseId + "\"> <label></label> </div>");
+                    }  
+                }
+            }],
         };
     },
 })
@@ -226,15 +219,17 @@ Template.plan_result.helpers({
 Template.plan_result.events({
     "click .js-result-table tbody tr": function(event) {
         if (event.target.nodeName == "INPUT") {
-            const chosen_array = Template.instance().planResultDict.get("chosenCourse");
+            const chosen_array = Template.instance().planResultDict.get('chosenCourse');
             const isChecked = $("#" + this.continuity_id).is(":checked");
+            const id = this.continuity_id;
             if(isChecked){//put the course code to the array
-                chosen_array.push(this.continuity_id);
+                chosen_array.push(id);
             } else {//remove the course code from the array
-                const id_index = $.inArray(this.continuity_id, chosen_array);
+                const id_index = $.inArray(id, chosen_array);
                 chosen_array.splice(id_index, 1);
             }
-            Template.instance().planResultDict.set("chosenCourse", chosen_array);
+            Template.instance().planResultDict.set('chosenCourse', chosen_array);
+            Template.instance().masterDict.set('courseList', chosen_array);//set the result to the master dict
         }
     },
 })

@@ -766,5 +766,13 @@ Meteor.methods ({
       )
         // console.log(z);
         return z;
-  }
+  },
+
+  "fetchCourseList": function(courseList){
+    const result_array = [];
+    for(let courseId of courseList){
+      result_array.push(Course.findOne({continuity_id: courseId}));
+    };
+    return result_array;
+  },
 });
