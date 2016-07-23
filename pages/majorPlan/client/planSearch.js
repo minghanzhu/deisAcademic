@@ -93,6 +93,15 @@ Template.planSearch.helpers({
                         }
 
                     });
+                    let current_course = "";
+                    for(let i = 0; i < sorted_result.length; i++){
+                        if((sorted_result[i].code) === current_course){
+                            current_course = sorted_result[i].code;
+                            sorted_result.splice(i, 1);
+                            i--;
+                        };
+                        current_course = sorted_result[i].code;                 
+                    }
                     for (let i = 0; i < sorted_result.length; i++) {
                         sorted_result[i].index = i;
                     };
@@ -113,7 +122,21 @@ Template.planSearch.events({
     },
 })
 
+Template.plan_result.onCreated(function(){
+    this.planResultDict = new ReactiveDict();
+    this.planResultDict.set("masterDict");
+    this.planResultDict.set("chosenCourse", []);
+})
+
+Template.plan_result.onRendered(function() {
+    $('.ui.accordion').accordion();
+})
+
 Template.plan_result.helpers({
+    setMasterDict: function(dict){
+        Template.instance().planResultDict.set("masterDict", dict);
+    },
+
     detailReady: function(planDict) {
         return planDict.get('courseInfo') != null;
     },
@@ -142,7 +165,8 @@ Template.plan_result.helpers({
         return planDict.get('noResult');
     },
 
-    settings_course: function(planDict) {
+    settings_course: function() {
+        const chosen_course = Template.instance().planResultDict.get("chosenCourse");
         return {
             rowsPerPage: 10,
             showFilter: false,
@@ -175,8 +199,12 @@ Template.plan_result.helpers({
                 sortable: false,
                 fn: function(key, object) {
                         const courseId = object.continuity_id;
-                        console.log(courseId);
-                        return new Spacebars.SafeString("<div class=\"ui fitted slider checkbox\" id=\"" + courseId + "\"> <input type='checkbox'> <label></label> </div>");
+                        if($.inArray(courseId, chosen_course) != -1){
+                            return new Spacebars.SafeString("<div class=\"ui fitted slider checkbox\"> <input type='checkbox' id=\"" + courseId + "\" checked='checked'> <label></label> </div>");
+                        } else {
+                            return new Spacebars.SafeString("<div class=\"ui fitted slider checkbox\"> <input type='checkbox' id=\"" + courseId + "\"> <label></label> </div>");
+                        }
+                        
                     }
                     // fn: function(key, object) {
                     //     Meteor.call("searchTerm", key, function(err, result) {
@@ -195,21 +223,18 @@ Template.plan_result.helpers({
     },
 })
 
-Template.plan_result.onRendered(function() {
-    $('.ui.accordion').accordion();
-})
-
-Template.plan_result.helpers({
-
-})
-
 Template.plan_result.events({
     "click .js-result-table tbody tr": function(event) {
-        console.log(this);
-
+        if (event.target.nodeName == "INPUT") {
+            const chosen_array = Template.instance().planResultDict.get("chosenCourse");
+            const isChecked = $("#" + this.continuity_id).is(":checked");
+            if(isChecked){//put the course code to the array
+                chosen_array.push(this.continuity_id);
+            } else {//remove the course code from the array
+                const id_index = $.inArray(this.continuity_id, chosen_array);
+                chosen_array.splice(id_index, 1);
+            }
+            Template.instance().planResultDict.set("chosenCourse", chosen_array);
+        }
     },
-
-    "click .js-addCourse": function(event) {
-
-    }
 })
