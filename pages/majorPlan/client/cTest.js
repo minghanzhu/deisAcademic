@@ -76,6 +76,7 @@ Template.calendarTest.helpers({
 		Template.instance().masterDict = dict;
 		const courseList = dict.get('courseList');
 		Template.instance().calendarDict.set("hasCourseList", true);
+		Template.instance().calendarDict.set("availableCourseList", courseList);
 
 		if(typeof courseList[0] === "string"){//prevent unexpected request
 			Meteor.call("fetchCourseList", courseList,
@@ -273,7 +274,34 @@ Template.calendarTest.helpers({
 
 Template.calendarTest.events({
 	"change .js-term": function(){
+		//save the previous term's schedule to the dict
+		const previous_term = Template.instance().calendarDict.get("chosenTerm");
+		const previous_schedule_sources = $("#calendar").fullCalendar("getEventSources");
+		//this removes all the additional properties created by fullCalendar
+		const previous_cleaned_sources = [];
+		for(let source of previous_schedule_sources){
+			const cleaned_source = {
+				events: source.origArray,
+				id: source.id
+			};
+
+			previous_cleaned_sources.push(cleaned_source);
+		}
+		Template.instance().calendarDict.set("scheduleSrc" + previous_term, previous_cleaned_sources);
+
+		//for the new term
 		Template.instance().calendarDict.set("chosenTerm", $(".js-term").val());
+		//check if there's an existing schedule for the current semester
+		const current_term = $(".js-term").val();
+		const current_schedule_sources = Template.instance().calendarDict.get("scheduleSrc" + current_term);
+		$("#calendar").fullCalendar("removeEventSources", previous_schedule_sources);
+		if(current_schedule_sources){
+			if(current_schedule_sources.length != 0){
+				for(let source of current_schedule_sources){
+					$("#calendar").fullCalendar("addEventSource", source);
+				}
+			}
+		}
 	},
 
 	"click .overlay-calendar,.js-close-popup" :function(event){
@@ -327,6 +355,10 @@ Template.scheduleCourseList.onRendered(function(){
 
 Template.scheduleCourseList.helpers({
 	getSections: function(courseContId, dict){
+		if(!dict.get("chosenTerm") || !courseContId){//continue only if the data is ready
+			return;
+		};
+
 		const courseId = dict.get("chosenTerm") + "-" + courseContId;
 		return Meteor.call("getSections", courseId, function(err, result){
 			if(err){
@@ -473,9 +505,6 @@ Template.scheduleCourseList.events({
 					events: events_array,
 					id: result.id
 				})
-
-				//this read the current sources and re-render it on the calendar
-				$("#calendar").fullCalendar('refetchEvents');
 			}
 		});
 	},
