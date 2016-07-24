@@ -351,6 +351,9 @@ Template.scheduleCourseList.onCreated(function(){
 
 Template.scheduleCourseList.onRendered(function(){
 	$('.accordion').accordion();
+	$('.ui.sticky').sticky({
+    	context: '#courseList'
+  	});
 })
 
 Template.scheduleCourseList.helpers({
@@ -509,4 +512,11 @@ Template.scheduleCourseList.events({
 		});
 	},
 
+	"click .js-title": function(){
+		setTimeout(function(){
+    		$('.ui.sticky').sticky({
+    			context: '#courseList'
+  			});
+		}, 1000);
+	},
 })
