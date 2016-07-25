@@ -13,27 +13,7 @@ h1 {
 body {
     background-image: url("images/public-domain-images-free-stock-photos-002.jpg");
 }
-#searchBar {
-    position: relative;
-    margin: auto;
-    width: 350px;
-    box-sizing: border-box;
-    border: 2px solid #ccc;
-    border-radius: 5px;
-    font-size: 16px;
-    background-color: white;
-    background-image: url('images/1466678038_icon-111-search.png');
-    background-size: 30px;
-    background-position: 10px 10px;
-    background-repeat: no-repeat;
-    padding: 14px 20px 14px 40px;
-    /*-webkit-transition: width .4s ease-in-out;*/
-    transition: width .4s ease-in-out;
-    outline: none;
-}
-#searchBar:hover {
-    width: 75%;
-}
+
 .searchForm {
     text-align: center;
     /*top: 50px;*/

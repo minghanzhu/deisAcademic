@@ -32,7 +32,7 @@ body {
     outline: none;
 }
 #searchBar:hover {
-    width: 75%;
+    width: 500px;
 }
 .searchForm {
     text-align: center;
@@ -79,27 +79,21 @@ body {
     color: #4C4C4C;
     box-shadow: 0 8px 6px -6px #999;
 }
-
 .nav ul li {
-  list-style-type: none;
+    list-style-type: none;
 }
-
 a {
-  color: #4C4C4C;
+    color: #4C4C4C;
 }
-
 a:hover {
-  text-decoration: none;
-  color: white;
+    text-decoration: none;
+    color: white;
 }
-
 .overlay {
-    position:fixed;
-    display:none; 
-
+    position: fixed;
+    display: none;
     /* color with alpha transparency */
     background-color: rgba(0, 0, 0, 0.7);
-
     /* stretch to screen edges */
     top: 0;
     left: 0;
@@ -113,17 +107,14 @@ a:hover {
     display: none;
     /*background-color: white;*/
     text-align: left;
-
     /* center it ? */
     left: 0;
-
     z-index: 1000!important;
 }
 .ui.popup:before {
     opacity: 0;
 }
-
-#nav > li, a {
+#nav> li, a {
     cursor: hand;
     cursor: pointer;
 }
