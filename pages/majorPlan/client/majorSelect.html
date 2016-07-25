@@ -136,57 +136,75 @@
 
 <template name="majorList">
 
-	<div class="bulletin-overlay"></div>
-	<div class="ui container popup-bulletin">
-		<i class="remove icon pull-right js-close-popup"></i>
-		{{{major.objectives}}}
-	</div>
+
 
 	<div class="ui grid">
+		<div class="bulletin-overlay"></div>
+
+		<div class="ui container popup-bulletin">
+			<i class="remove icon pull-right js-close-popup"></i> {{{major.objectives}}}
+		</div>
+		
 		<div class="one wide column"></div>
+
 		<div class="three wide column">
 			<h2><i class="book icon"></i>Science</h2>
 			<ul class="ui list">
-				{{#each sc in scienceMajor}}
+				{{#each scienceMajor in scienceMajorList}}
 				<li>
-					{{> science s = sc}}
+					{{> science sc = scienceMajor}}
 				</li>
 				<hr> {{/each}}
 			</ul>
 		</div>
 
 		<div class="four wide column">
-			<h2><i class="book icon"></i>Social Science</h2> {{#each so in social}}
+			<h2><i class="book icon"></i>Social Science</h2>
 			<ul class="ui list">
+				{{#each socialMajor in socialMajorList}}
 				<li>
-					{{so.name}}
+					{{> social so = socialMajor}}
 				</li>
+				<hr> {{/each}}
 			</ul>
-			{{/each}}
 		</div>
 
 		<div class="four wide column">
-			<h2><i class="book icon"></i>Humanities</h2> {{#each hu in humanities}}
+			<h2><i class="book icon"></i>Humanities</h2>
 			<ul class="ui list">
+				{{#each humanitiesMajor in humanitiesMajorList}}
 				<li>
-					{{hu.name}}
+					{{> humanities hu = humanitiesMajor}}
 				</li>
+				<hr> {{/each}}
 			</ul>
-			{{/each}}
 		</div>
 
 		<div class="four wide column">
-			<h2><i class="book icon"></i>Creative Arts</h2> {{#each ca in arts}}
+			<h2><i class="book icon"></i>Creative Arts</h2>
 			<ul class="ui list">
+				{{#each creativeMajor in creativeMajorList}}
 				<li>
-					{{ca.name}}
+					{{> creative cr = creativeMajor}}
 				</li>
+				<hr> {{/each}}
 			</ul>
-			{{/each}}
 		</div>
 	</div>
 </template>
 
 <template name="science">
-	<div class="js-popup">{{s.name}}</div>
+	<div class="js-popup">{{sc.name}}</div>
+</template>
+
+<template name="social">
+	<div class="js-popup">{{so.name}}</div>
+</template>
+
+<template name="humanities">
+	<div class="js-popup">{{hu.name}}</div>
+</template>
+
+<template name="creative">
+	<div class="js-popup">{{cr.name}}</div>
 </template>

@@ -21,16 +21,20 @@ Template.majorSelect.events({
 
 
 Template.majorList.helpers({
-    scienceMajor: function() {
+    scienceMajorList: function() {
       return Major.find({school: "School of Science"});
     },
 
-		social: function() {
+		socialMajorList: function() {
 			return Major.find({school: "School of Social Science"});
 		},
 
-		humanities: function() {
+		humanitiesMajorList: function() {
 			return Major.find({school: "School of Humanities"});
+		},
+
+		creativeMajorList: function() {
+			return Major.find({school: "School of Creative Arts"});
 		},
 
 		major: function() {
@@ -44,9 +48,6 @@ Template.majorList.events({
 	"click .bulletin-overlay,.js-close-popup": function(event){
 		$(".bulletin-overlay, .popup-bulletin").fadeToggle();
 	},
-});
-
-Template.science.events({
 
 	"click .js-popup": function(event) {
 		// const name = $(event);
@@ -57,6 +58,4 @@ Template.science.events({
 		popup.css("top", (($(window).height() - popup.outerHeight()) / 2) + $(window).scrollTop() + 30 + "px");
 		$(".bulletin-overlay, .popup-bulletin").fadeToggle();
 	},
-
-
 });

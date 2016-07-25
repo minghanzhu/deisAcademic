@@ -12,22 +12,23 @@
     bottom: 0;
     right: 0;
 
-    z-index: 999!important;
+    z-index: 9999!important;
 }
 .ui.container.popup-bulletin {
-    position: absolute;
+    /*position: absolute;*/
     /*min-width: 500px;*/
     /*min-height: 500px;*/
     display: none;
     background-color: white;
     text-align: left;
-    /*position: relative;*/
-    margin: 0 auto;
+    position: absolute;
+    /*margin: 0 auto;*/
 
     /* center it ? */
-    /*left: 0;*/
+    left: 10%;
+    top: -10%;
 
-    z-index: 1000!important;
+    z-index: 10000!important;
 }
 
 .ui.popup:before {
