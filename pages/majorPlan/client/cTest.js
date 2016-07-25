@@ -3,6 +3,7 @@ import fullCalendar from 'fullcalendar';
 Template.calendarTest.onCreated(function(){
 	this.calendarDict = new ReactiveDict();
 	this.calendarDict.set("hasCourseList", false);
+	this.calendarDict.set("scheduleList", {})
 })
 
 Template.calendarTest.onRendered(function(){
@@ -41,7 +42,7 @@ Template.calendarTest.onRendered(function(){
     		dict.set("sectionChosen")//this hold the boolean value if this section is decided to take by the user
     		dict.set("courseId", calEvent.section_obj.course);
     		dict.set("sectionObj", calEvent.section_obj);
-    		dict.set("sectionChosen", calEvent.chosen);
+    		dict.set("sectionChosen", $("#calendar").fullCalendar("getEventSourceById", calEvent.section_obj.id).chosen);
     		//reset the default detail choice to be the second tab. which is the section detail tab
 			$("#popup-tab .item.active").attr("class", "item");
 			$("#popup-tab [data-tab=first]").attr("class", "item active");
@@ -120,7 +121,7 @@ Template.calendarTest.helpers({
 						for(let i = 0; i < sorted_result.length; i++){
 							if((sorted_result[i].code) === current_course){
 								current_course = sorted_result[i].code;
-								sorted_result.splice(i, 1);
+								sorted_result.splice(i, 1); 
 								i--;
 							};
 							current_course = sorted_result[i].code;					
@@ -268,6 +269,9 @@ Template.calendarTest.helpers({
 	},
 
 	getSageCode: function(sectionId){
+		if(!sectionId){
+			return;
+		}
 		return sectionId.substring(sectionId.indexOf("-") + 1, sectionId.lastIndexOf("-"));
 	},
 })
@@ -282,22 +286,28 @@ Template.calendarTest.events({
 		for(let source of previous_schedule_sources){
 			const cleaned_source = {
 				events: source.origArray,
-				id: source.id
+				id: source.id,
+				chosen: source.chosen
 			};
 
 			previous_cleaned_sources.push(cleaned_source);
 		}
-		Template.instance().calendarDict.set("scheduleSrc" + previous_term, previous_cleaned_sources);
+		const current_schedule_list = Template.instance().calendarDict.get("scheduleList");
+		current_schedule_list[previous_term] = {
+			term: previous_term,
+			courseList: previous_cleaned_sources
+		};
+		Template.instance().calendarDict.set("scheduleList", current_schedule_list);
 
 		//for the new term
 		Template.instance().calendarDict.set("chosenTerm", $(".js-term").val());
 		//check if there's an existing schedule for the current semester
 		const current_term = $(".js-term").val();
-		const current_schedule_sources = Template.instance().calendarDict.get("scheduleSrc" + current_term);
+		const current_schedule_sources = Template.instance().calendarDict.get("scheduleList")[current_term];
 		$("#calendar").fullCalendar("removeEventSources", previous_schedule_sources);
 		if(current_schedule_sources){
-			if(current_schedule_sources.length != 0){
-				for(let source of current_schedule_sources){
+			if(current_schedule_sources["courseList"].length != 0){
+				for(let source of current_schedule_sources["courseList"]){
 					$("#calendar").fullCalendar("addEventSource", source);
 				}
 			}
@@ -312,9 +322,9 @@ Template.calendarTest.events({
 		event.preventDefault();
 		console.log(event);
 		const course_id = $(event)[0].target.attributes[1].value;
-		const course_code = $(event)[0].target.attributes[3].value;
 		const section_num = $(event)[0].target.attributes[2].value;
-
+		const course_code = $(event)[0].target.attributes[3].value;
+		
 		window.open("http://www.bkstr.com/webapp/wcs/stores/servlet/booklookServlet?bookstore_id-1=1391&term_id-1=" +
 			course_id.substring(0, course_id.indexOf("-")) + "&div-1=&dept-1=" +
 			course_code.substring(0, course_code.indexOf(" ")) + "&course-1=" +
@@ -337,11 +347,67 @@ Template.calendarTest.events({
 
 	"click .js-take": function(event){
 		const section_id = event.target.attributes[1].value;
-		const event_obj = $("#calendar").fullCalendar('clientEvents', [section_id])[0]
-		event_obj.chosen = !event_obj.chosen;
-		$("#calendar").fullCalendar('updateEvent', event_obj);
-		Template.instance().calendarDict.set("sectionChosen", event_obj.chosen);
-		$("#calendar").fullCalendar('refetchEvents');
+		const source = $("#calendar").fullCalendar('getEventSourceById', section_id);
+		source.chosen = !source.chosen;
+		Template.instance().calendarDict.set("sectionChosen", source.chosen);
+		$("#calendar").fullCalendar("refetchEvents");
+	},
+
+	"click .js-save-plan": function(){
+		//save the current term's schedule to the dict
+		const current_term = Template.instance().calendarDict.get("chosenTerm");
+		const current_schedule_sources = $("#calendar").fullCalendar("getEventSources");
+		//this removes all the additional properties created by fullCalendar
+		const current_cleaned_sources = [];
+		for(let source of current_schedule_sources){
+			const cleaned_source = {
+				events: source.origArray,
+				id: source.id,
+				chosen: source.chosen
+			};
+
+			current_cleaned_sources.push(cleaned_source);
+		}
+		const current_schedule_list = Template.instance().calendarDict.get("scheduleList");
+		current_schedule_list[current_term] = {
+			term: current_term,
+			courseList: current_cleaned_sources
+		};
+		Template.instance().calendarDict.set("scheduleList", current_schedule_list);
+		////////////////////////////////////////////
+
+		//turn the dict data into user data to save
+		const major_plan_object = {
+			majorId: major_code,
+			chosenCourse: availableCourseList,
+
+		}
+		const masterDict = Template.instance().masterDict;
+		const major_code = masterDict.get("chosenMajor");
+		const availableCourseList = masterDict.get("courseList");
+		//this gets the current saved schedule list
+		//{"<term>":{term:"<term>",courseList:[<courses>]}}
+		const final_schedule_list = Template.instance().calendarDict.get("scheduleList");
+		console.log(final_schedule_list);
+		const schedule_list = [];
+		for(let term in final_schedule_list){//access each {term="<term>", courseList:[<courses>]}
+			const user_schedule_array = [];
+			const source = final_schedule_list[term];
+			const chosenCourse = source.courseList;
+			for(let source of chosenCourse){
+				const section_obj = {
+					section_id: source.id,
+					chosen: source.chosen
+				}
+				user_schedule_array.push(section_obj);//only save sections id's for each chosen course
+			}
+			const schedule_obj = {
+				term: term,
+				chosenCourse: user_schedule_array
+			}
+			schedule_list.push(schedule_obj);
+		}
+		console.log(schedule_list);//[{term:<term>, courseList:[{}]}]
 	},
 })
 
@@ -440,7 +506,6 @@ Template.scheduleCourseList.events({
 	"click .js-add-section": function(event){
 		const section_id = event.target.attributes[1].nodeValue;
 		const course_code = event.target.attributes[2].nodeValue;
-		const course_name = event.target.attributes[3].nodeValue;
 		//start  : '2010-01-09T12:30:00-5:00',this is the format of the time
 		Meteor.call("getSection", section_id, function(err, result){
 			if(err){
@@ -487,7 +552,6 @@ Template.scheduleCourseList.events({
 							title: course_code,
 							start: "2000-01-" + dayNum(day) + "T" + convertTime(time.start) + "-05:00",
 							end: "2000-01-" + dayNum(day) + "T" + convertTime(time.end) + "-05:00",
-							chosen: false,
 							section_obj: result//this hold the actual section object for later use
 						};
 
@@ -506,7 +570,8 @@ Template.scheduleCourseList.events({
 				//add the source which contains all the events at different times for the same section into the calendar
 				$("#calendar").fullCalendar("addEventSource", {
 					events: events_array,
-					id: result.id
+					id: result.id,
+					chosen: false
 				})
 			}
 		});

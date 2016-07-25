@@ -9,7 +9,12 @@
             <option value="1171">Spring 2017</option>              
           </select>
         
-          <div id="calendar"></div>
+          <div id="calendar"></div><br>
+          {{#if currentUser}}
+            <button class="ui button js-save-plan">Save My Plan</button>
+          {{else}}
+            <h3>You'll have to login to save this plan</h3>
+          {{/if}}
         </div>
 			</div>
 		</div>
