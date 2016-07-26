@@ -52,7 +52,9 @@ Template.calendarTest.onRendered(function(){
 			//then pops up the popup window
 			let popup = $(".popup-calendar");
 			//this makes sure that the popup in the center of the screen
-			popup.css("top", (($(window).height() - popup.outerHeight()) / 2) + $(window).scrollTop() + 30 + "px");
+			setTimeout(function(){
+    			popup.css("top", (($(window).height() - popup.outerHeight()) / 2) + $(window).scrollTop() + 30 + "px");
+			}, 400);
 			$(".overlay-calendar, .popup-calendar").fadeToggle();
     	},                  
     })
