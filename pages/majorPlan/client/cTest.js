@@ -388,8 +388,8 @@ Template.calendarTest.events({
         const major_code = masterDict.get("chosenMajor");
         const availableCourseList = [];
         const current_chosen_courses = masterDict.get("courseList");
-        for(let course of current_chosen_courses){
-        	availableCourseList.push(course.continuity_id);
+        for (let course of current_chosen_courses) {
+            availableCourseList.push(course.continuity_id);
         };
         //this gets the current saved schedule list
         //{"<term>":{term:"<term>",courseList:[<courses>]}}
@@ -414,13 +414,13 @@ Template.calendarTest.events({
             schedule_list.push(schedule_obj);
         }
         console.log(schedule_list); //[{term:<term>, courseList:[{}]}]
-        Meteor.call("saveSchedule_MajorPlan", schedule_list, major_code, availableCourseList, function(err, result){
-        	if(err){
-        		console.log(err);
-        		return;
-        	}
+        Meteor.call("saveSchedule_MajorPlan", schedule_list, major_code, availableCourseList, function(err, result) {
+            if (err) {
+                console.log(err);
+                return;
+            }
 
-        	console.log(result);
+            console.log(result);
         });
     },
 })
@@ -592,10 +592,14 @@ Template.scheduleCourseList.events({
     },
 
     "click .js-title": function() {
-        setTimeout(function() {
-            $('.ui.sticky').sticky({
-                context: '#courseList'
-            });
-        }, 1000);
+        const sticky_height = $(".ui.sticky").height();
+        const target_height = $("#courseList").height();
+        if (sticky_height < target_height) {
+            setTimeout(function() {
+                $('.ui.sticky').sticky({
+                    context: '#courseList'
+                });
+            }, 1000);
+        }
     },
 })
