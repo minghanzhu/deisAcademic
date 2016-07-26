@@ -10,6 +10,8 @@
           </select>
         
           <div id="calendar"></div><br>
+          <button class="ui button js-change-course">Change Chosen Courses</button>
+          {{#if hasClickedChange}}{{clickedChange dict}}{{/if}}
           {{#if currentUser}}
             <button class="ui button js-save-plan">Save My Plan</button>
           {{else}}

@@ -4,6 +4,7 @@ Template.calendarTest.onCreated(function() {
     this.calendarDict = new ReactiveDict();
     this.calendarDict.set("hasCourseList", false);
     this.calendarDict.set("scheduleList", {})
+    this.calendarDict.set("clickedChange", false);
 })
 
 Template.calendarTest.onRendered(function() {
@@ -276,6 +277,14 @@ Template.calendarTest.helpers({
         }
         return sectionId.substring(sectionId.indexOf("-") + 1, sectionId.lastIndexOf("-"));
     },
+
+    clickedChange: function(dict){
+        dict.set("pageName", "chooseCourse");
+    },
+
+    hasClickedChange: function(){
+        return Template.instance().calendarDict.get("clickedChange");
+    },
 })
 
 Template.calendarTest.events({
@@ -423,6 +432,11 @@ Template.calendarTest.events({
             console.log(result);
         });
     },
+
+    "click .js-change-course": function(){
+        event.preventDefault();
+        Template.instance().calendarDict.set("clickedChange", true);
+    },
 })
 
 Template.scheduleCourseList.onCreated(function() {
@@ -431,9 +445,14 @@ Template.scheduleCourseList.onCreated(function() {
 
 Template.scheduleCourseList.onRendered(function() {
     $('.accordion').accordion();
-    $('.ui.sticky').sticky({
-        context: '#courseList'
-    });
+    const sticky_height = $(".ui.sticky").height();
+    const target_height = $("#courseList").height();
+    if (sticky_height < target_height) {
+        $('.ui.sticky').sticky({
+            context: '#courseList'
+        });
+    }
+    
 })
 
 Template.scheduleCourseList.helpers({
