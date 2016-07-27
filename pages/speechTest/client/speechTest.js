@@ -19,12 +19,42 @@ Template.speechTest.helpers({
     if (apiRes) {
       const dept = apiRes.data.result.parameters.Department;
       const courseNum = apiRes.data.result.parameters.CourseNumber;
+      // const courseCod = apiRes.data.result.parameters.CourseCode;
+
+      var term;
+
+      if (apiRes.data.result.parameters.Terms) {
+
+        const termString = apiRes.data.result.parameters.Terms;
+
+        switch (termString) {
+          case "Fall 2016":
+          term = 1163;
+          break;
+          case "Fall 2015":
+          term = 1153;
+          break;
+          case "Spring 2016":
+          term = 1161;
+          break;
+          case "Spring 2017":
+          term = 1171;
+          break;
+          case "Summer 2016":
+          term = 1162;
+          break;
+        }
+
+      }
+      else {
+        term = "";
+      }
 
       const theResults = dept + " " + courseNum;
       console.log(theResults);
 
-      Meteor.call("searchCourse", theResults, "", [], null, null, {days:[],start:"",end:""}, false, false, function(error,result) {
-        console.log(result);
+      Meteor.call("searchCourse", theResults, term, [], null, null, {days:[],start:"",end:""}, false, false, function(error,result) {
+        console.log("searchRes: " + result);
         robDict.set("theSearchResults", result);
 
       })
