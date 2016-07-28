@@ -1,86 +1,112 @@
 import fullCalendar from 'fullcalendar';
 
-Template.calendarTest.onCreated(function() {
+Template.calendarTest.onCreated(function(){
     this.calendarDict = new ReactiveDict();
-    this.calendarDict.set("hasCourseList", false);
-    this.calendarDict.set("scheduleList", {})
-    this.calendarDict.set("clickedChange", false);
+    this.calendarDict.set("masterDictSet", false);
 })
 
 Template.calendarTest.onRendered(function() {
     const dict = Template.instance().calendarDict;
     $('#calendar').fullCalendar({
-            // put your options and callbacks here
-            defaultView: 'agendaWeek',
-            weekends: false,
-            columnFormat: 'dddd', //http://fullcalendar.io/docs/text/columnFormat/
-            businessHours: {
-                start: '7:00',
-                end: '22:30',
-                dow: [1, 2, 3, 4, 5]
-            }, //http://fullcalendar.io/docs/display/businessHours/
-            slotDuration: '00:30:00',
-            allDaySlot: false,
-            header: false, //http://fullcalendar.io/docs/display/header/
-            minTime: '7:30:00', //http://fullcalendar.io/docs/agenda/minTime/
-            maxTime: '22:30:00', //http://fullcalendar.io/docs/agenda/maxTime/
-            height: 'auto', //http://fullcalendar.io/docs/display/height/
-            contentHeight: 'auto', //http://fullcalendar.io/docs/display/contentHeight/
-            defaultDate: '2000-1-3', //http://fullcalendar.io/docs/current_date/defaultDate/
-            //Monday:   2000-1-3
-            //Tuesday:  2000-1-4
-            //Wednesday:2000-1-5
-            //Thursday: 2000-1-6
-            //Friday:   2000-1-7
-            editable: false,
-            eventClick: function(calEvent, jsEvent, view) {
-                $('#popup-tab .item').tab(); //this initialize the tabs for the popup
-                dict.set("courseId"); //this holds the course id of the current chosen event
-                dict.set("courseObj"); //this holds the actual course object for the current chosen event
-                dict.set("sectionObj"); //this holds the actual section object for the current chosen event
-                dict.set("majorDetail"); //this holds the major names and notes for the current chosen event
-                dict.set("instructorsName"); //this hold the instructor names and emails for the current chosen event
-                dict.set("sectionChosen") //this hold the boolean value if this section is decided to take by the user
-                dict.set("courseId", calEvent.section_obj.course);
-                dict.set("sectionObj", calEvent.section_obj);
-                dict.set("sectionChosen", $("#calendar").fullCalendar("getEventSourceById", calEvent.section_obj.id).chosen);
-                //reset the default detail choice to be the second tab. which is the section detail tab
-                $("#popup-tab .item.active").attr("class", "item");
-                $("#popup-tab [data-tab=first]").attr("class", "item active");
-                $(".ui.container.popup-calendar .segment.active").attr("class", "ui bottom attached tab segment");
-                $(".ui.container.popup-calendar [tab-num=1]").attr("class", "ui bottom attached tab segment active");
+        // put your options and callbacks here
+        defaultView: 'agendaWeek',
+        weekends: false,
+        columnFormat: 'dddd', //http://fullcalendar.io/docs/text/columnFormat/
+        businessHours: {
+            start: '7:00',
+            end: '22:30',
+            dow: [1, 2, 3, 4, 5]
+        }, //http://fullcalendar.io/docs/display/businessHours/
+        slotDuration: '00:30:00',
+        allDaySlot: false,
+        header: false, //http://fullcalendar.io/docs/display//
+        minTime: '7:30:00', //http://fullcalendar.io/docs/agenda/minTime/
+        maxTime: '22:30:00', //http://fullcalendar.io/docs/agenda/maxTime/
+        height: 'auto', //http://fullcalendar.io/docs/display/height/
+        contentHeight: 'auto', //http://fullcalendar.io/docs/display/contentHeight/
+        defaultDate: '2000-1-3', //http://fullcalendar.io/docs/current_date/defaultDate/
+        //Monday:   2000-1-3
+        //Tuesday:  2000-1-4
+        //Wednesday:2000-1-5
+        //Thursday: 2000-1-6
+        //Friday:   2000-1-7
+        editable: false,
+        eventClick: function(calEvent, jsEvent, view) {
+            $('#popup-tab .item').tab(); //this initialize the tabs for the popup
+            dict.set("courseId"); //this holds the course id of the current chosen event
+            dict.set("courseObj"); //this holds the actual course object for the current chosen event
+            dict.set("sectionObj"); //this holds the actual section object for the current chosen event
+            dict.set("majorDetail"); //this holds the major names and notes for the current chosen event
+            dict.set("instructorsName"); //this hold the instructor names and emails for the current chosen event
+            dict.set("sectionChosen") //this hold the boolean value if this section is decided to take by the user
+            dict.set("courseId", calEvent.section_obj.course);
+            dict.set("sectionObj", calEvent.section_obj);
+            dict.set("sectionChosen", $("#calendar").fullCalendar("getEventSourceById", calEvent.section_obj.id).chosen);
+            //reset the default detail choice to be the second tab. which is the section detail tab
+            $("#popup-tab .item.active").attr("class", "item");
+            $("#popup-tab [data-tab=first]").attr("class", "item active");
+            $(".ui.container.popup-calendar .segment.active").attr("class", "ui bottom attached tab segment");
+            $(".ui.container.popup-calendar [tab-num=1]").attr("class", "ui bottom attached tab segment active");
 
-                //then pops up the popup window
-                let popup = $(".popup-calendar");
-                //this makes sure that the popup in the center of the screen
-                setTimeout(function() {
-                    popup.css("top", (($(window).height() - popup.outerHeight()) / 2) + $(window).scrollTop() + 30 + "px");
-                }, 400);
-                $(".overlay-calendar, .popup-calendar").fadeToggle();
-            },
-        })
-        //this saves the current chosen term
-    Template.instance().calendarDict.set("chosenTerm", $(".js-term").val());
+            //then pops up the popup window
+            let popup = $(".popup-calendar");
+            //this makes sure that the popup in the center of the screen
+            setTimeout(function() {
+                popup.css("top", (($(window).height() - popup.outerHeight()) / 2) + $(window).scrollTop() + 30 + "px");
+            }, 400);
+            $(".overlay-calendar, .popup-calendar").fadeToggle();
+        },
+    });
+    if(!!Template.instance().masterDict){
+        if(!Template.instance().masterDict.get("scheduleList")){
+            //this now gets triggered when the user click a course to view
+            //Template.instance().masterDict.set("chosenTerm", $(".js-term").val());
+            Template.instance().masterDict.set("scheduleList", {});
+        } else {
+            const chosenTerm = Template.instance().masterDict.get("chosenTerm");
+            $(".js-term").val(chosenTerm);  
+            const currentTerm_sources = Template.instance().masterDict.get("scheduleList")[chosenTerm];
+            if (currentTerm_sources) {
+                if (currentTerm_sources["courseList"].length != 0) {
+                    for (let source of currentTerm_sources["courseList"]) {
+                        $("#calendar").fullCalendar("addEventSource", source);
+                    }
+                }
+            }       
+        }
+    }    
 })
 
 Template.calendarTest.helpers({
+    setMasterDict: function(dict){
+        if(!Template.instance().masterDict){
+            Template.instance().masterDict = dict;
+            Template.instance().masterDict.set("hasCourseList", false);
+            Template.instance().masterDict.set("fetched_courseList");
+            Template.instance().calendarDict.set("masterDictSet", true);
+            Template.instance().masterDict.set("clickedChange", false);
+        }  
+    },
+
+    masterDictSet: function(){
+        return !!Template.instance().calendarDict.get("masterDictSet");
+    },
+
     calendarDict: function() {
         return Template.instance().calendarDict;
     },
 
     hasCourseList: function() {
-        return Template.instance().calendarDict.get("hasCourseList");
+        return Template.instance().masterDict.get("hasCourseList");
     },
 
     getCourseList: function() {
-        return Template.instance().masterDict.get("courseList");
+        return Template.instance().masterDict.get("fetched_courseList");
     },
 
-    pullUserCourseList: function(dict) {
-        Template.instance().masterDict = dict;
+    pullUserCourseList: function() {
+        const dict = Template.instance().masterDict;
         const courseList = dict.get('courseList');
-        Template.instance().calendarDict.set("hasCourseList", true);
-        Template.instance().calendarDict.set("availableCourseList", courseList);
 
         if (typeof courseList[0] === "string") { //prevent unexpected request
             Meteor.call("fetchCourseList", courseList,
@@ -132,19 +158,12 @@ Template.calendarTest.helpers({
                         for (let i = 0; i < sorted_result.length; i++) {
                             sorted_result[i].index = i;
                         };
-                        dict.set("courseList", sorted_result);
+                        dict.set("fetched_courseList", sorted_result);
+                        dict.set("hasCourseList", true);
                     }
                 }
             );
         }
-    },
-
-    getContId: function(courseId) {
-        return Course.findOne({ id: courseId }).continuity_id;
-    },
-
-    getCode: function(courseId) {
-        return Course.findOne({ id: courseId }).code;
     },
 
     getCourseInfo: function() {
@@ -278,19 +297,19 @@ Template.calendarTest.helpers({
         return sectionId.substring(sectionId.indexOf("-") + 1, sectionId.lastIndexOf("-"));
     },
 
-    clickedChange: function(dict){
-        dict.set("pageName", "chooseCourse");
+    clickedChange: function(){
+        Template.instance().masterDict.set("pageName", "chooseCourse");
     },
 
     hasClickedChange: function(){
-        return Template.instance().calendarDict.get("clickedChange");
+        return Template.instance().masterDict.get("clickedChange");
     },
 })
 
 Template.calendarTest.events({
     "change .js-term": function() {
         //save the previous term's schedule to the dict
-        const previous_term = Template.instance().calendarDict.get("chosenTerm");
+        const previous_term = Template.instance().masterDict.get("chosenTerm");
         const previous_schedule_sources = $("#calendar").fullCalendar("getEventSources");
         //this removes all the additional properties created by fullCalendar
         const previous_cleaned_sources = [];
@@ -303,18 +322,18 @@ Template.calendarTest.events({
 
             previous_cleaned_sources.push(cleaned_source);
         }
-        const current_schedule_list = Template.instance().calendarDict.get("scheduleList");
+        const current_schedule_list = Template.instance().masterDict.get("scheduleList");
         current_schedule_list[previous_term] = {
             term: previous_term,
             courseList: previous_cleaned_sources
         };
-        Template.instance().calendarDict.set("scheduleList", current_schedule_list);
+        Template.instance().masterDict.set("scheduleList", current_schedule_list);
 
         //for the new term
-        Template.instance().calendarDict.set("chosenTerm", $(".js-term").val());
+        Template.instance().masterDict.set("chosenTerm", $(".js-term").val());
         //check if there's an existing schedule for the current semester
         const current_term = $(".js-term").val();
-        const current_schedule_sources = Template.instance().calendarDict.get("scheduleList")[current_term];
+        const current_schedule_sources = Template.instance().masterDict.get("scheduleList")[current_term];
         $("#calendar").fullCalendar("removeEventSources", previous_schedule_sources);
         if (current_schedule_sources) {
             if (current_schedule_sources["courseList"].length != 0) {
@@ -366,7 +385,8 @@ Template.calendarTest.events({
 
     "click .js-save-plan": function() {
         //save the current term's schedule to the dict
-        const current_term = Template.instance().calendarDict.get("chosenTerm");
+        const current_term = $(".js-term").val();
+        Template.instance().masterDict.set("chosenTerm", $(".js-term").val());
         const current_schedule_sources = $("#calendar").fullCalendar("getEventSources");
         //this removes all the additional properties created by fullCalendar
         const current_cleaned_sources = [];
@@ -379,12 +399,12 @@ Template.calendarTest.events({
 
             current_cleaned_sources.push(cleaned_source);
         }
-        const current_schedule_list = Template.instance().calendarDict.get("scheduleList");
+        const current_schedule_list = Template.instance().masterDict.get("scheduleList");
         current_schedule_list[current_term] = {
             term: current_term,
             courseList: current_cleaned_sources
         };
-        Template.instance().calendarDict.set("scheduleList", current_schedule_list);
+        Template.instance().masterDict.set("scheduleList", current_schedule_list);
         ////////////////////////////////////////////
 
         //turn the dict data into user data to save
@@ -396,13 +416,13 @@ Template.calendarTest.events({
         const masterDict = Template.instance().masterDict;
         const major_code = masterDict.get("chosenMajor");
         const availableCourseList = [];
-        const current_chosen_courses = masterDict.get("courseList");
+        const current_chosen_courses = masterDict.get("fetched_courseList");
         for (let course of current_chosen_courses) {
             availableCourseList.push(course.continuity_id);
         };
         //this gets the current saved schedule list
         //{"<term>":{term:"<term>",courseList:[<courses>]}}
-        const final_schedule_list = Template.instance().calendarDict.get("scheduleList");
+        const final_schedule_list = Template.instance().masterDict.get("scheduleList");
         console.log(final_schedule_list);
         const schedule_list = [];
         for (let term in final_schedule_list) { //access each {term="<term>", courseList:[<courses>]}
@@ -435,12 +455,30 @@ Template.calendarTest.events({
 
     "click .js-change-course": function(){
         event.preventDefault();
-        Template.instance().calendarDict.set("clickedChange", true);
-    },
-})
+        //save the current term's schedule to the dict
+        const current_term = $(".js-term").val();
+        Template.instance().masterDict.set("chosenTerm", $(".js-term").val());
+        const current_schedule_sources = $("#calendar").fullCalendar("getEventSources");
+        //this removes all the additional properties created by fullCalendar
+        const current_cleaned_sources = [];
+        for (let source of current_schedule_sources) {
+            const cleaned_source = {
+                events: source.origArray,
+                id: source.id,
+                chosen: source.chosen
+            };
 
-Template.scheduleCourseList.onCreated(function() {
-    this.schCourseDict = new ReactiveDict();
+            current_cleaned_sources.push(cleaned_source);
+        }
+        const current_schedule_list = Template.instance().masterDict.get("scheduleList");
+        current_schedule_list[current_term] = {
+            term: current_term,
+            courseList: current_cleaned_sources
+        };
+        Template.instance().masterDict.set("scheduleList", current_schedule_list);
+        //then go back to the previous page
+        Template.instance().masterDict.set("clickedChange", true);
+    },
 })
 
 Template.scheduleCourseList.onRendered(function() {
@@ -456,13 +494,17 @@ Template.scheduleCourseList.onRendered(function() {
 })
 
 Template.scheduleCourseList.helpers({
-    getSections: function(courseContId, dict) {
-        if (!dict.get("chosenTerm") || !courseContId) { //continue only if the data is ready
+    setMasterDict: function(masterDict){
+        Template.instance().masterDict = masterDict;
+    },
+
+    getSections: function(courseContId, dict, masterDict) {
+        if (!masterDict.get("chosenTerm") || !courseContId) { //continue only if the data is ready
             return;
         };
 
-        const courseId = dict.get("chosenTerm") + "-" + courseContId;
-        return Meteor.call("getSections", courseId, function(err, result) {
+        const courseId = masterDict.get("chosenTerm") + "-" + courseContId;
+        Meteor.call("getSections", courseId, function(err, result) {
             if (err) {
                 window.alert(err);
                 return;
@@ -480,18 +522,18 @@ Template.scheduleCourseList.helpers({
         });
     },
 
-    hasSectionInfo: function(courseContId, dict) {
-        const courseId = dict.get("chosenTerm") + "-" + courseContId;
+    hasSectionInfo: function(courseContId, dict, masterDict) {
+        const courseId = masterDict.get("chosenTerm") + "-" + courseContId;
         return !!dict.get("sectionInfo" + courseId);
     },
 
-    sectionInfo: function(courseContId, dict) {
-        const courseId = dict.get("chosenTerm") + "-" + courseContId;
+    sectionInfo: function(courseContId, dict, masterDict) {
+        const courseId = masterDict.get("chosenTerm") + "-" + courseContId;
         return dict.get("sectionInfo" + courseId);
     },
 
-    noResult: function(courseContId, dict) {
-        const courseId = dict.get("chosenTerm") + "-" + courseContId;
+    noResult: function(courseContId, dict, masterDict) {
+        const courseId = masterDict.get("chosenTerm") + "-" + courseContId;
         return dict.get("sectionInfo" + courseId) === "NR";
     },
 
@@ -611,6 +653,11 @@ Template.scheduleCourseList.events({
     },
 
     "click .js-title": function() {
+        //reads the term when the user click a course to view
+        if(!Template.instance().masterDict.get("chosenTerm")){
+            Template.instance().masterDict.set("chosenTerm", $(".js-term").val());
+        };
+
         const sticky_height = $(".ui.sticky").height();
         const target_height = $("#courseList").height();
         if (sticky_height < target_height) {

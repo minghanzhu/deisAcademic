@@ -1,5 +1,5 @@
 <template name="planSearch">  
-    {{passMajor dict}}
+    {{setMasterDict dict}}
     {{#if hasMajor}}
         {{getData}}
         {{#if showTable}}
@@ -12,8 +12,8 @@
 </template>
 
 <template name="plan_result">
+    {{setMasterDict dict}}
     {{#if courseDataReady planDict}}
-        {{setMasterDict dict}}
         {{> reactiveTable class="ui stackable selectable fixed table js-result-table" collection=(courseData planDict) settings=settings_course}}
     {{else}}
         {{#if noResult planDict}}

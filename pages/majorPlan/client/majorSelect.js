@@ -34,6 +34,9 @@ Template.majorSelect.helpers({
 		return Template.instance().majorSelectDict.get("clickedHelp");
 	},
 
+	setMasterDict: function(dict){//this saves the master dict to the template
+		Template.instance().masterDict = dict;
+	},
 })
 
 Template.majorSelect.events({
@@ -48,10 +51,6 @@ Template.majorSelect.events({
 
   	"click .js-majorBulletin": function(){
     	event.preventDefault();
-    	if(!$("#search-select input").val()){
-			window.alert("Please choose a major. \nOr click the button below.");
-			return;
-		};
 		Template.instance().majorSelectDict.set("clickedHelp", true);
   	},
 });

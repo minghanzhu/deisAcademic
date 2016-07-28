@@ -1,13 +1,3 @@
-Template.planSearch.onCreated(function(){
-    this.planSearchDict = new ReactiveDict();
-    this.planSearchDict.set('showTable', false);
-    this.planSearchDict.set('majorDetail', []);
-    this.planSearchDict.set('sectionDetail', []);
-    this.planSearchDict.set('sectionIndex', 0);
-    this.planSearchDict.set('courseData');
-    this.planSearchDict.set('clickedNext', false);
-})
-
 Template.planSearch.helpers({
     showTable: function(planDict) {
         return Template.instance().planSearchDict.get('showTable');
@@ -25,9 +15,16 @@ Template.planSearch.helpers({
         dict.set("pageName", 'makeSchedule');
     },
 
-    passMajor: function(dict){
-        Template.instance().planSearchDict.set('majorId', dict.get('chosenMajor'));
+    setMasterDict: function(dict){
         Template.instance().masterDict = dict;
+        Template.instance().planSearchDict = dict;
+        Template.instance().planSearchDict.set('majorId', dict.get('chosenMajor'));
+        Template.instance().planSearchDict.set('showTable', false);
+        Template.instance().planSearchDict.set('majorDetail', []);
+        Template.instance().planSearchDict.set('sectionDetail', []);
+        Template.instance().planSearchDict.set('sectionIndex', 0);
+        Template.instance().planSearchDict.set('courseData');
+        Template.instance().planSearchDict.set('clickedNext', false);
     },
 
     hasMajor: function(){
@@ -130,11 +127,6 @@ Template.planSearch.events({
     },
 })
 
-Template.plan_result.onCreated(function(){
-    this.planResultDict = new ReactiveDict();
-    this.planResultDict.set('chosenCourse', []);
-})
-
 Template.plan_result.onRendered(function() {
     $('.ui.accordion').accordion();
 })
@@ -142,6 +134,9 @@ Template.plan_result.onRendered(function() {
 Template.plan_result.helpers({
     setMasterDict: function(dict){
         Template.instance().masterDict = dict;//save the dict to the template
+        Template.instance().planResultDict = dict;
+        console.log(Template.instance().planResultDict)
+        //Template.instance().planResultDict.set('chosenCourse', []);
     },
 
     detailReady: function(planDict) {
@@ -219,7 +214,10 @@ Template.plan_result.helpers({
 Template.plan_result.events({
     "click .js-result-table tbody tr": function(event) {
         if (event.target.nodeName == "INPUT") {
-            const chosen_array = Template.instance().planResultDict.get('chosenCourse');
+            let chosen_array = Template.instance().planResultDict.get('chosenCourse');
+            if(!chosen_array){
+                chosen_array = [];
+            };
             const isChecked = $("#" + this.continuity_id).is(":checked");
             const id = this.continuity_id;
             if(isChecked){//put the course code to the array
