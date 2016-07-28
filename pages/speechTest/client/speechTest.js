@@ -3,18 +3,18 @@ robDict = new ReactiveDict();
 Template.speechTest.helpers({
 
   getSpeechResults: function(){
-    const theSpeechResults = Session.get("speechResults");
+    const theSpeechResults = robDict.get("speechResults");
     return theSpeechResults;
   },
 
   getAPIResults: function(){
-    const theAPIResults = Session.get("apiResults");
+    const theAPIResults = robDict.get("apiResults");
     // console.log(theAPIResults);
     return theAPIResults;
   },
 
   getSearchResults: function(){
-    const apiRes = Session.get("apiResults");
+    const apiRes = robDict.get("apiResults");
 
     if (apiRes) {
       const dept = apiRes.data.result.parameters.Department;
@@ -51,12 +51,11 @@ Template.speechTest.helpers({
       }
 
       const theResults = dept + " " + courseNum;
-      console.log(theResults);
+      // console.log(theResults);
 
       Meteor.call("searchCourse", theResults, term, [], null, null, {days:[],start:"",end:""}, false, false, function(error,result) {
         console.log("searchRes: " + result);
         robDict.set("theSearchResults", result);
-
       })
 
       return robDict.get("theSearchResults");
@@ -70,11 +69,11 @@ Template.speechTest.events({
 
     var recognition = new webkitSpeechRecognition();
     recognition.onresult = function(event) {
-      console.log(event)
-      console.log(event.results[0][0].confidence)
-      console.log(event.results[0][0].transcript)
+      // console.log(event)
+      // console.log(event.results[0][0].confidence)
+      // console.log(event.results[0][0].transcript)
 
-      Session.set("speechResults", event.results[0][0].transcript);
+      robDict.set("speechResults", event.results[0][0].transcript);
     }
     recognition.start();
 
@@ -82,7 +81,7 @@ Template.speechTest.events({
 
   "click .js-apiSubmit": function(){
 
-    const text = Session.get("speechResults");
+    const text = robDict.get("speechResults");
     console.log(text);
 
     Meteor.call("sendJSONtoAPI_ai", text, {returnStubValue: true}, function(error,result){
@@ -90,7 +89,30 @@ Template.speechTest.events({
         console.log(error)
       }
       console.log(result);
-      Session.set("apiResults", result);
+      robDict.set("apiResults", result);
     })
   },
+
+  "click .js-allInOneSearch": function(){
+    var recognition = new webkitSpeechRecognition();
+    recognition.onresult = function(event) {
+      // console.log(event)
+      // console.log(event.results[0][0].confidence)
+      // console.log(event.results[0][0].transcript)
+
+      robDict.set("speechResults", event.results[0][0].transcript);
+
+      const text = robDict.get("speechResults");
+      console.log(text);
+
+      Meteor.call("sendJSONtoAPI_ai", text, {returnStubValue: true}, function(error,result){
+        if(error){
+          console.log(error)
+        }
+        console.log(result);
+        robDict.set("apiResults", result);
+      })
+    }
+    recognition.start();
+  }
 })
