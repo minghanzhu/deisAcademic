@@ -25,6 +25,7 @@ Template.planSearch.helpers({
         Template.instance().planSearchDict.set('sectionIndex', 0);
         Template.instance().planSearchDict.set('courseData');
         Template.instance().planSearchDict.set('clickedNext', false);
+        Template.instance().planSearchDict.set('clickedMajor', false);
     },
 
     hasMajor: function(){
@@ -124,6 +125,12 @@ Template.planSearch.events({
         };
 
         Template.instance().planSearchDict.set('clickedNext', true);
+    },
+
+    "click .js-changeMajor": function(event){
+        event.preventDefault();
+        window.onbeforeunload = function (e) {};
+        window.location.reload();
     },
 })
 

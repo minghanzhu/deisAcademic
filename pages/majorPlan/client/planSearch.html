@@ -5,8 +5,9 @@
         {{#if showTable}}
             {{> plan_result planDict=planSearchDict dict=dict}}
         {{/if}}
+        <button class="ui button js-changeMajor">Change the major</button>
 
-        <button class="ui button js-makeSchedule">Next</button>
+        <button class="ui button js-makeSchedule">Make my schedule</button>
         {{#if hasClickedNext}}{{clickedNext dict}}{{/if}}
     {{/if}}
 </template>
