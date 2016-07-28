@@ -320,7 +320,7 @@ Meteor.methods({
                         }
                     }
                 } else { //if there no $and field (no prof. and no requirement)
-                    searchQuery.$and = { $or: course_id_list_time };
+                    searchQuery.$and = [{ $or: course_id_list_time }];
                 }
             } else { // if there's no result, simply return null and end the search
                 return [];
