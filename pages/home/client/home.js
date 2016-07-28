@@ -95,7 +95,7 @@ Template.home.onRendered(function(){
 
 						//first priority: term
     					if(parseInt(a.term) < parseInt(b.term)){
-        					return 1;  
+        					return 1;
     					}else if(parseInt(a.term) > parseInt(b.term)){
         					return -1;
     					}else{//second priority: major code. For example, COSI, MATH, and MUS
@@ -107,7 +107,7 @@ Template.home.onRendered(function(){
         					}
     					}
 					});
-						//this add an index field to each object so that 
+						//this add an index field to each object so that
 						//the reactive table can read the index as a hidden column
 						//thus won't make the data out of order
 						for(let i = 0; i < sorted_result.length; i++){
@@ -122,7 +122,7 @@ Template.home.onRendered(function(){
 			);
     	}
 	})
-	
+
 	//this gets all the professors names and initialize the search selection
 	//so that the user can search a professor name
 	Meteor.call("getProfData", function(err, result){
@@ -218,7 +218,7 @@ Template.home.events ({
 						};
 
     					if(parseInt(a.term) < parseInt(b.term)){
-        					return 1;  
+        					return 1;
     					}else if(parseInt(a.term) > parseInt(b.term)){
         					return -1;
     					}else{
@@ -308,7 +308,7 @@ Template.home.events ({
 						};
 
     					if(parseInt(a.term) < parseInt(b.term)){
-        					return 1;  
+        					return 1;
     					}else if(parseInt(a.term) > parseInt(b.term)){
         					return -1;
     					}else{
@@ -339,7 +339,7 @@ Template.home.events ({
 				if(err.toString() === "Error: Please sign-up with a Brandeis Google account. [400]"){
 					window.alert(err);
 					return;
-				} 
+				}
 				return;
 			};
 		});
@@ -350,6 +350,140 @@ Template.home.events ({
  		Meteor.logout();
  		Router.go('/');
  	},
+
+
+	"click .js-voice-search": function(){
+
+		event.preventDefault();
+		homeDict.set('showTable', false);
+		homeDict.set('majorDetail', []);
+		homeDict.set('sectionDetail', []);
+		homeDict.set('courseData');
+		homeDict.set('termName');
+		homeDict.set('noResult', false);
+
+		var recognition = new webkitSpeechRecognition();
+    recognition.onresult = function(event) {
+      // console.log(event)
+      // console.log(event.results[0][0].confidence)
+      // console.log(event.results[0][0].transcript)
+
+      // robDict.set("speechResults", event.results[0][0].transcript);
+
+      const text = event.results[0][0].transcript;
+      // console.log(text);
+
+      Meteor.call("sendJSONtoAPI_ai", text, {returnStubValue: true},
+			function(error,result){
+        if(error){
+          console.log(error)
+        }
+        // console.log(result);
+        homeDict.set("RobApiResults", result);
+
+
+
+
+			const apiRes = homeDict.get("RobApiResults");
+
+			// console.log(apiRes);
+
+			if (apiRes) {
+				const dept = apiRes.data.result.parameters.Department;
+				const courseNum = apiRes.data.result.parameters.CourseNumber;
+				// const courseCod = apiRes.data.result.parameters.CourseCode;
+
+				var term;
+
+				if (apiRes.data.result.parameters.Terms) {
+
+					const termString = apiRes.data.result.parameters.Terms;
+
+					switch (termString) {
+						case "Fall 2016":
+						term = 1163;
+						break;
+						case "Fall 2015":
+						term = 1153;
+						break;
+						case "Spring 2016":
+						term = 1161;
+						break;
+						case "Spring 2017":
+						term = 1171;
+						break;
+						case "Summer 2016":
+						term = 1162;
+						break;
+					}
+				}
+				else {
+					term = "";
+				}
+
+				const theResults = dept + " " + courseNum;
+
+				Meteor.call("searchCourse", theResults, term, [], null, null, {days:[],start:"",end:""}, false, false,
+				function(err, result){
+					if(result.length == 0){
+						homeDict.set('noResult', true);
+					} else {
+						const sorted_result = result.sort(function(a, b) {
+								//for a
+									let course_num_a = parseInt(a.code.match(/\d+/gi)[0]);
+							if(course_num_a < 10) course_num_a = "00" + course_num_a;
+							if(course_num_a >= 10 && course_num_a < 100) course_num_a = "0" + course_num_a;
+							const course_dep_a = a.code.substring(0, a.code.indexOf(" "));
+							const last_a = a.code.charAt(a.code.length - 1);
+							let comp_string_a;
+							if(/\w/i.test(last_a)){
+								comp_string_a = course_num_a + last_a;
+							} else{
+								comp_string_a = course_num_a + "0";
+							};
+
+							//for b
+							let course_num_b = parseInt(b.code.match(/\d+/gi)[0]);
+							if(course_num_b < 10) course_num_b = "00" + course_num_b;
+							if(course_num_b >= 10 && course_num_b < 100) course_num_b = "0" + course_num_b;
+							const course_dep_b = b.code.substring(0, b.code.indexOf(" "));
+							const last_b = b.code.charAt(b.code.length - 1);
+							let comp_string_b;
+							if(/\w/i.test(last_b)){
+								comp_string_b = course_num_b + last_b;
+							} else{
+								comp_string_b = course_num_b + "0";
+							};
+
+								if(parseInt(a.term) < parseInt(b.term)){
+										return 1;
+								}else if(parseInt(a.term) > parseInt(b.term)){
+										return -1;
+								}else{
+										const major_comp = course_dep_a.localeCompare(course_dep_b);
+										if(major_comp != 0){
+											return major_comp;
+										} else {
+											return comp_string_a.localeCompare(comp_string_b);
+										}
+								}
+						});
+						for(let i = 0; i < sorted_result.length; i++){
+							sorted_result[i].index = i;
+						};
+						homeDict.set('courseData', sorted_result);
+						homeDict.set('noResult',false);
+					}
+
+						homeDict.set('showTable', true);
+				}
+			);
+		}
+})
+}
+	recognition.start();
+
+},
 })
 
 Template.search_result.helpers({
