@@ -391,7 +391,12 @@ Template.home.events ({
 			if (apiRes) {
 				const dept = apiRes.data.result.parameters.Department;
 				const courseNum = apiRes.data.result.parameters.CourseNumber;
-				// const courseCod = apiRes.data.result.parameters.CourseCode;
+				const courseName = apiRes.data.result.parameters.CourseName;
+				console.log(courseName);
+
+				const theQuery = dept + " " + courseNum + " " + courseName;
+
+				homeDict.set("theSearchQuery", theQuery);
 
 				var term;
 
@@ -421,7 +426,7 @@ Template.home.events ({
 					term = "";
 				}
 
-				const theResults = dept + " " + courseNum;
+				const theResults = theQuery;
 
 				Meteor.call("searchCourse", theResults, term, [], null, null, {days:[],start:"",end:""}, false, false,
 				function(err, result){
