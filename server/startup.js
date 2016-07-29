@@ -26,7 +26,7 @@ Meteor.startup(function() {
 
     // TODO: JSON file of University Bulletin
     // TODO: Major collection waiting to be finished
-    if (Major.find().count() > 0) {
+    if (Major.find().count() == 0) {
         Major.insert({
             name: "Computer Science",
             id: "1400",
