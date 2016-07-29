@@ -1,0 +1,17 @@
+<template name="masterMajorPlan">
+	{{#if typeMajor}}
+		{{> majorSelect dict=masterDict}}
+	{{/if}}
+
+	{{#if helpChooseMajor}}
+		{{> majorList dict=masterDict}}
+	{{/if}}
+
+	{{#if chooseCourse}}
+		{{> majorPlan dict=masterDict}}
+	{{/if}}
+
+	{{#if makeSchedule}}
+		{{> calendarTest dict=masterDict}}
+	{{/if}}
+</template>

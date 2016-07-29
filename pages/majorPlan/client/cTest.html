@@ -1,4 +1,5 @@
 <template name="calendarTest">
+  {{#if masterDictSet}}
 	<div class="ui grid">
 		<div class="twelve wide column">
 			<div class="ui sticky">
@@ -9,17 +10,24 @@
             <option value="1171">Spring 2017</option>              
           </select>
         
-          <div id="calendar"></div>
+          <div id="calendar"></div><br>
+          <button class="ui button js-change-course">Change Chosen Courses</button>
+          {{#if hasClickedChange}}{{clickedChange}}{{/if}}
+          {{#if currentUser}}
+            <button class="ui button js-save-plan">Save My Plan</button>
+          {{else}}
+            <h3>You'll have to login to save this plan</h3>
+          {{/if}}
         </div>
 			</div>
 		</div>
 
 		<div class="four wide column">
   			<div class="ui container" id="courseList">
-				  {{#if getCourseList}}     
+				  {{#if hasCourseList}}     
             <div class="ui vertical accordion menu">
               {{#each course in getCourseList}} 
-                {{> scheduleCourseList c=course dict=calendarDict}}
+                {{> scheduleCourseList c=course dict=calendarDict masterDict=dict}}
               {{/each}}
             </div>
   				{{else}}
@@ -140,9 +148,13 @@
       <h3>Here are some statistics for this course</h3>
     </div>
   </div>
+  {{else}}
+    {{setMasterDict dict}}
+  {{/if}}
 </template>
 
 <template name="scheduleCourseList">
+  {{setMasterDict masterDict}}
   <div class="item">
     <a class="title js-title">
       <i class="dropdown icon"></i>
@@ -151,11 +163,11 @@
 
     <div class="content">
       <div class="ui link list">
-        {{#if (hasSectionInfo c.continuity_id dict)}}
-          {{#if (noResult c.continuity_id dict)}}
+        {{#if (hasSectionInfo c.continuity_id dict masterDict)}}
+          {{#if (noResult c.continuity_id dict masterDict)}}
             Not Available
           {{else}}
-            {{#each section in (sectionInfo c.continuity_id dict)}}
+            {{#each section in (sectionInfo c.continuity_id dict masterDict)}}
               <a class="item js-add-section" id="{{section.id}}" course-code="{{c.code}}" course-name="{{c.name}}">Section{{section.section}}</a>
               {{#if hasTimes section.times}}
                 {{#each time in section.times}}
@@ -167,7 +179,7 @@
             {{/each}}
           {{/if}}
         {{else}}
-          {{getSections c.continuity_id dict}}
+          {{getSections c.continuity_id dict masterDict}}
           <div class="ui active inline loader"></div>
         {{/if}}
       </div>
