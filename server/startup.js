@@ -184,6 +184,7 @@ Meteor.startup(function() {
     fs.readFile(
         //"D:\\Luyi's\\JBS2016\\deisAcademic\\public\\data\\classes.json", 'utf8',
         //"/Users/mhzhu/Desktop/deisAcademic/public/data/classes.json", 'utf8',
+        //Meteor.settings.filePath, 'utf8',
         "/home/pnc/deisAcademic/public/data/classes.json", 'utf8',
         Meteor.bindEnvironment(function(err, data) {
             if (err) {

@@ -353,7 +353,6 @@ Template.home.events ({
 
 
 	"click .js-voice-search": function(){
-
 		event.preventDefault();
 		homeDict.set('showTable', false);
 		homeDict.set('majorDetail', []);
@@ -368,8 +367,6 @@ Template.home.events ({
       // console.log(event.results[0][0].confidence)
       // console.log(event.results[0][0].transcript)
 
-      // robDict.set("speechResults", event.results[0][0].transcript);
-
       const text = event.results[0][0].transcript;
       // console.log(text);
 
@@ -382,10 +379,7 @@ Template.home.events ({
         homeDict.set("RobApiResults", result);
 
 
-
-
 			const apiRes = homeDict.get("RobApiResults");
-
 			// console.log(apiRes);
 
 			if (apiRes) {
@@ -699,6 +693,31 @@ Template.search_result.events({
 	"change .js-section": function(event){
 		event.preventDefault();
 		homeDict.set("sectionIndex", $(".js-section").val());
+		homeDict.set("instructorsName");
+	},
+
+	"click .js-section-up": function(event){
+		event.preventDefault();
+
+		const currSection = homeDict.get("sectionIndex");
+
+		if (currSection !== 0) {
+			homeDict.set("sectionIndex", currSection - 1);
+			$(".js-section").val(currSection - 1);
+		}
+		homeDict.set("instructorsName");
+	},
+
+	"click .js-section-down": function(event){
+		event.preventDefault();
+
+		const currSection = homeDict.get("sectionIndex");
+		const numOfSections = homeDict.get("sectionDetail").length;
+
+		if (currSection < numOfSections - 1) {
+			homeDict.set("sectionIndex", currSection + 1);
+			$(".js-section").val(currSection + 1);
+		}
 		homeDict.set("instructorsName");
 	},
 
