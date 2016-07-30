@@ -696,11 +696,17 @@ Template.search_result.events({
 		homeDict.set("instructorsName");
 	},
 
+	"click .js-add-to-list": function(event){
+		event.preventDefault();
+
+		const currSectionData = homeDict.get("sectionDetail")[homeDict.get("sectionIndex")];
+		Meteor.call("addToWishlist", currSectionData.id);
+	},
+
 	"click .js-section-up": function(event){
 		event.preventDefault();
 
 		const currSection = homeDict.get("sectionIndex");
-
 		if (currSection !== 0) {
 			homeDict.set("sectionIndex", currSection - 1);
 			$(".js-section").val(currSection - 1);
@@ -713,7 +719,6 @@ Template.search_result.events({
 
 		const currSection = homeDict.get("sectionIndex");
 		const numOfSections = homeDict.get("sectionDetail").length;
-
 		if (currSection < numOfSections - 1) {
 			homeDict.set("sectionIndex", currSection + 1);
 			$(".js-section").val(currSection + 1);

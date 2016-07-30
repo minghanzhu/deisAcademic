@@ -134,7 +134,7 @@ Meteor.methods({
 
             //this checks if the user wants to do a strict match
             //if so, math10 or math 10 won't return math 100
-            //if not, cosi 1 can return any cosi course that has 
+            //if not, cosi 1 can return any cosi course that has
             //1 as the beginning of course code
             if (!if_not_sure) {
                 if (!/\d/i.test(new_keyword)) {
@@ -268,7 +268,7 @@ Meteor.methods({
             }
 
             const section_at_time = Section.find(searchQuery_time).fetch(); //get the results of the time search
-            //make sure there's result 
+            //make sure there's result
             if (section_at_time.length != 0) {
                 const course_id_list_time = [];
                 for (let item of section_at_time) {
@@ -596,7 +596,7 @@ Meteor.methods({
         return Term.findOne({ id: key }).name;
     },
 
-    //this takes an array of prof. id's and return results 
+    //this takes an array of prof. id's and return results
     //so that each line is one <prof. name>
     //and prevents fencepost error
     searchInstructorArray: function(instrutorData) {
@@ -689,27 +689,6 @@ Meteor.methods({
         return Course.findOne({ id: courseId });
     },
 
-    addCourse: function(course) {
-        UserTerms.upsert({
-                term: course.term
-            }, {
-                $push: {
-                    courses: course.course
-                }
-            })
-            // UserTerms.insert({course: course.course, term: course.term})
-    },
-
-    removeCourse: function(course) {
-        UserTerms.update({
-                term: course.term
-            }, {
-                $pull: {
-                    courses: course.course
-                }
-            })
-            // UserTerms.remove({term: course.term, term: course.term});
-    },
 
     //this creates our profile for the current user
     "addUserProfile_Google": function(date) {
@@ -746,6 +725,11 @@ Meteor.methods({
             }
             UserProfilePnc.insert(profile_obj);
         };
+    },
+
+
+    "addToWishlist": function(sectionID){
+      UserProfilePnc.update({userId: this.userId}, {$push: {wishlist: sectionID}});
     },
 
 
