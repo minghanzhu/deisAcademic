@@ -32,7 +32,6 @@ easy:search
 easysearch:core
 session@1.1.6
 http@1.2.8
-autopublish@1.0.7
 mizzao:jquery-ui
 aldeed:simple-schema
 aldeed:collection2
