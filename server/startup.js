@@ -213,22 +213,4 @@ Meteor.startup(function() {
                 }
             }
         }));
-    /*
-    const course1 = Course.findOne({
-        code: "COSI 11A"
-    });
-    const course2 = Course.findOne({
-        code: "COSI 12B"
-    });
-
-    UserPicks.remove({});
-    UserTerms.remove({});
-
-    UserPicks.insert(course1);
-    UserPicks.insert(course2);
-
-    UserTerms.insert({term: "fall16", courses: []});
-    UserTerms.insert({term: "spring17", courses: []});
-    UserTerms.insert({term: "fall17", courses: []});
-    UserTerms.insert({termList: ["fall16", "spring17", "fall17"]})*/
 })
