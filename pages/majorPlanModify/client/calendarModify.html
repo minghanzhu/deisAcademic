@@ -1,0 +1,188 @@
+<template name="calendarModify">
+  {{#if masterDictSet}}
+	<div class="ui grid">
+		<div class="twelve wide column">
+			<div class="ui sticky">
+        <div class="ui container">
+				  <select name="term" class="js-term form-control">
+            <option value="1161">Spring 2016</option>
+            <option value="1163">Fall 2016</option>
+            <option value="1171">Spring 2017</option>              
+          </select>
+        
+          <div id="calendar"></div><br>
+          <button class="ui button js-change-course">Change Chosen Courses</button>
+          {{#if hasClickedChange}}{{clickedChange}}{{/if}}
+          {{#if currentUser}}
+            <button class="ui button js-save-plan">Save My Plan</button>
+          {{else}}
+            <h3>You'll have to login to save this plan</h3>
+          {{/if}}
+        </div>
+			</div>
+		</div>
+
+		<div class="four wide column">
+  			<div class="ui container" id="courseList">
+				  {{#if hasCourseList}}     
+            <div class="ui vertical accordion menu">
+              {{#each course in getCourseList}} 
+                {{> scheduleCourseListView c=course dict=calendarDict masterDict=dict}}
+              {{/each}}
+            </div>
+  				{{else}}
+  					{{pullUserCourseList}}
+  					<div class="ui active inline loader"></div>
+  				{{/if}}
+  			</div>	
+		</div>
+	</div>
+
+  <div class="overlay-calendar"></div>
+  <div class="ui container popup-calendar">
+    <i class="remove icon pull-right js-close-popup"></i>
+    <div class="ui top attached tabular menu" id="popup-tab">
+      <a class="item" data-tab="second">Course Detail</a>
+      <a class="active item" data-tab="first">Section Detail</a>
+      <a class="item" data-tab="third">Statistics</a>
+    </div>
+
+    <div class="ui bottom attached active tab segment" data-tab="second" tab-num="2">
+      {{#if detailReady}}
+        <h3>Course </h3>
+        {{courseInfo.code}} - {{courseInfo.name}}
+        <h3>Description</h3>
+        {{courseInfo.description}}
+        <h3>Requirements </h3>
+        {{#each r in (getReq courseInfo.requirements)}}
+          {{r}} 
+        {{/each}}
+        <h3>Majors </h3>
+        {{#if hasMajorInfo}}
+          {{#each item in majorInfo}}
+            {{item}}<br>
+          {{/each}}
+        {{else}}
+          {{getMajorDetails}}
+          <div class="ui active inline loader"></div>
+        {{/if}}
+      {{else}}
+        {{getCourseInfo}}
+        <br>
+        <div class="ui active inline loader"></div>
+      {{/if}}
+    </div>
+
+    <div class="ui bottom attached tab segment" data-tab="first" tab-num="1">
+      <div class="ui stackable grid">
+        <div class="eleven wide column">
+          {{#if sectionReady}} 
+            <h3>Section {{sectionObj.section}}</h3>
+            <h3>Professor</h3>
+            {{#if profNameLoading sectionObj.id}}<div class="ui active inline loader"></div>{{/if}}{{{getProfInfo sectionObj.instructors}}}<br>
+            <h3>Time and Place</h3>
+            {{#if sectionObj.times}}
+              {{#each time in sectionObj.times}}
+                {{#if notFirstTime @index}}<div class="ui horizontal divider"></div>{{/if}}
+                {{#if time.start}}<b>{{getSectionDays time.days}}:</b> {{convertTime time.start}} to {{convertTime time.end}}<br>{{else}}TBD<br>{{/if}}
+                {{#if time.building}}{{time.building}} - {{time.room}}<br>{{else}}Please wait until Brandeis posts place information for this section<br>{{/if}}
+                {{#if time.type}}<b>Type: </b>{{time.type}}{{/if}}
+              {{/each}}
+            {{else}}
+              <p>Please wait until Brandeis posts time and day information for this section</p>
+            {{/if}}
+            <h3>Enrollment</h3>
+            {{sectionObj.enrolled}}/{{limitNum sectionObj.limit}} - {{sectionObj.status_text}}
+            <h3>Detailed Description</h3>
+            <p>{{#if sectionObj.details}}{{sectionObj.details}}{{else}}Currently no additional information for this section{{/if}}</p>
+            <h3>Textbook Information</h3>
+            <button class="ui basic button js-textbook" course-code="{{courseInfo.code}}" course-id="{{sectionObj.course}}" section-num="{{sectionObj.section}}"><i class="book icon"></i>Click to view</button>
+          {{/if}}
+        </div>
+
+        <div class="ui vertical divider">.</div>
+
+        <div class="five wide column">
+          <div class="ui vertical labeled icon buttons">
+            <button class="ui basic button js-add-to-list">
+              <i class="plus icon"></i>
+              Add to my wishlist
+            </button>
+
+            <button class="ui basic button">
+              <i class="alarm icon"></i>
+              Watch this section for any change
+            </button>
+
+            <button class="ui basic button">
+              <i class="angle double up icon"></i>
+              Previous section
+            </button>
+
+            <button class="ui basic button">
+              <i class="angle double down icon"></i>
+              Next section
+            </button>
+
+            {{#if isSectionChosen}}
+              <button class="ui blue button js-take" section-id="{{sectionObj.id}}">
+                Sage Code: {{getSageCode sectionObj.id}}
+              </button>
+            {{else}}
+              <button class="ui basic blue button js-take" section-id="{{sectionObj.id}}">
+                <i class="checkmark icon"></i>
+                Decided to take
+              </button>
+            {{/if}}
+
+            <button class="ui basic orange button js-delete-section" section-id="{{sectionObj.id}}">
+              <i class="remove icon"></i>
+              Delete this section on calendar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ui bottom attached tab segment" data-tab="third" tab-num="3">
+      <h3>Here are some statistics for this course</h3>
+    </div>
+  </div>
+  {{else}}
+    {{setMasterDict dict}}
+  {{/if}}
+</template>
+
+<template name="scheduleCourseListView">
+  {{setMasterDict masterDict}}
+  <div class="item">
+    <a class="title js-title">
+      <i class="dropdown icon"></i>
+      {{c.code}}
+    </a>
+
+    <div class="content">
+      <div class="ui link list">
+        {{#if (hasSectionInfo c.continuity_id dict masterDict)}}
+          {{#if (noResult c.continuity_id dict masterDict)}}
+            Not Available
+          {{else}}
+            {{#each section in (sectionInfo c.continuity_id dict masterDict)}}
+              <a class="item js-add-section" id="{{section.id}}" course-code="{{c.code}}" course-name="{{c.name}}">Section{{section.section}}</a>
+              {{#if hasTimes section.times}}
+                {{#each time in section.times}}
+                      <p>{{getSectionDays time.days}}: {{convertTime time.start}} {{convertTime time.end}}</p>
+                {{/each}}
+              {{else}}
+                Time not available
+              {{/if}}
+            {{/each}}
+          {{/if}}
+        {{else}}
+          {{getSections c.continuity_id dict masterDict}}
+          <div class="ui active inline loader"></div>
+        {{/if}}
+      </div>
+    </div>
+  </div>
+</template>

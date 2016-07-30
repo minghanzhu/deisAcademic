@@ -1,0 +1,9 @@
+<template name="masterPlanModify">
+	{{#if chooseCourse}}
+		{{> majorPlanModify dict=masterDict}}
+	{{/if}}
+
+	{{#if makeSchedule}}
+		{{> calendarModify dict=masterDict}}
+	{{/if}}
+</template>
