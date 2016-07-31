@@ -1,0 +1,13 @@
+<template name="masterPlanModify">
+	{{#if dataReady}}
+		{{#if chooseCourse}}
+			{{> majorPlanModify dict=masterDict}}
+		{{/if}}
+
+		{{#if makeSchedule}}
+			{{> calendarModify dict=masterDict}}
+		{{/if}}
+	{{else}}
+		{{setData this}}
+	{{/if}}
+</template>

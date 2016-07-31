@@ -1,0 +1,27 @@
+<template name="planSearchModify">  
+    {{setMasterDict dict}}
+    {{#if hasMajor}}
+        {{getData}}
+        {{#if showTable}}
+            {{> plan_result_view planDict=planSearchDict dict=dict}}
+        {{/if}}
+
+        <button class="ui button js-makeSchedule">Make my schedule</button>
+        {{#if hasClickedNext}}{{clickedNext dict}}{{/if}}
+    {{/if}}
+</template>
+
+<template name="plan_result_view">
+    {{setMasterDict dict}}
+    {{#if courseDataReady planDict}}
+        {{> reactiveTable class="ui stackable selectable fixed table js-result-table" collection=(courseData planDict) settings=settings_course}}
+    {{else}}
+        {{#if noResult planDict}}
+            <br>
+           <h2>No Result</h2>
+        {{else}}
+            <br>
+            <div class="ui active inline loader"></div>
+        {{/if}}
+    {{/if}}
+</template>

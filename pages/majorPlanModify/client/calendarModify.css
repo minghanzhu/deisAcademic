@@ -1,0 +1,36 @@
+#calendar {
+	background-color: white;
+}
+
+.overlay-calendar {
+    position:fixed;
+    display:none; 
+
+    /* color with alpha transparency */
+    background-color: rgba(0, 0, 0, 0.7);
+
+    /* stretch to screen edges */
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+
+    z-index: 9999!important;
+}
+.ui.container.popup-calendar {
+    position: absolute;
+    min-width: 500px;
+    min-height: 300px;
+    display: none;
+    background-color: white;
+    border-radius: 5px;
+    text-align: left;
+
+    /* center it ? */
+    left: 5%;
+
+    z-index: 10000!important;
+}
+.ui.popup-calendar:before {
+    opacity: 0;
+}
