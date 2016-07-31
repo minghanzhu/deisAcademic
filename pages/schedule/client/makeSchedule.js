@@ -197,7 +197,22 @@ Template.semesterSchedule.helpers({
     },
 
     getCourseList: function() {
-        return Template.instance().masterDict.get("fetched_courseList");
+        const availableCourseList = Template.instance().masterDict.get("fetched_courseList");
+        const courseList = [];
+        for(let course of availableCourseList){
+            let current_term;
+            if(Template.instance().masterDict.get("chosenTerm")){
+                current_term = Template.instance().masterDict.get("chosenTerm");
+            } else {
+                current_term = Template.instance().masterDict.get("availableTerms")[0].id;
+            }
+
+            if(course.id.substring(0, course.id.indexOf("-")) === current_term){
+                courseList.push(course);
+            }
+        }
+
+        return courseList;
     },
 
     pullUserCourseList: function() {
@@ -242,6 +257,7 @@ Template.semesterSchedule.helpers({
                                 return comp_string_a.localeCompare(comp_string_b);
                             }
                         });
+                        /* don't need this for schedule
                         let current_course = "";
                         for (let i = 0; i < sorted_result.length; i++) {
                             if ((sorted_result[i].code) === current_course) {
@@ -250,7 +266,7 @@ Template.semesterSchedule.helpers({
                                 i--;
                             };
                             current_course = sorted_result[i].code;
-                        }
+                        }*/
                         for (let i = 0; i < sorted_result.length; i++) {
                             sorted_result[i].index = i;
                         };
@@ -400,6 +416,50 @@ Template.semesterSchedule.helpers({
     hasClickedChange: function() {
         return Template.instance().masterDict.get("clickedChange");
     },
+
+    availableTerms: function(){
+        const wishlist = UserProfilePnc.findOne().wishlist;
+        const wish_terms = [];
+        const term_record = [];
+        for(let section of wishlist){
+            const term = section.substring(0, section.indexOf("-"));
+            if($.inArray(term, term_record) == -1){
+                const term_obj = Term.findOne({id: term});
+                wish_terms.push(term_obj);
+                term_record.push(term);
+            }
+        }
+        const result_array = wish_terms.sort(function(a, b){
+            return parseInt(b.id)-parseInt(a.id);
+        })
+        Template.instance().masterDict.set("availableTerms", result_array);
+        return result_array;
+    },
+    /*
+    isCourseChosen: function(course){
+        const wishlist = UserProfilePnc.findOne().wishlist;
+        let current_term;
+        if(Template.instance().masterDict.get("chosenTerm")){
+            current_term = Template.instance().masterDict.get("chosenTerm");
+        } else {
+            current_term = Template.instance().masterDict.get("availableTerms")[0].id;
+        }
+        const dict = Template.instance().masterDict;
+
+        Meteor.call("getSectionList", wishlist, function(err, result){
+            if(err){
+                return;
+            }
+
+            for(let section of result){
+                const course_id = current_term + "-" + course.continuity_id;
+                if( course_id === section.course){
+                    return true;
+                }
+            }
+            return false;
+        })
+    },*/
 })
 
 Template.semesterSchedule.events({
@@ -671,6 +731,11 @@ Template.semesterScheduleCourseList.helpers({
         var time = Math.floor(time / 60) + ":" + min;
         return time;
     },
+
+    isChosen: function(section_id){
+        const wishlist = UserProfilePnc.findOne().wishlist;
+        return $.inArray(section_id, wishlist) != -1;
+    }
 })
 
 Template.semesterScheduleCourseList.events({

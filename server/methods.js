@@ -684,6 +684,15 @@ Meteor.methods({
         return Section.findOne({ id: sectionId }, { fields: { _id: 0, type: 0 } });
     },
 
+    getSectionList: function(section_id_list){
+        const result_array = [];
+        for(let sectionId of section_id_list){
+            result_array.push(Section.findOne({id: sectionId}));
+        }
+
+        return result_array;
+    },
+
     //takes a course id and returns the course object
     getCourse: function(courseId) {
         return Course.findOne({ id: courseId });
