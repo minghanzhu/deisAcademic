@@ -25,7 +25,6 @@ Template.planSearchModify.helpers({
         Template.instance().planSearchDict.set('sectionIndex', 0);
         Template.instance().planSearchDict.set('courseData');
         Template.instance().planSearchDict.set('clickedNext', false);
-        Template.instance().planSearchDict.set('clickedMajor', false);
     },
 
     hasMajor: function(){
@@ -126,12 +125,6 @@ Template.planSearchModify.events({
 
         Template.instance().planSearchDict.set('clickedNext', true);
     },
-
-    "click .js-changeMajor": function(event){
-        event.preventDefault();
-        window.onbeforeunload = function (e) {};
-        window.location.reload();
-    },
 })
 
 Template.plan_result_view.onRendered(function() {
@@ -142,8 +135,6 @@ Template.plan_result_view.helpers({
     setMasterDict: function(dict){
         Template.instance().masterDict = dict;//save the dict to the template
         Template.instance().planResultDict = dict;
-        console.log(Template.instance().planResultDict)
-        //Template.instance().planResultDict.set('chosenCourse', []);
     },
 
     detailReady: function(planDict) {

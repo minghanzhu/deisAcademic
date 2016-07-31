@@ -1,6 +1,6 @@
 Template.masterPlanModify.onCreated(function(){
 	this.masterPageDict = new ReactiveDict();
-	this.masterPageDict.set("pageName", "makeSchedule");
+	this.masterPageDict.set("dataReady", false);
 	window.onbeforeunload = function (e) {
         var e = e || window.event;
         var msg = "If you leave this page, you'll lose all the major plan data"
@@ -27,4 +27,18 @@ Template.masterPlanModify.helpers({
 	masterDict: function(){
 		return Template.instance().masterPageDict
 	},
+
+	setData: function(data){
+		const chosenCourse = data.chosenCourse;
+		const chosenMajor = data.majorId;
+		Template.instance().masterPageDict.set("chosenCourse", chosenCourse);
+		Template.instance().masterPageDict.set("chosenMajor", chosenMajor);
+		Template.instance().masterPageDict.set("courseList", chosenCourse);
+		Template.instance().masterPageDict.set("pageName", "makeSchedule");
+		Template.instance().masterPageDict.set("dataReady", true);
+	},
+
+	dataReady: function(){
+		return Template.instance().masterPageDict.get("dataReady");
+	}
 })

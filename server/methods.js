@@ -862,4 +862,26 @@ Meteor.methods({
             return result;
         })
     },
+
+    "fetchScheduleList": function(scheduleList){
+        const result = {};
+        for(let schedule of scheduleList){
+            const schedule_obj = SchedulesPnc.findOne(schedule);
+            const schedule_term = schedule_obj.term;
+            const schedule_course = schedule_obj.courseList;
+
+            result[schedule_term] = {};
+            for(let section of schedule_course){
+                const section_obj = Section.findOne({id: section.section_id});
+                const courseCode = Course.findOne({id: section_obj.course}).code;
+                result[schedule_term][section.section_id] = {
+                    chosen: section.chosen,
+                    object: section_obj,
+                    courseCode: courseCode
+                };
+            }
+
+        }
+        return result;
+    },
 });
