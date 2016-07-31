@@ -479,6 +479,7 @@ Template.calendarModify.events({
     },
 
     "click .js-save-plan": function() {
+        $(".js-save-plan").attr("class", "ui loading disabled button js-save-plan");
         //save the current term's schedule to the dict
         const current_term = $(".js-term").val();
         Template.instance().masterDict.set("chosenTerm", $(".js-term").val());
@@ -539,7 +540,13 @@ Template.calendarModify.events({
         }
         //[{term:<term>, courseList:[{}]}]
         const current_plan_id = Router.current().params._id;
-        Meteor.call("updateSchedule_MajorPlan", schedule_list, major_code, availableCourseList, current_plan_id);
+        Meteor.call("updateSchedule_MajorPlan", schedule_list, major_code, availableCourseList, current_plan_id, function(err){
+            if(err){
+                return;
+            }
+            window.onbeforeunload = function (e) {};
+            Router.go('/myMajorPlan');
+        });
     },
 
     "click .js-change-course": function() {
