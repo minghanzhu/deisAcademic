@@ -728,8 +728,8 @@ Meteor.methods({
     },
 
 
-    "addToWishlist": function(sectionID){
-      UserProfilePnc.update({userId: this.userId}, {$push: {wishlist: sectionID}});
+    "addToWishlist": function(sectionID) {
+        UserProfilePnc.update({ userId: this.userId }, { $push: { wishlist: sectionID } });
     },
 
 
@@ -797,6 +797,10 @@ Meteor.methods({
             majorPlan_Id: major_plan_id
         };
 
+        for (let schedule of scheduleList) {
+            SchedulesPnc.update(schedule, { $set: { plan: major_plan_id } });
+        };
+
         return return_result;
         console.log(return_result);
     },
@@ -847,17 +851,17 @@ Meteor.methods({
         })
     },
 
-    "fetchScheduleList": function(scheduleList){
+    "fetchScheduleList": function(scheduleList) {
         const result = {};
-        for(let schedule of scheduleList){
+        for (let schedule of scheduleList) {
             const schedule_obj = SchedulesPnc.findOne(schedule);
             const schedule_term = schedule_obj.term;
             const schedule_course = schedule_obj.courseList;
 
             result[schedule_term] = {};
-            for(let section of schedule_course){
-                const section_obj = Section.findOne({id: section.section_id});
-                const courseCode = Course.findOne({id: section_obj.course}).code;
+            for (let section of schedule_course) {
+                const section_obj = Section.findOne({ id: section.section_id });
+                const courseCode = Course.findOne({ id: section_obj.course }).code;
                 result[schedule_term][section.section_id] = {
                     chosen: section.chosen,
                     object: section_obj,
@@ -867,5 +871,48 @@ Meteor.methods({
 
         }
         return result;
+    },
+
+    "updateSchedule_MajorPlan": function(scheduleList, major_code, availableCourseList, current_plan_id) {
+        if (!this.userId) {
+            console.log("Invaid insert: Not logged in");
+        };
+
+        if (!UserProfilePnc.findOne({ userId: this.userId })) {
+            console.log("Invalid insert: No such user");
+            return;
+        };
+
+        let regexCode = new RegExp("-" + major_code + "$", "i");
+        if (!Subject.findOne({ id: regexCode })) {
+            console.log("Invalid insert: No such major id");
+            return;
+        };
+
+        if (availableCourseList.length == 0) {
+            console.log("Invalid insert: No chosen course");
+            return;
+        };
+
+        if (scheduleList.length == 0) {
+            console.log("Invalid insert: No schedule found")
+        };
+
+        const plan_obj = MajorPlansPnc.findOne(current_plan_id);
+
+        for (let schedule of scheduleList) {
+            const schedule_obj = {
+                term: schedule.term,
+                courseList: schedule.chosenCourse,
+                userId: this.userId,
+                plan: current_plan_id
+            }
+            if (SchedulesPnc.findOne({ plan: current_plan_id, term: schedule.term })) {
+                SchedulesPnc.update({ plan: current_plan_id, term: schedule.term }, { $set: { courseList: schedule.chosenCourse, plan: current_plan_id } });
+            } else {
+                const new_schedule_id = SchedulesPnc.insert(schedule_obj);
+                MajorPlansPnc.update(current_plan_id, { $push: { scheduleList: new_schedule_id } });
+            }
+        };
     },
 });

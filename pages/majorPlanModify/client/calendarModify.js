@@ -538,7 +538,8 @@ Template.calendarModify.events({
             schedule_list.push(schedule_obj);
         }
         //[{term:<term>, courseList:[{}]}]
-        Meteor.call("saveSchedule_MajorPlan", schedule_list, major_code, availableCourseList);
+        const current_plan_id = Router.current().params._id;
+        Meteor.call("updateSchedule_MajorPlan", schedule_list, major_code, availableCourseList, current_plan_id);
     },
 
     "click .js-change-course": function() {
