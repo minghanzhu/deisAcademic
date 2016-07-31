@@ -768,6 +768,15 @@ Meteor.methods({
         return result_array;
     },
 
+    "fetchSectionList": function(sectionList){
+        const result_array = [];
+        for(let section of sectionList){
+            const course_id = Section.findOne({id: section}).course;
+            result_array.push(Course.findOne({id: course_id}));
+        }
+        return result_array;
+    },
+
     "saveMajorPlan": function(scheduleList, major_code, availableCourseList) {
         if (!this.userId) {
             console.log("Invalid insert: Not logged in");

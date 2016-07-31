@@ -1,5 +1,9 @@
 <template name="schedule">
-	<div class="ui container">
-		Welcome to schedule
-	</div>
+	{{#if dataReady}}
+		{{#if makeSchedule}}
+			{{> semesterSchedule dict=masterDict}}
+		{{/if}}
+	{{else}}
+		{{setData this}}
+	{{/if}}
 </template>
