@@ -142,8 +142,6 @@ Template.plan_result.helpers({
     setMasterDict: function(dict){
         Template.instance().masterDict = dict;//save the dict to the template
         Template.instance().planResultDict = dict;
-        console.log(Template.instance().planResultDict)
-        //Template.instance().planResultDict.set('chosenCourse', []);
     },
 
     detailReady: function(planDict) {

@@ -350,7 +350,6 @@ Template.calendarTest.events({
 
     "click .js-textbook": function(event) {
         event.preventDefault();
-        console.log(event);
         const course_id = $(event)[0].target.attributes[1].value;
         const section_num = $(event)[0].target.attributes[2].value;
         const course_code = $(event)[0].target.attributes[3].value;
@@ -423,7 +422,6 @@ Template.calendarTest.events({
         //this gets the current saved schedule list
         //{"<term>":{term:"<term>",courseList:[<courses>]}}
         const final_schedule_list = Template.instance().masterDict.get("scheduleList");
-        console.log(final_schedule_list);
         const schedule_list = [];
         for (let term in final_schedule_list) { //access each {term="<term>", courseList:[<courses>]}
             const user_schedule_array = [];
@@ -442,15 +440,8 @@ Template.calendarTest.events({
             }
             schedule_list.push(schedule_obj);
         }
-        console.log(schedule_list); //[{term:<term>, courseList:[{}]}]
-        Meteor.call("saveSchedule_MajorPlan", schedule_list, major_code, availableCourseList, function(err, result) {
-            if (err) {
-                console.log(err);
-                return;
-            }
-
-            console.log(result);
-        });
+        //[{term:<term>, courseList:[{}]}]
+        Meteor.call("saveSchedule_MajorPlan", schedule_list, major_code, availableCourseList);
     },
 
     "click .js-change-course": function(){

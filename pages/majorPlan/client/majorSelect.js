@@ -89,7 +89,6 @@ Template.majorList.events({
 Template.science.events({
     "click .js-popup": function(event) {
         const name = event.target.innerText;
-        console.log(name);
         homeDict.set('majorName', name);
         let popup = $(".popup-bulletin");
         popup.css("top", (($(window).height() - popup.outerHeight()) / 2) + $(window).scrollTop() + 30 + "px");
