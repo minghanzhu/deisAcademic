@@ -915,4 +915,16 @@ Meteor.methods({
             }
         };
     },
+
+    checkMajor: function(chosenMajor){
+        if(!this.userId){
+            return true;
+        }
+
+        if(!UserProfilePnc.findOne({userId: this.userId})){
+            throw new Meteor.error(100,"There is something wrong with your profile, please try again later\nIf this keeps showing up, please contact us");
+        }
+
+        return !MajorPlansPnc.findOne({userId: this.userId, majorId: chosenMajor});
+    },
 });
