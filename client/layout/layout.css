@@ -1,0 +1,14 @@
+#side-nav {
+    position: absolute;
+    height: 100%;
+    width: 80px;
+    background-color: #66b3ff;
+    z-index: 1;
+    /*overflow: hidden;*/
+    box-shadow: 3px 0px 6px #999999;
+    transition: 0.3s width ease-in-out;
+}
+
+#side-nav:hover {
+    width: 100px;
+}
