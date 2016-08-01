@@ -24,7 +24,21 @@
 
 		<div class="four wide column">
   			<div class="ui container" id="courseList">
-				  {{#if hasCourseList}}     
+				  {{#if hasCourseList}}
+            {{#if currentUser}}
+              {{#if hasWishlist}}
+                <div class="ui slider checkbox js-add-wishlist">
+                  <input type="checkbox" name="wishlist" checked="checked">
+                  <label>Include courses in my wishlist</label>
+                </div>
+              {{else}}
+                <div class="ui slider checkbox js-add-wishlist">
+                  <input type="checkbox" name="wishlist">
+                  <label>Include courses in my wishlist</label>
+                </div>
+              {{/if}}
+            {{/if}}
+            
             <div class="ui vertical accordion menu">
               {{#each course in getCourseList}} 
                 {{> scheduleCourseList c=course dict=calendarDict masterDict=dict}}

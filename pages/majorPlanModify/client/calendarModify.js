@@ -182,6 +182,10 @@ Template.calendarModify.helpers({
             Template.instance().calendarDict.set("masterDictSet", true);
             Template.instance().masterDict.set("clickedChange", false);
         }
+
+        if(!Template.instance().masterDict.get("includeWishlist")){
+            Template.instance().masterDict.set("includeWishlist", false);
+        }
     },
 
     masterDictSet: function() {
@@ -199,15 +203,15 @@ Template.calendarModify.helpers({
     getCourseList: function() {
         const availableCourseList = Template.instance().masterDict.get("fetched_courseList");
         const courseList = [];
-        for(let course of availableCourseList){
+        for (let course of availableCourseList) {
             let current_term;
-            if(Template.instance().masterDict.get("chosenTerm")){
+            if (Template.instance().masterDict.get("chosenTerm")) {
                 current_term = Template.instance().masterDict.get("chosenTerm");
             } else {
                 current_term = $(".js-term").val();
             }
 
-            if(course.id.substring(0, course.id.indexOf("-")) === current_term){
+            if (course.id.substring(0, course.id.indexOf("-")) === current_term) {
                 courseList.push(course);
             }
         }
@@ -218,48 +222,110 @@ Template.calendarModify.helpers({
     pullUserCourseList: function() {
         const dict = Template.instance().masterDict;
         const courseList = dict.get('courseList');
+        const sectionList = UserProfilePnc.findOne().wishlist;
 
         if (typeof courseList[0] === "string") { //prevent unexpected request
             Meteor.call("fetchCourseList", courseList,
                 function(err, result) {
                     if (result.length != 0) {
-                        const sorted_result = result.sort(function(a, b) {
-                            //for a
-                            let course_num_a = parseInt(a.code.match(/\d+/gi)[0]);
-                            if (course_num_a < 10) course_num_a = "00" + course_num_a;
-                            if (course_num_a >= 10 && course_num_a < 100) course_num_a = "0" + course_num_a;
-                            const course_dep_a = a.code.substring(0, a.code.indexOf(" "));
-                            const last_a = a.code.charAt(a.code.length - 1);
-                            let comp_string_a;
-                            if (/\w/i.test(last_a)) {
-                                comp_string_a = course_num_a + last_a;
-                            } else {
-                                comp_string_a = course_num_a + "0";
-                            };
+                        if (dict.get("includeWishlist")) {
+                            Meteor.call("fetchSectionList", sectionList, function(err, section_result) {
+                                if (err) {
+                                    return;
+                                }
 
-                            //for b
-                            let course_num_b = parseInt(b.code.match(/\d+/gi)[0]);
-                            if (course_num_b < 10) course_num_b = "00" + course_num_b;
-                            if (course_num_b >= 10 && course_num_b < 100) course_num_b = "0" + course_num_b;
-                            const course_dep_b = b.code.substring(0, b.code.indexOf(" "));
-                            const last_b = b.code.charAt(b.code.length - 1);
-                            let comp_string_b;
-                            if (/\w/i.test(last_b)) {
-                                comp_string_b = course_num_b + last_b;
-                            } else {
-                                comp_string_b = course_num_b + "0";
-                            };
+                                if (section_result.length != 0) {
+                                    const wishlist_course = section_result;
+                                    const combined_list = result.concat(wishlist_course);
 
-                            const major_comp = course_dep_a.localeCompare(course_dep_b);
-                            if (major_comp != 0) {
-                                return major_comp;
-                            } else {
-                                return comp_string_a.localeCompare(comp_string_b);
-                            }
-                        });
+                                    const sorted_result = combined_list.sort(function(a, b) {
+                                        //for a
+                                        let course_num_a = parseInt(a.code.match(/\d+/gi)[0]);
+                                        if (course_num_a < 10) course_num_a = "00" + course_num_a;
+                                        if (course_num_a >= 10 && course_num_a < 100) course_num_a = "0" + course_num_a;
+                                        const course_dep_a = a.code.substring(0, a.code.indexOf(" "));
+                                        const last_a = a.code.charAt(a.code.length - 1);
+                                        let comp_string_a;
+                                        if (/\w/i.test(last_a)) {
+                                            comp_string_a = course_num_a + last_a;
+                                        } else {
+                                            comp_string_a = course_num_a + "0";
+                                        };
 
-                        dict.set("fetched_courseList", sorted_result);
-                        dict.set("hasCourseList", true);
+                                        //for b
+                                        let course_num_b = parseInt(b.code.match(/\d+/gi)[0]);
+                                        if (course_num_b < 10) course_num_b = "00" + course_num_b;
+                                        if (course_num_b >= 10 && course_num_b < 100) course_num_b = "0" + course_num_b;
+                                        const course_dep_b = b.code.substring(0, b.code.indexOf(" "));
+                                        const last_b = b.code.charAt(b.code.length - 1);
+                                        let comp_string_b;
+                                        if (/\w/i.test(last_b)) {
+                                            comp_string_b = course_num_b + last_b;
+                                        } else {
+                                            comp_string_b = course_num_b + "0";
+                                        };
+
+                                        const major_comp = course_dep_a.localeCompare(course_dep_b);
+                                        if (major_comp != 0) {
+                                            return major_comp;
+                                        } else {
+                                            return comp_string_a.localeCompare(comp_string_b);
+                                        }
+                                    });
+
+                                    //remove repeated courses
+                                    let current_course = "";
+                                    for (let i = 0; i < sorted_result.length; i++) {
+                                        if ((sorted_result[i].id) === current_course) {
+                                            current_course = sorted_result[i].id;
+                                            sorted_result.splice(i, 1);
+                                            i--;
+                                        };
+                                        current_course = sorted_result[i].id;
+                                    }
+
+                                    dict.set("fetched_courseList", sorted_result);
+                                    dict.set("hasCourseList", true);
+                                }
+                            })
+                        } else {
+                            const sorted_result = result.sort(function(a, b) {
+                                //for a
+                                let course_num_a = parseInt(a.code.match(/\d+/gi)[0]);
+                                if (course_num_a < 10) course_num_a = "00" + course_num_a;
+                                if (course_num_a >= 10 && course_num_a < 100) course_num_a = "0" + course_num_a;
+                                const course_dep_a = a.code.substring(0, a.code.indexOf(" "));
+                                const last_a = a.code.charAt(a.code.length - 1);
+                                let comp_string_a;
+                                if (/\w/i.test(last_a)) {
+                                    comp_string_a = course_num_a + last_a;
+                                } else {
+                                    comp_string_a = course_num_a + "0";
+                                };
+
+                                //for b
+                                let course_num_b = parseInt(b.code.match(/\d+/gi)[0]);
+                                if (course_num_b < 10) course_num_b = "00" + course_num_b;
+                                if (course_num_b >= 10 && course_num_b < 100) course_num_b = "0" + course_num_b;
+                                const course_dep_b = b.code.substring(0, b.code.indexOf(" "));
+                                const last_b = b.code.charAt(b.code.length - 1);
+                                let comp_string_b;
+                                if (/\w/i.test(last_b)) {
+                                    comp_string_b = course_num_b + last_b;
+                                } else {
+                                    comp_string_b = course_num_b + "0";
+                                };
+
+                                const major_comp = course_dep_a.localeCompare(course_dep_b);
+                                if (major_comp != 0) {
+                                    return major_comp;
+                                } else {
+                                    return comp_string_a.localeCompare(comp_string_b);
+                                }
+                            });
+                            dict.set("fetched_courseList", sorted_result);
+                            dict.set("hasCourseList", true);
+                        }
                     }
                 }
             );
@@ -404,6 +470,10 @@ Template.calendarModify.helpers({
     hasClickedChange: function() {
         return Template.instance().masterDict.get("clickedChange");
     },
+
+    hasWishlist: function(){
+        return Template.instance().masterDict.get("includeWishlist");
+    },
 })
 
 Template.calendarModify.events({
@@ -544,11 +614,11 @@ Template.calendarModify.events({
         }
         //[{term:<term>, courseList:[{}]}]
         const current_plan_id = Router.current().params._id;
-        Meteor.call("updateSchedule_MajorPlan", schedule_list, major_code, availableCourseList, current_plan_id, function(err){
-            if(err){
+        Meteor.call("updateSchedule_MajorPlan", schedule_list, major_code, availableCourseList, current_plan_id, function(err) {
+            if (err) {
                 return;
             }
-            window.onbeforeunload = function (e) {};
+            window.onbeforeunload = function(e) {};
             Router.go('/myMajorPlan');
         });
     },
@@ -579,6 +649,12 @@ Template.calendarModify.events({
         //then go back to the previous page
         Template.instance().masterDict.set("clickedChange", true);
     },
+
+    "click .js-add-wishlist": function() {
+        const current_status = Template.instance().masterDict.get("includeWishlist");
+        Template.instance().masterDict.set("includeWishlist", !current_status);
+        Template.instance().masterDict.set("hasCourseList", false);
+    },
 })
 
 Template.scheduleCourseListView.onRendered(function() {
@@ -590,7 +666,7 @@ Template.scheduleCourseListView.onRendered(function() {
             context: '#courseList'
         });
     }
-
+    $(".ui.checkbox").checkbox();
 })
 
 Template.scheduleCourseListView.helpers({
