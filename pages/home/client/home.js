@@ -18,7 +18,7 @@ Template.home.onRendered(function(){
 	$('.ui.checkbox').checkbox();
 	//this monitors the pressing of enter, if so, do a search
 	$('body').keydown(function (e){
-    	if(e.keyCode == 13){
+    	if(e.keyCode == 13 && !$(".reactive-table-navigation input").is(":focus")){
         	//these reset the home dict so that the popup won't read wrong information
         	//and also the loading indicators can work
         	homeDict.set('showTable', false);//this determines if the table should shows up
