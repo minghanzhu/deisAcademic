@@ -684,10 +684,10 @@ Meteor.methods({
         return Section.findOne({ id: sectionId }, { fields: { _id: 0, type: 0 } });
     },
 
-    getSectionList: function(section_id_list){
+    getSectionList: function(section_id_list) {
         const result_array = [];
-        for(let sectionId of section_id_list){
-            result_array.push(Section.findOne({id: sectionId}));
+        for (let sectionId of section_id_list) {
+            result_array.push(Section.findOne({ id: sectionId }));
         }
 
         return result_array;
@@ -777,11 +777,11 @@ Meteor.methods({
         return result_array;
     },
 
-    "fetchSectionList": function(sectionList){
+    "fetchSectionList": function(sectionList) {
         const result_array = [];
-        for(let section of sectionList){
-            const course_id = Section.findOne({id: section}).course;
-            result_array.push(Course.findOne({id: course_id}));
+        for (let section of sectionList) {
+            const course_id = Section.findOne({ id: section }).course;
+            result_array.push(Course.findOne({ id: course_id }));
         }
         return result_array;
     },
@@ -934,15 +934,53 @@ Meteor.methods({
         };
     },
 
-    checkMajor: function(chosenMajor){
-        if(!this.userId){
+    saveSchedule: function(scheduleList) {
+        if (!this.userId) {
+            console.log("Invalid update: Not logged in");
+            return;
+        }
+
+        if (!UserProfilePnc.findOne({ userId: this.userId })) {
+            throw new Meteor.error(100, "There is something wrong with your profile, please try again later\nIf this keeps showing up, please contact us");
+        }
+
+        if (scheduleList.length == 0) {
+            console.log("Invalid update: Empty schedule")
+        }
+
+        for (let schedule of scheduleList) {
+            const schedule_obj = {
+                    userId: this.userId,
+                    term: schedule.term,
+                    courseList: schedule.chosenCourse
+            }
+            //if it exists, just update it
+            if (SchedulesPnc.findOne({ userId: this.userId, term: schedule.term, plan: {$exists: false}})) {
+                SchedulesPnc.update({ userId: this.userId, term: schedule.term, plan: {$exists: false}}, {
+                    $set: {
+                        courseList: schedule.chosenCourse
+                    }
+                });
+            } else { //if not, insert and put it to user profile
+                const new_schedule_id = SchedulesPnc.insert(schedule_obj);
+                UserProfilePnc.update({ userId: this.userId }, {
+                    $push: {
+                        scheduleList: new_schedule_id
+                    }
+                });
+            }
+        }
+    },
+
+    checkMajor: function(chosenMajor) {
+        if (!this.userId) {
             return true;
         }
 
-        if(!UserProfilePnc.findOne({userId: this.userId})){
-            throw new Meteor.error(100,"There is something wrong with your profile, please try again later\nIf this keeps showing up, please contact us");
+        if (!UserProfilePnc.findOne({ userId: this.userId })) {
+            throw new Meteor.error(100, "There is something wrong with your profile, please try again later\nIf this keeps showing up, please contact us");
         }
 
-        return !MajorPlansPnc.findOne({userId: this.userId, majorId: chosenMajor});
+        return !MajorPlansPnc.findOne({ userId: this.userId, majorId: chosenMajor });
     },
 });

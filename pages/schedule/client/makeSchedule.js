@@ -83,7 +83,6 @@ Template.semesterSchedule.helpers({
             Template.instance().masterDict.set("fetched_courseList");
             Template.instance().calendarDict.set("masterDictSet", true);
             Template.instance().masterDict.set("clickedChange", false);
-            const current_plan_id = Router.current().params._id;
             const scheduleList = UserProfilePnc.findOne().scheduleList;
             const masterDict = Template.instance().masterDict;
 
@@ -257,16 +256,7 @@ Template.semesterSchedule.helpers({
                                 return comp_string_a.localeCompare(comp_string_b);
                             }
                         });
-                        /* don't need this for schedule
-                        let current_course = "";
-                        for (let i = 0; i < sorted_result.length; i++) {
-                            if ((sorted_result[i].code) === current_course) {
-                                current_course = sorted_result[i].code;
-                                sorted_result.splice(i, 1);
-                                i--;
-                            };
-                            current_course = sorted_result[i].code;
-                        }*/
+
                         for (let i = 0; i < sorted_result.length; i++) {
                             sorted_result[i].index = i;
                         };
@@ -435,31 +425,6 @@ Template.semesterSchedule.helpers({
         Template.instance().masterDict.set("availableTerms", result_array);
         return result_array;
     },
-    /*
-    isCourseChosen: function(course){
-        const wishlist = UserProfilePnc.findOne().wishlist;
-        let current_term;
-        if(Template.instance().masterDict.get("chosenTerm")){
-            current_term = Template.instance().masterDict.get("chosenTerm");
-        } else {
-            current_term = Template.instance().masterDict.get("availableTerms")[0].id;
-        }
-        const dict = Template.instance().masterDict;
-
-        Meteor.call("getSectionList", wishlist, function(err, result){
-            if(err){
-                return;
-            }
-
-            for(let section of result){
-                const course_id = current_term + "-" + course.continuity_id;
-                if( course_id === section.course){
-                    return true;
-                }
-            }
-            return false;
-        })
-    },*/
 })
 
 Template.semesterSchedule.events({
@@ -563,19 +528,6 @@ Template.semesterSchedule.events({
         Template.instance().masterDict.set("scheduleList", current_schedule_list);
         ////////////////////////////////////////////
 
-        //turn the dict data into user data to save
-        const major_plan_object = {
-            majorId: major_code,
-            chosenCourse: availableCourseList,
-
-        }
-        const masterDict = Template.instance().masterDict;
-        const major_code = masterDict.get("chosenMajor");
-        const availableCourseList = [];
-        const current_chosen_courses = masterDict.get("fetched_courseList");
-        for (let course of current_chosen_courses) {
-            availableCourseList.push(course.continuity_id);
-        };
         //this gets the current saved schedule list
         //{"<term>":{term:"<term>",courseList:[<courses>]}}
         const final_schedule_list = Template.instance().masterDict.get("scheduleList");
@@ -598,14 +550,14 @@ Template.semesterSchedule.events({
             }
             schedule_list.push(schedule_obj);
         }
-        //[{term:<term>, courseList:[{}]}]
-        const current_plan_id = Router.current().params._id;
-        Meteor.call("updateSchedule_MajorPlan", schedule_list, major_code, availableCourseList, current_plan_id, function(err){
+        
+        Meteor.call("saveSchedule", schedule_list, function(err){
             if(err){
                 return;
             }
+
             window.onbeforeunload = function (e) {};
-            Router.go('/myMajorPlan');
+            Router.go('/myProfile');
         });
     },
 
