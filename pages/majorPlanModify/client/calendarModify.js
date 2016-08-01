@@ -183,7 +183,7 @@ Template.calendarModify.helpers({
             Template.instance().masterDict.set("clickedChange", false);
         }
 
-        if(!Template.instance().masterDict.get("includeWishlist")){
+        if (!Template.instance().masterDict.get("includeWishlist")) {
             Template.instance().masterDict.set("includeWishlist", false);
         }
     },
@@ -236,7 +236,21 @@ Template.calendarModify.helpers({
 
                                 if (section_result.length != 0) {
                                     const wishlist_course = section_result;
-                                    const combined_list = result.concat(wishlist_course);
+                                    const new_course = [];
+                                    for(let course_wish of wishlist_course){
+                                        let isChosen = false
+                                        for(let course_major of result){
+                                            if(course_major.id === course_wish.id){
+                                                isChosen = true;
+                                                break;
+                                            }
+                                        }
+                                        if(!isChosen){
+                                            new_course.push(course_wish)
+                                        }
+                                    }
+                                    const combined_list = result.concat(new_course);
+
 
                                     const sorted_result = combined_list.sort(function(a, b) {
                                         //for a
@@ -272,17 +286,6 @@ Template.calendarModify.helpers({
                                             return comp_string_a.localeCompare(comp_string_b);
                                         }
                                     });
-
-                                    //remove repeated courses
-                                    let current_course = "";
-                                    for (let i = 0; i < sorted_result.length; i++) {
-                                        if ((sorted_result[i].id) === current_course) {
-                                            current_course = sorted_result[i].id;
-                                            sorted_result.splice(i, 1);
-                                            i--;
-                                        };
-                                        current_course = sorted_result[i].id;
-                                    }
 
                                     dict.set("fetched_courseList", sorted_result);
                                     dict.set("hasCourseList", true);
@@ -323,6 +326,7 @@ Template.calendarModify.helpers({
                                     return comp_string_a.localeCompare(comp_string_b);
                                 }
                             });
+
                             dict.set("fetched_courseList", sorted_result);
                             dict.set("hasCourseList", true);
                         }
@@ -471,7 +475,7 @@ Template.calendarModify.helpers({
         return Template.instance().masterDict.get("clickedChange");
     },
 
-    hasWishlist: function(){
+    hasWishlist: function() {
         return Template.instance().masterDict.get("includeWishlist");
     },
 })
@@ -578,18 +582,14 @@ Template.calendarModify.events({
         ////////////////////////////////////////////
 
         //turn the dict data into user data to save
+        const masterDict = Template.instance().masterDict;
+        const major_code = masterDict.get("chosenMajor");
+        const availableCourseList = masterDict.get("courseList");
         const major_plan_object = {
             majorId: major_code,
             chosenCourse: availableCourseList,
-
         }
-        const masterDict = Template.instance().masterDict;
-        const major_code = masterDict.get("chosenMajor");
-        const availableCourseList = [];
-        const current_chosen_courses = masterDict.get("fetched_courseList");
-        for (let course of current_chosen_courses) {
-            availableCourseList.push(course.continuity_id);
-        };
+
         //this gets the current saved schedule list
         //{"<term>":{term:"<term>",courseList:[<courses>]}}
         const final_schedule_list = Template.instance().masterDict.get("scheduleList");
