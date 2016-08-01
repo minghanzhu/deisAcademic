@@ -10,9 +10,7 @@ h1 {
     /*margin-top: 200px;*/
     position: relative;
 }
-body {
-    background-image: url("images/public-domain-images-free-stock-photos-002.jpg");
-}
+
 #searchBar {
     position: relative;
     margin: auto;
