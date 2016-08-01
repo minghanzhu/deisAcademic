@@ -197,7 +197,22 @@ Template.calendarModify.helpers({
     },
 
     getCourseList: function() {
-        return Template.instance().masterDict.get("fetched_courseList");
+        const availableCourseList = Template.instance().masterDict.get("fetched_courseList");
+        const courseList = [];
+        for(let course of availableCourseList){
+            let current_term;
+            if(Template.instance().masterDict.get("chosenTerm")){
+                current_term = Template.instance().masterDict.get("chosenTerm");
+            } else {
+                current_term = $(".js-term").val();
+            }
+
+            if(course.id.substring(0, course.id.indexOf("-")) === current_term){
+                courseList.push(course);
+            }
+        }
+
+        return courseList;
     },
 
     pullUserCourseList: function() {
@@ -242,18 +257,7 @@ Template.calendarModify.helpers({
                                 return comp_string_a.localeCompare(comp_string_b);
                             }
                         });
-                        let current_course = "";
-                        for (let i = 0; i < sorted_result.length; i++) {
-                            if ((sorted_result[i].code) === current_course) {
-                                current_course = sorted_result[i].code;
-                                sorted_result.splice(i, 1);
-                                i--;
-                            };
-                            current_course = sorted_result[i].code;
-                        }
-                        for (let i = 0; i < sorted_result.length; i++) {
-                            sorted_result[i].index = i;
-                        };
+
                         dict.set("fetched_courseList", sorted_result);
                         dict.set("hasCourseList", true);
                     }

@@ -47,6 +47,7 @@ Template.majorSelect.events({
             return;
         };
         $(".js-majorGo").attr("class", "medium ui primary loading disabled button js-majorGo");
+        const dict = Template.instance().majorSelectDict;
         Meteor.call("checkMajor", $("#search-select input").val(), function(err, result){
             if(err){
                 window.alert(err.message);
@@ -54,7 +55,7 @@ Template.majorSelect.events({
             }
 
             if(result){
-                Template.instance().majorSelectDict.set("clickedGo", true);
+                dict.set("clickedGo", true);
             } else {
                 window.alert("You already have a plan for this major");
                 $(".js-majorGo").attr("class", "medium ui primary button js-majorGo");

@@ -770,9 +770,10 @@ Meteor.methods({
     },
 
     "fetchCourseList": function(courseList) {
-        const result_array = [];
+        let result_array = [];
         for (let courseId of courseList) {
-            result_array.push(Course.findOne({ continuity_id: courseId }));
+            const course_array = Course.find({ continuity_id: courseId }).fetch();
+            result_array = result_array.concat(course_array);
         };
         return result_array;
     },
