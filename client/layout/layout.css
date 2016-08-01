@@ -1,5 +1,5 @@
 #side-nav {
-    position: absolute;
+    position: fixed;
     height: 100%;
     width: 80px;
     background-color: #66b3ff;
@@ -11,4 +11,10 @@
 
 #side-nav:hover {
     width: 100px;
+}
+
+.move {
+  position: relative;
+  /*padding-left: 110px;*/
+  margin-left: 110px;
 }
