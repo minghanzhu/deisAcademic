@@ -46,7 +46,22 @@ Template.majorSelect.events({
             window.alert("Please choose a major. \nOr click the button below.");
             return;
         };
-        Template.instance().majorSelectDict.set("clickedGo", true);
+        $(".js-majorGo").attr("class", "medium ui primary loading disabled button js-majorGo");
+        const dict = Template.instance().majorSelectDict;
+        Meteor.call("checkMajor", $("#search-select input").val(), function(err, result){
+            if(err){
+                window.alert(err.message);
+                return;
+            }
+
+            if(result){
+                dict.set("clickedGo", true);
+            } else {
+                window.alert("You already have a plan for this major");
+                $(".js-majorGo").attr("class", "medium ui primary button js-majorGo");
+                return;
+            }
+        })
     },
 
     "click .js-majorBulletin": function() {
@@ -89,7 +104,6 @@ Template.majorList.events({
 Template.science.events({
     "click .js-popup": function(event) {
         const name = event.target.innerText;
-        console.log(name);
         homeDict.set('majorName', name);
         let popup = $(".popup-bulletin");
         popup.css("top", (($(window).height() - popup.outerHeight()) / 2) + $(window).scrollTop() + 30 + "px");

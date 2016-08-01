@@ -1,18 +1,19 @@
-<template name="calendarTest">
+<template name="semesterSchedule">
   {{#if masterDictSet}}
+  <div class="ui active dimmer">
+    <div class="ui indeterminate text loader">Loading you schedule...</div>
+  </div>
 	<div class="ui grid">
 		<div class="twelve wide column">
 			<div class="ui sticky">
         <div class="ui container">
 				  <select name="term" class="js-term form-control">
-            <option value="1161">Spring 2016</option>
-            <option value="1163">Fall 2016</option>
-            <option value="1171">Spring 2017</option>              
+            {{#each term in availableTerms}}
+              <option value="{{term.id}}">{{term.name}}</option> 
+            {{/each}}            
           </select>
         
           <div id="calendar"></div><br>
-          <button class="ui button js-change-course">Change Chosen Courses</button>
-          {{#if hasClickedChange}}{{clickedChange}}{{/if}}
           {{#if currentUser}}
             <button class="ui button js-save-plan">Save My Plan</button>
           {{else}}
@@ -24,24 +25,10 @@
 
 		<div class="four wide column">
   			<div class="ui container" id="courseList">
-				  {{#if hasCourseList}}
-            {{#if currentUser}}
-              {{#if hasWishlist}}
-                <div class="ui slider checkbox js-add-wishlist">
-                  <input type="checkbox" name="wishlist" checked="checked">
-                  <label>Include courses in my wishlist</label>
-                </div>
-              {{else}}
-                <div class="ui slider checkbox js-add-wishlist">
-                  <input type="checkbox" name="wishlist">
-                  <label>Include courses in my wishlist</label>
-                </div>
-              {{/if}}
-            {{/if}}
-            
+				  {{#if hasCourseList}}     
             <div class="ui vertical accordion menu">
               {{#each course in getCourseList}} 
-                {{> scheduleCourseList c=course dict=calendarDict masterDict=dict}}
+                  {{> semesterScheduleCourseList c=course dict=calendarDict masterDict=dict}}
               {{/each}}
             </div>
   				{{else}}
@@ -167,7 +154,7 @@
   {{/if}}
 </template>
 
-<template name="scheduleCourseList">
+<template name="semesterScheduleCourseList">
   {{setMasterDict masterDict}}
   <div class="item">
     <a class="title js-title">
@@ -182,13 +169,15 @@
             Not Available
           {{else}}
             {{#each section in (sectionInfo c.continuity_id dict masterDict)}}
-              <a class="item js-add-section" id="{{section.id}}" course-code="{{c.code}}" course-name="{{c.name}}">Section{{section.section}}</a>
-              {{#if hasTimes section.times}}
-                {{#each time in section.times}}
-                      <p>{{getSectionDays time.days}}: {{convertTime time.start}} {{convertTime time.end}}</p>
-                {{/each}}
-              {{else}}
-                Time not available
+              {{#if isChosen section.id}}
+                <a class="item js-add-section" id="{{section.id}}" course-code="{{c.code}}" course-name="{{c.name}}">Section{{section.section}}</a>
+                {{#if hasTimes section.times}}
+                  {{#each time in section.times}}
+                    <p>{{getSectionDays time.days}}: {{convertTime time.start}} {{convertTime time.end}}</p>
+                  {{/each}}
+                {{else}}
+                  Time not available
+                {{/if}}
               {{/if}}
             {{/each}}
           {{/if}}
