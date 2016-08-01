@@ -1,6 +1,6 @@
 import fullCalendar from 'fullcalendar';
 
-Template.calendarTest.onCreated(function(){
+Template.calendarTest.onCreated(function() {
     this.calendarDict = new ReactiveDict();
     this.calendarDict.set("masterDictSet", false);
 })
@@ -57,14 +57,15 @@ Template.calendarTest.onRendered(function() {
             $(".overlay-calendar, .popup-calendar").fadeToggle();
         },
     });
-    if(!!Template.instance().masterDict){
-        if(!Template.instance().masterDict.get("scheduleList")){
+    if (!!Template.instance().masterDict) {
+        if (!Template.instance().masterDict.get("scheduleList")) {
             //this now gets triggered when the user click a course to view
             //Template.instance().masterDict.set("chosenTerm", $(".js-term").val());
             Template.instance().masterDict.set("scheduleList", {});
+            Template.instance().masterDict.set("chosenTerm", $(".js-term").val());
         } else {
             const chosenTerm = Template.instance().masterDict.get("chosenTerm");
-            $(".js-term").val(chosenTerm);  
+            $(".js-term").val(chosenTerm);
             const currentTerm_sources = Template.instance().masterDict.get("scheduleList")[chosenTerm];
             if (currentTerm_sources) {
                 if (currentTerm_sources["courseList"].length != 0) {
@@ -72,14 +73,14 @@ Template.calendarTest.onRendered(function() {
                         $("#calendar").fullCalendar("addEventSource", source);
                     }
                 }
-            }       
+            }
         }
-    }    
+    }
 })
 
 Template.calendarTest.helpers({
-    setMasterDict: function(dict){
-        if(!Template.instance().masterDict){
+    setMasterDict: function(dict) {
+        if (!Template.instance().masterDict) {
             Template.instance().masterDict = dict;
             Template.instance().masterDict.set("hasCourseList", false);
             Template.instance().masterDict.set("fetched_courseList");
@@ -87,12 +88,12 @@ Template.calendarTest.helpers({
             Template.instance().masterDict.set("clickedChange", false);
         }
 
-        if(!Template.instance().masterDict.get("includeWishlist")){
+        if (!Template.instance().masterDict.get("includeWishlist")) {
             Template.instance().masterDict.set("includeWishlist", false);
-        }  
+        }
     },
 
-    masterDictSet: function(){
+    masterDictSet: function() {
         return !!Template.instance().calendarDict.get("masterDictSet");
     },
 
@@ -107,15 +108,15 @@ Template.calendarTest.helpers({
     getCourseList: function() {
         const availableCourseList = Template.instance().masterDict.get("fetched_courseList");
         const courseList = [];
-        for(let course of availableCourseList){
+        for (let course of availableCourseList) {
             let current_term;
-            if(Template.instance().masterDict.get("chosenTerm")){
+            if (Template.instance().masterDict.get("chosenTerm")) {
                 current_term = Template.instance().masterDict.get("chosenTerm");
             } else {
                 current_term = $(".js-term").val();
             }
 
-            if(course.id.substring(0, course.id.indexOf("-")) === current_term){
+            if (course.id.substring(0, course.id.indexOf("-")) === current_term) {
                 courseList.push(course);
             }
         }
@@ -140,7 +141,20 @@ Template.calendarTest.helpers({
 
                                 if (section_result.length != 0) {
                                     const wishlist_course = section_result;
-                                    const combined_list = result.concat(wishlist_course);
+                                    const new_course = [];
+                                    for(let course_wish of wishlist_course){
+                                        let isChosen = false
+                                        for(let course_major of result){
+                                            if(course_major.id === course_wish.id){
+                                                isChosen = true;
+                                                break;
+                                            }
+                                        }
+                                        if(!isChosen){
+                                            new_course.push(course_wish)
+                                        }
+                                    }
+                                    const combined_list = result.concat(new_course);
 
                                     const sorted_result = combined_list.sort(function(a, b) {
                                         //for a
@@ -177,16 +191,7 @@ Template.calendarTest.helpers({
                                         }
                                     });
 
-                                    //remove repeated courses
-                                    let current_course = "";
-                                    for (let i = 0; i < sorted_result.length; i++) {
-                                        if ((sorted_result[i].id) === current_course) {
-                                            current_course = sorted_result[i].id;
-                                            sorted_result.splice(i, 1);
-                                            i--;
-                                        };
-                                        current_course = sorted_result[i].id;
-                                    }
+                                    
 
                                     dict.set("fetched_courseList", sorted_result);
                                     dict.set("hasCourseList", true);
@@ -227,6 +232,7 @@ Template.calendarTest.helpers({
                                     return comp_string_a.localeCompare(comp_string_b);
                                 }
                             });
+                            
                             dict.set("fetched_courseList", sorted_result);
                             dict.set("hasCourseList", true);
                         }
@@ -367,15 +373,15 @@ Template.calendarTest.helpers({
         return sectionId.substring(sectionId.indexOf("-") + 1, sectionId.lastIndexOf("-"));
     },
 
-    clickedChange: function(){
+    clickedChange: function() {
         Template.instance().masterDict.set("pageName", "chooseCourse");
     },
 
-    hasClickedChange: function(){
+    hasClickedChange: function() {
         return Template.instance().masterDict.get("clickedChange");
     },
 
-    hasWishlist: function(){
+    hasWishlist: function() {
         return Template.instance().masterDict.get("includeWishlist");
     },
 })
@@ -482,18 +488,14 @@ Template.calendarTest.events({
         ////////////////////////////////////////////
 
         //turn the dict data into user data to save
+        const masterDict = Template.instance().masterDict;
+        const major_code = masterDict.get("chosenMajor");
+        const availableCourseList = masterDict.get("courseList");
         const major_plan_object = {
             majorId: major_code,
             chosenCourse: availableCourseList,
-
         }
-        const masterDict = Template.instance().masterDict;
-        const major_code = masterDict.get("chosenMajor");
-        const availableCourseList = [];
-        const current_chosen_courses = masterDict.get("fetched_courseList");
-        for (let course of current_chosen_courses) {
-            availableCourseList.push(course.continuity_id);
-        };
+
         //this gets the current saved schedule list
         //{"<term>":{term:"<term>",courseList:[<courses>]}}
         const final_schedule_list = Template.instance().masterDict.get("scheduleList");
@@ -516,16 +518,16 @@ Template.calendarTest.events({
             schedule_list.push(schedule_obj);
         }
         //[{term:<term>, courseList:[{}]}]
-        Meteor.call("saveSchedule_MajorPlan", schedule_list, major_code, availableCourseList, function(err){
-            if(err){
+        Meteor.call("saveSchedule_MajorPlan", schedule_list, major_code, availableCourseList, function(err) {
+            if (err) {
                 return;
             }
-            window.onbeforeunload = function (e) {};
+            window.onbeforeunload = function(e) {};
             Router.go('/myMajorPlan');
         });
     },
 
-    "click .js-change-course": function(){
+    "click .js-change-course": function() {
         event.preventDefault();
         //save the current term's schedule to the dict
         const current_term = $(".js-term").val();
@@ -572,7 +574,7 @@ Template.scheduleCourseList.onRendered(function() {
 })
 
 Template.scheduleCourseList.helpers({
-    setMasterDict: function(masterDict){
+    setMasterDict: function(masterDict) {
         Template.instance().masterDict = masterDict;
     },
 
@@ -732,7 +734,7 @@ Template.scheduleCourseList.events({
 
     "click .js-title": function() {
         //reads the term when the user click a course to view
-        if(!Template.instance().masterDict.get("chosenTerm")){
+        if (!Template.instance().masterDict.get("chosenTerm")) {
             Template.instance().masterDict.set("chosenTerm", $(".js-term").val());
         };
 

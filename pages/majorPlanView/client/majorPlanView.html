@@ -3,25 +3,21 @@
         <div class="nine wide column">
             <div class="ui form">
                 <div class="fields">
-                    {{#if dataReady}}
-                    	{{#if hasMajorPlan}}
-                    		<div class="ui fluid search selection dropdown js-plan-choose" id="search-select-plans">
-                        		<input type="hidden" name="choose_plan" value="">
-                        		<i class="dropdown icon"></i>
-                        		<div class="default text">Select your major plan</div>
-                        		<div class="menu" id="planList">
-                            		{{> planList getUserPlans=getUserPlans}}
-                        		</div>
-                    		</div>
+                    {{#if hasMajorPlan}}
+                    	<div class="ui fluid search selection dropdown js-plan-choose" id="search-select-plans">
+                        	<input type="hidden" name="choose_plan" value="">
+                        	<i class="dropdown icon"></i>
+                        	<div class="default text">Select your major plan</div>
+                        	<div class="menu" id="planList">
+                            	{{> planList getUserPlans=getUserPlans}}
+                        	</div>
+                    	</div>
 
-                    		<button class="ui blue button js-go-plan">Go</button>
-                    	{{else}}
-                    		<h3>You don't currently have any major plan to view</h3>
-                    		<button class="ui blue basic button js-create-plan">Create one now</button>
-                    	{{/if}} 
+                    	<button class="ui blue button js-go-plan">Go</button>
                     {{else}}
-                    	<div class="ui active inline loader"></div>
-                    {{/if}}
+                    	<h3>You don't currently have any major plan to view</h3>
+                    	<button class="ui blue basic button js-create-plan">Create one now</button>
+                    {{/if}} 
                 </div>
             </div>
         </div>

@@ -6,11 +6,6 @@ Template.majorPlanView.helpers({
     getUserPlans: function() {
         return MajorPlansPnc.find().fetch();
     },
-
-    dataReady: function() {
-        return !!UserProfilePnc.findOne() &&
-            MajorPlansPnc.find().fetch() != 0;
-    },
 })
 
 Template.majorPlanView.events({
