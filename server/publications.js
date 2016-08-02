@@ -113,3 +113,13 @@ Meteor.publish("modify_plan_userProfile", function() {
         }
     }) 
 });
+
+Meteor.publish("wishlist_userProfile", function() {
+    return UserProfilePnc.find({ 
+        userId: this.userId 
+    },{
+        fields: {
+            wishlist: 1
+        }
+    }) 
+});
