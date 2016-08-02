@@ -1064,22 +1064,6 @@ Meteor.methods({
 
         return !MajorPlansPnc.findOne({ userId: this.userId, majorId: chosenMajor });
     },
-<<<<<<< HEAD
-})
-
-const methodList = Meteor.default_server.method_handlers;
-const nameList = _.pluck(methodList, 'name');
-const nameListFiltered = _.filter(nameList, function(name){return name != ''});
-
-DDPRateLimiter.addRule({
-  name(name) {
-    return _.contains(nameListFiltered, name);
-  },
-
-  // Rate limit per connection ID
-  connectionId() { return true; }
-}, 5, 1000);
-=======
 
     deletePlan: function(plan_id) {
         if (!this.userId) {
@@ -1144,6 +1128,18 @@ DDPRateLimiter.addRule({
         }
 
         UserProfilePnc.update({ userId: this.userId }, { $pull: { wishlist: section_id } });
-    }
+    },
 });
->>>>>>> refs/heads/read-profile
+
+const methodList = Meteor.default_server.method_handlers;
+const nameList = _.pluck(methodList, 'name');
+const nameListFiltered = _.filter(nameList, function(name){return name != ''});
+
+DDPRateLimiter.addRule({
+  name(name) {
+    return _.contains(nameListFiltered, name);
+  },
+
+  // Rate limit per connection ID
+  connectionId() { return true; }
+}, 5, 1000);
