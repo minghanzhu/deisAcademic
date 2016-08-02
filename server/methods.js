@@ -738,7 +738,16 @@ Meteor.methods({
 
 
     "addToWishlist": function(sectionID) {
+      const currUser = UserProfilePnc.findOne({ userId: this.userId });
+
+      //if section not already in user's wishlist, add it
+      if (!_.contains(currUser.wishlist, sectionID)) {
         UserProfilePnc.update({ userId: this.userId }, { $push: { wishlist: sectionID } });
+      }
+      //if section is already in user's wishlist, remove it
+      else if (_.contains(currUser.wishlist, sectionID)) {
+        UserProfilePnc.update({ userId: this.userId }, { $pull: { wishlist: sectionID } });
+      }
     },
 
 
