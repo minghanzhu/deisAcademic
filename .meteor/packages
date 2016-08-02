@@ -40,3 +40,4 @@ accounts-ui@1.1.9
 rzymek:fullcalendar
 accounts-google
 service-configuration
+ddp-rate-limiter
