@@ -76,6 +76,11 @@ Template.calendarTest.onRendered(function() {
             }
         }
     }
+
+    $(".js-not-save-plan").popup({
+        content: "Please login to save the plan",
+        position: "top center"
+    })
 })
 
 Template.calendarTest.helpers({
@@ -144,7 +149,11 @@ Template.calendarTest.helpers({
     pullUserCourseList: function() {
         const dict = Template.instance().masterDict;
         const courseList = dict.get('courseList');
-        const sectionList = UserProfilePnc.findOne().wishlist;
+
+        let sectionList = [];
+        if(UserProfilePnc.findOne()){
+            sectionList = UserProfilePnc.findOne().wishlist;
+        }
 
         if (typeof courseList[0] === "string") { //prevent unexpected request
             Meteor.call("fetchCourseList", courseList,
@@ -542,13 +551,30 @@ Template.calendarTest.events({
             end_term: end_semester
         };
 
-        Meteor.call("saveSchedule_MajorPlan", schedule_list, major_code, availableCourseList, term_range, function(err) {
-            if (err) {
+        Meteor.call("checkValidPlan", term_range, major_code, function(err, result){
+            if(err){
+                $(".js-save-plan").attr("class", "ui primary button js-save-plan pull-right");
+                window.alert(err.message);
                 return;
             }
-            window.onbeforeunload = function(e) {};
-            Router.go('/myMajorPlan');
-        });
+
+            if(!result){//same major & time range
+                $(".js-save-plan").attr("class", "ui primary button js-save-plan pull-right");
+                window.alert("You already have a plan for this major during the same time range");
+                return;
+            } 
+
+            Meteor.call("saveSchedule_MajorPlan", schedule_list, major_code, availableCourseList, term_range, function(err) {
+                if (err) {
+                    $(".js-save-plan").attr("class", "ui primary button js-save-plan pull-right");
+                    window.alert(err.message);
+                    return;
+                }
+
+                window.onbeforeunload = function(e) {};
+                Router.go('/myMajorPlan');
+            });
+        })
     },
 
     "click .js-change-course": function() {

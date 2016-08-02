@@ -64,6 +64,11 @@ Template.majorSelect.events({
         //check if the semesters chosen are valid
         const start_semester = Template.instance().masterDict.get("planStartSemester");
         const end_semester = Template.instance().masterDict.get("planEndSemester");
+        const term_range = {
+            start_term: start_semester,
+            end_term: end_semester
+        };
+
         if(!start_semester){
             window.alert("Please enter the starting semester");
             return;
@@ -83,7 +88,7 @@ Template.majorSelect.events({
 
         $(".js-majorGo").attr("class", "medium ui primary loading disabled button js-majorGo");
         const dict = Template.instance().majorSelectDict;
-        Meteor.call("checkMajor", $("#search-select input").val(), function(err, result){
+        Meteor.call("checkValidPlan", term_range, $("#search-select input").val(), function(err, result){
             if(err){
                 window.alert(err.message);
                 return;
@@ -92,7 +97,7 @@ Template.majorSelect.events({
             if(result){
                 dict.set("clickedGo", true);
             } else {
-                window.alert("You already have a plan for this major");
+                window.alert("You already have a plan for this major during the same time range");
                 $(".js-majorGo").attr("class", "medium ui primary button js-majorGo");
                 return;
             }

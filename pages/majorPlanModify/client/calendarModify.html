@@ -20,7 +20,9 @@
             <button class="ui button js-save-plan">Save the plan</button>
             <button class="ui red button js-delete-plan pull-right">Delete the plan</button>
           {{else}}
-            <h3>You'll have to login to save this plan</h3>
+            <div class="js-not-save-plan">
+              <button class="ui disabled button">Save the plan</button>
+            </div>
           {{/if}}
         </div>
 			</div>

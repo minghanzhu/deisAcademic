@@ -1,9 +1,13 @@
 <template name="schedule">
-	{{#if dataReady}}
-		{{#if makeSchedule}}
-			{{> semesterSchedule dict=masterDict}}
+	{{#if currentUser}}
+		{{#if dataReady}}
+			{{#if makeSchedule}}
+				{{> semesterSchedule dict=masterDict}}
+			{{/if}}
+		{{else}}
+			{{setData this}}
 		{{/if}}
 	{{else}}
-		{{setData this}}
+		{{notLogin}}
 	{{/if}}
 </template>

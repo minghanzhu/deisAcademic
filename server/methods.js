@@ -976,6 +976,11 @@ Meteor.methods({
             return;
         };
 
+        if (MajorPlansPnc.findOne({userId: this.userId, majorId: major_code, start_term: term_range.start_term, end_term: term_range.end_term})){
+            console.log("Invalid insert: Duplicate plans");
+            return;
+        };
+
         const schedule_id_list = [];
         for (let schedule of scheduleList) {
             const schedule_obj = {
@@ -1121,16 +1126,35 @@ Meteor.methods({
         }
     },
 
-    checkMajor: function(chosenMajor) {
-        if (!this.userId) {
-            return true;
+    checkValidPlan: function(term_range, major_id){
+        if(!this.userId){
+            console.log("Not logged in");
+            return;
         }
 
-        if (!UserProfilePnc.findOne({ userId: this.userId })) {
-            throw new Meteor.error(100, "There is something wrong with your profile, please try again later\nIf this keeps showing up, please contact us");
+        if(!UserProfilePnc.findOne({userId: this.userId})){
+            console.log("No such user");
+            return;
         }
 
-        return !MajorPlansPnc.findOne({ userId: this.userId, majorId: chosenMajor });
+        let regexCode = new RegExp("-" + major_id + "$", "i");
+        if (!Subject.findOne({ id: regexCode })) {
+            console.log("No such major id");
+            return;
+        };
+
+        if (!term_range.start_term || !term_range.end_term) {
+            console.log("Incorrect term");
+            return;
+        };
+
+        if (!Term.findOne({ id: term_range.start_term }) || !Term.findOne({ id: term_range.end_term })) {
+            console.log("No such term");
+            return;
+        };
+
+        const user_profile = UserProfilePnc.findOne({userId: this.userId});
+        return !MajorPlansPnc.findOne({userId: this.userId, majorId: major_id, start_term: term_range.start_term, end_term: term_range.end_term});
     },
 
     deletePlan: function(plan_id) {

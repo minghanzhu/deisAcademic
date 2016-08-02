@@ -32,4 +32,9 @@ Template.schedule.helpers({
 	dataReady: function(){
 		return Template.instance().masterPageDict.get("dataReady");
 	},
+
+	notLogin: function(){
+		window.alert("Please login to see your schedule");
+		Router.go('/')
+	},
 })
