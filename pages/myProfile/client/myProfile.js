@@ -13,7 +13,7 @@ Template.myProfile.helpers({
         return Template.instance().myPageDict.get('pageName') == "schedule";
     },
 
-    seeSchedule: function() {
+    seeWishlist: function() {
         return Template.instance().myPageDict.get('pageName') == "wishlist";
     },
 })
