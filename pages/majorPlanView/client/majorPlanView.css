@@ -1,3 +1,11 @@
 #major_plan_view_grid {
-	padding-top: 20%;
+	padding-top: 25%;
+}
+
+.js-create-plan {
+	margin: auto;
+}
+
+.no-plan-text {
+	margin: auto;
 }
