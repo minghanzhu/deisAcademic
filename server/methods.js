@@ -1132,21 +1132,15 @@ Meteor.methods({
 
     getCourseHistory: function(continuity_id){
       const theHistory = Course.find({continuity_id: continuity_id}).fetch();
+      var historyTermCodes = _.pluck(theHistory, "term");
 
-      var historyTerms = _.pluck(theHistory, "term");
+      historyTermCodes.sort().reverse();
 
-      historyTerms.sort().reverse();
-
-      //console.log(historyTerms);
-
-      var newTerms = _.map(historyTerms, function(code){
+      var historyTermNames = _.map(historyTermCodes, function(code){
         return Term.findOne({id:code}).name;
       })
 
-      //console.log(newTerms);
-
-      return newTerms;
-
+      return historyTermNames;
     },
 });
 
