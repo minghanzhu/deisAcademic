@@ -24,7 +24,6 @@ matteodem:easy-search
 perak:fuzzy-search
 easysearch:autosuggest
 twbs:bootstrap
-semantic:ui
 less@2.7.4
 juliancwirko:postcss
 easysearch:components
@@ -40,3 +39,4 @@ accounts-ui@1.1.9
 rzymek:fullcalendar
 accounts-google
 service-configuration
+semantic:ui
