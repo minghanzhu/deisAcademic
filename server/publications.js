@@ -80,3 +80,36 @@ Meteor.publish("view_plan_majorPlans", function() {
     	}
     }) 
 });
+
+Meteor.publish("modify_plan_term", function() {
+    return Term.find({},{
+    	fields: {
+    		id: 1,
+    		name: 1
+    	}
+    }) 
+});
+
+Meteor.publish("modify_plan_majorPlans", function() {
+    return MajorPlansPnc.find({ 
+        userId: this.userId 
+    },{
+        fields:{
+            scheduleList: 1,
+            chosenCourse: 1,
+            majorId: 1,
+            start_term: 1,
+            end_term: 1
+        }
+    }) 
+});
+
+Meteor.publish("modify_plan_userProfile", function() {
+    return UserProfilePnc.find({ 
+        userId: this.userId 
+    },{
+        fields: {
+            wishlist: 1
+        }
+    }) 
+});
