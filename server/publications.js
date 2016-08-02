@@ -40,3 +40,22 @@ Meteor.publish("schedule_term", function() {
     	}
     }) 
 });
+
+Meteor.publish("new_plan_term", function() {
+    return Term.find({},{
+    	fields: {
+    		id: 1,
+    		name: 1
+    	}
+    }) 
+});
+
+Meteor.publish("new_plan_userProfile", function() {
+    return UserProfilePnc.find({ 
+    	userId: this.userId 
+    },{
+    	fields: {
+    		wishlist: 1
+    	}
+    }) 
+});
