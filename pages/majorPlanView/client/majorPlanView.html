@@ -15,10 +15,13 @@
 
                     	<button class="ui blue button js-go-plan">Go</button>
                     {{else}}
-                    	<h3>You don't currently have any major plan to view</h3>
-                    	<button class="ui blue basic button js-create-plan">Create one now</button>
-                    {{/if}} 
+                    	<h3 class="no-plan-text">You don't currently have any major plan to view</h3>
+                    {{/if}}
                 </div>
+
+                {{#if hasMajorPlan}}{{else}}
+                    <button class="ui primary button js-create-plan">Create one now</button>
+                {{/if}} 
             </div>
         </div>
     </div>

@@ -14,9 +14,11 @@
           <button class="ui button js-change-course">Change Chosen Courses</button>
           {{#if hasClickedChange}}{{clickedChange}}{{/if}}
           {{#if currentUser}}
-            <button class="ui button js-save-plan">Save My Plan</button>
+            <button class="ui primary button js-save-plan pull-right">Save My Plan</button>
           {{else}}
-            <h3>You'll have to login to save this plan</h3>
+            <div class="js-not-save-plan pull-right">
+              <button class="ui disabled primary button">Save the plan</button>
+            </div>
           {{/if}}
         </div>
 			</div>

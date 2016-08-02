@@ -73,6 +73,11 @@ Template.calendarModify.onRendered(function() {
     } else {
         Template.instance().masterDict.set("chosenTerm", $(".js-term").val());
     }
+
+    $(".js-not-save-plan").popup({
+        content: "Please login to save the plan",
+        position: "right center"
+    })
 })
 
 Template.calendarModify.helpers({
@@ -239,7 +244,11 @@ Template.calendarModify.helpers({
     pullUserCourseList: function() {
         const dict = Template.instance().masterDict;
         const courseList = dict.get('courseList');
-        const sectionList = UserProfilePnc.findOne().wishlist;
+
+        let sectionList = [];
+        if(UserProfilePnc.findOne()){
+            sectionList = UserProfilePnc.findOne().wishlist;
+        }
 
         if (typeof courseList[0] === "string") { //prevent unexpected request
             Meteor.call("fetchCourseList", courseList,
