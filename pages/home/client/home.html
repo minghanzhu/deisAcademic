@@ -316,26 +316,7 @@
         We are busy updating myDeis!
         <br> see you soon :)
     </p> -->
-
-    <div class="nav">
-        <ul>
-            <li><a href="{{pathFor 'home'}}">Search</a></li>
-            <li><a href="{{pathFor 'schedule'}}">My Schedule</a></li>
-            <li><a href="{{pathFor 'masterMajorPlan'}}">Major Planning</a></li>
-            {{#if currentUser}}
-                {{#if existsProfile}}
-                    <li><a href="{{pathFor 'myProfile'}}">My Profile</a></li>
-                    <li><a class="js-log-out">Log Out</a></li>
-                {{else}}
-                    {{createAccount}}
-                    <div class="ui active inline loader"></div>
-                {{/if}}
-            {{else}}
-                <li><a class="js-login">Login with Brandeis account</a></li>
-            {{/if}}
-        </ul>
-    </div>
-
+    
     {{#if showTable}}
         {{> search_result}}
     {{/if}}
