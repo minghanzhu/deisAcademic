@@ -332,163 +332,153 @@ Template.home.events ({
 		homeDict.set('noResult', false);
 
 		var recognition = new webkitSpeechRecognition();
-    recognition.onresult = function(event) {
+		recognition.onresult = function(event) {
 
-      const text = event.results[0][0].transcript;
+			const text = event.results[0][0].transcript;
 
 			//sets the user's utterance in homeDict, to show with microphone div
 			homeDict.set('userUtterance', text);
 
-      Meteor.call("sendJSONtoAPI_ai", text, {returnStubValue: true},
+			Meteor.call("sendJSONtoAPI_ai", text, {returnStubValue: true},
 			function(error,result){
-        if(error){
-          console.log(error)
-        }
-        //console.log(result);
-        homeDict.set("RobApiResults", result);
+				if(error){
+					console.log(error)
+				}
+				homeDict.set("RobApiResults", result);
 
+				const apiRes = homeDict.get("RobApiResults");
 
-			const apiRes = homeDict.get("RobApiResults");
+				if (apiRes) {
+					const dept = apiRes.data.result.parameters.Department;
+					const courseNum = apiRes.data.result.parameters.CourseNumber;
+					const courseName = apiRes.data.result.parameters.CourseName;
 
-			if (apiRes) {
-				const dept = apiRes.data.result.parameters.Department;
-				const courseNum = apiRes.data.result.parameters.CourseNumber;
-				const courseName = apiRes.data.result.parameters.CourseName;
+					const theQuery = dept + " " + courseNum + " " + courseName;
 
-				const theQuery = dept + " " + courseNum + " " + courseName;
+					homeDict.set("theSearchQuery", theQuery);
 
-				homeDict.set("theSearchQuery", theQuery);
+					var term;
+					var instructor;
 
-				var term;
-				var instructor;
+					if (apiRes.data.result.parameters.Terms) {
+						const termString = apiRes.data.result.parameters.Terms;
 
-				if (apiRes.data.result.parameters.Terms) {
-
-					const termString = apiRes.data.result.parameters.Terms;
-
-					switch (termString) {
-						case "Fall 2016":
-						term = 1163;
-						break;
-						case "Fall 2015":
-						term = 1153;
-						break;
-						case "Spring 2016":
-						term = 1161;
-						break;
-						case "Spring 2017":
-						term = 1171;
-						break;
-						case "Summer 2016":
-						term = 1162;
-						break;
+						switch (termString) {
+							case "Fall 2016":
+							term = 1163;
+							break;
+							case "Fall 2015":
+							term = 1153;
+							break;
+							case "Spring 2016":
+							term = 1161;
+							break;
+							case "Spring 2017":
+							term = 1171;
+							break;
+							case "Summer 2016":
+							term = 1162;
+							break;
+						}
+						$(".js-term").val(term);
 					}
-					$(".js-term").val(term);
-				}
-				else {
-					term = $(".js-term").val();
-				}
+					else {
+						term = $(".js-term").val();
+					}
 
-				if (apiRes.data.result.parameters.Instructor) {
-					instructor = apiRes.data.result.parameters.Instructor;
-					$(".js-prof input").val(instructor);
-				}
-				else {
-					instructor = $(".js-prof input").val();
-				}
+					if (apiRes.data.result.parameters.Instructor) {
+						instructor = apiRes.data.result.parameters.Instructor;
+						$(".js-prof input").val(instructor);
+					}
+					else {
+						instructor = $(".js-prof input").val();
+					}
 
-				// if (apiRes.data.result.parameters.Days) {
-				//
-				// 	const daysRes = apiRes.data.result.parameters.Days;
-				//
-				// 	$("select#multi-select-days[multiple][data-value='daysRes']").addClass("active");
-				// }
+					// if (apiRes.data.result.parameters.Days) {
+					//
+					// 	const daysRes = apiRes.data.result.parameters.Days;
+					//
+					// 	$("select#multi-select-days[multiple][data-value='daysRes']").addClass("active");
+					// }
 
+					const req_array = $(".js-req .ui.label.transition.visible").toArray();
+					const req_names_array = [];
+					for(let item of req_array){
+						req_names_array.push(item.innerText);
+					};
+					const days_array = $(".js-days .ui.label.transition.visible").toArray();
+					const days_names_array = [];
+					for(let item of days_array){
+						days_names_array.push($(item).attr("data-value"));
+					};
+					const start_time = $(".js-start-time input").val();
+					const end_time = $(".js-end-time input").val();
+					const time_and_date = {
+						days: days_names_array,
+						start: start_time,
+						end: end_time
+					};
 
+					const if_indept = $(".js-if-indep").is(':checked');
+					const if_not_sure = $(".js-if-not-sure").is(':checked');
 
-				const req_array = $(".js-req .ui.label.transition.visible").toArray();
-				const req_names_array = [];
-				for(let item of req_array){
-					req_names_array.push(item.innerText);
-				};
-				const days_array = $(".js-days .ui.label.transition.visible").toArray();
-				const days_names_array = [];
-				for(let item of days_array){
-					days_names_array.push($(item).attr("data-value"));
-				};
-				const start_time = $(".js-start-time input").val();
-				const end_time = $(".js-end-time input").val();
-				const time_and_date = {
-					days: days_names_array,
-					start: start_time,
-					end: end_time
-				};
-
-				const if_indept = $(".js-if-indep").is(':checked');
-				const if_not_sure = $(".js-if-not-sure").is(':checked');
-
-				const theResults = theQuery;
-
-				console.log(theResults);
-
-				Meteor.call("searchCourse", theResults, term, req_names_array, null, instructor, time_and_date, if_indept, if_not_sure,
-				function(err, result){
-					if(result.length == 0){
-						homeDict.set('noResult', true);
-					} else {
-						const sorted_result = result.sort(function(a, b) {
+					Meteor.call("searchCourse", theQuery, term, req_names_array, null, instructor, time_and_date, if_indept, if_not_sure,
+					function(err, result){
+						if(result.length == 0){
+							homeDict.set('noResult', true);
+						} else {
+							const sorted_result = result.sort(function(a, b) {
 								//for a
-									let course_num_a = parseInt(a.code.match(/\d+/gi)[0]);
-							if(course_num_a < 10) course_num_a = "00" + course_num_a;
-							if(course_num_a >= 10 && course_num_a < 100) course_num_a = "0" + course_num_a;
-							const course_dep_a = a.code.substring(0, a.code.indexOf(" "));
-							const last_a = a.code.charAt(a.code.length - 1);
-							let comp_string_a;
-							if(/\w/i.test(last_a)){
-								comp_string_a = course_num_a + last_a;
-							} else{
-								comp_string_a = course_num_a + "0";
-							};
+								let course_num_a = parseInt(a.code.match(/\d+/gi)[0]);
+								if(course_num_a < 10) course_num_a = "00" + course_num_a;
+								if(course_num_a >= 10 && course_num_a < 100) course_num_a = "0" + course_num_a;
+								const course_dep_a = a.code.substring(0, a.code.indexOf(" "));
+								const last_a = a.code.charAt(a.code.length - 1);
+								let comp_string_a;
+								if(/\w/i.test(last_a)){
+									comp_string_a = course_num_a + last_a;
+								} else{
+									comp_string_a = course_num_a + "0";
+								};
 
-							//for b
-							let course_num_b = parseInt(b.code.match(/\d+/gi)[0]);
-							if(course_num_b < 10) course_num_b = "00" + course_num_b;
-							if(course_num_b >= 10 && course_num_b < 100) course_num_b = "0" + course_num_b;
-							const course_dep_b = b.code.substring(0, b.code.indexOf(" "));
-							const last_b = b.code.charAt(b.code.length - 1);
-							let comp_string_b;
-							if(/\w/i.test(last_b)){
-								comp_string_b = course_num_b + last_b;
-							} else{
-								comp_string_b = course_num_b + "0";
-							};
+								//for b
+								let course_num_b = parseInt(b.code.match(/\d+/gi)[0]);
+								if(course_num_b < 10) course_num_b = "00" + course_num_b;
+								if(course_num_b >= 10 && course_num_b < 100) course_num_b = "0" + course_num_b;
+								const course_dep_b = b.code.substring(0, b.code.indexOf(" "));
+								const last_b = b.code.charAt(b.code.length - 1);
+								let comp_string_b;
+								if(/\w/i.test(last_b)){
+									comp_string_b = course_num_b + last_b;
+								} else{
+									comp_string_b = course_num_b + "0";
+								};
 
 								if(parseInt(a.term) < parseInt(b.term)){
-										return 1;
+									return 1;
 								}else if(parseInt(a.term) > parseInt(b.term)){
-										return -1;
+									return -1;
 								}else{
-										const major_comp = course_dep_a.localeCompare(course_dep_b);
-										if(major_comp != 0){
-											return major_comp;
-										} else {
-											return comp_string_a.localeCompare(comp_string_b);
-										}
+									const major_comp = course_dep_a.localeCompare(course_dep_b);
+									if(major_comp != 0){
+										return major_comp;
+									} else {
+										return comp_string_a.localeCompare(comp_string_b);
+									}
 								}
-						});
-						for(let i = 0; i < sorted_result.length; i++){
-							sorted_result[i].index = i;
-						};
-						homeDict.set('courseData', sorted_result);
-						homeDict.set('noResult',false);
-					}
-
+							});
+							for(let i = 0; i < sorted_result.length; i++){
+								sorted_result[i].index = i;
+							};
+							homeDict.set('courseData', sorted_result);
+							homeDict.set('noResult',false);
+						}
 						homeDict.set('showTable', true);
-				}
-			);
-}
-})
-}
+					}
+				);
+			}
+		})
+	}
 	recognition.start();
 
 },
@@ -651,26 +641,30 @@ Template.search_result.helpers({
 	},
 
 	addedToWishlist: function(event){
-		const theWishlist = UserProfilePnc.findOne().wishlist;
+		const theUserProfile = UserProfilePnc.findOne();
 		const currSectionData = homeDict.get("sectionDetail")[homeDict.get("sectionIndex")];
 
-		if (currSectionData) {
+		if (theUserProfile && currSectionData) {
+			const theWishlist = theUserProfile.wishlist;
 			const section = currSectionData.id;
 			return _.contains(theWishlist, section);
 		}
+	},
+
+	userIsLoggedIn: function(event){
+		const theUserProfile = UserProfilePnc.findOne();
+		return theUserProfile;
 	},
 
 	getOfferedHistory: function(){
 		const currCourseData = homeDict.get("courseInfo");
 
 		if (currCourseData) {
-
 			Meteor.call("getCourseHistory", currCourseData.continuity_id,
 			function(err,result) {
 				if (err) {
 					console.log(err);
-				}
-				else {
+				} else {
 					homeDict.set("courseOfferings", result);
 				}
 			});

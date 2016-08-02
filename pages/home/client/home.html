@@ -316,7 +316,7 @@
         We are busy updating myDeis!
         <br> see you soon :)
     </p> -->
-    
+
     {{#if showTable}}
         {{> search_result}}
     {{/if}}
@@ -408,6 +408,9 @@
                 <div class="five wide column">
                     <div class="ui vertical labeled icon buttons">
 
+
+                        {{#if userIsLoggedIn}}
+
                         {{#if addedToWishlist}}
                           <button class="ui blue button js-add-to-list">
                             Course added to wishlist
@@ -416,6 +419,13 @@
                         <button class="ui basic button js-add-to-list">
                             <i class="plus icon"></i>
                             Add to my wishlist
+                        </button>
+                        {{/if}}
+
+                        {{else}} <!--User not logged in-->
+                        <button class="ui basic button">
+                            <i class="plus icon"></i>
+                            Login to add to wishlist
                         </button>
                         {{/if}}
 
@@ -440,16 +450,12 @@
 
         <div class="ui bottom attached tab segment" data-tab="third" tab-num="3">
             <h3>Course Offering History:</h3>
-
             <ul>
               <br>
               {{#each getOfferedHistory}}
-
                 <li>{{this}}<br></li>
-
               {{/each}}
             </ul>
-
         </div>
     </div>
 </template>
