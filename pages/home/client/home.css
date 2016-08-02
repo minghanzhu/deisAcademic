@@ -68,7 +68,7 @@ body {
     box-shadow: 0 8px 6px -6px #999;
 }
 
-.nav ul li {
+/*.nav ul li {
     list-style-type: none;
 }
 a {
@@ -77,7 +77,7 @@ a {
 a:hover {
     text-decoration: none;
     color: white;
-}
+}*/
 .overlay {
     position: fixed;
     display: none;
@@ -103,7 +103,7 @@ a:hover {
 .ui.popup:before {
     opacity: 0;
 }
-#nav> li, a {
+/*#nav> li, a {
     cursor: hand;
     cursor: pointer;
-}
+}*/

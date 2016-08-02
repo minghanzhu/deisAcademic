@@ -24,7 +24,6 @@ matteodem:easy-search
 perak:fuzzy-search
 easysearch:autosuggest
 twbs:bootstrap
-semantic:ui
 less@2.7.4
 juliancwirko:postcss
 easysearch:components
@@ -41,3 +40,4 @@ rzymek:fullcalendar
 accounts-google
 service-configuration
 ddp-rate-limiter
+semantic:ui

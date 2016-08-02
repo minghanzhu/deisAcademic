@@ -1,4 +1,8 @@
-#side-nav {
+a, a:hover, a:active, a:visited, a:focus {
+    text-decoration:none;
+}
+
+.side-nav {
     position: fixed;
     height: 100%;
     width: 80px;
@@ -8,13 +12,48 @@
     box-shadow: 3px 0px 6px #999999;
     transition: 0.3s width ease-in-out;
 }
-
-#side-nav:hover {
+.side-nav:hover {
     width: 100px;
+}
+.nav-stacked ul {
+  padding-left: 0;
+}
+.nav-stacked li {
+    position: relative;
+    text-align: center;
+    padding-top: 10px;
+    /*color: #ffffff;*/
+    font-size: 15px;
+    margin:0 auto;
+}
+.nav-stacked span.glyphicon {
+  display: block;
+}
+.nav-stacked a span{
+    position: relative;
+    text-align: center;
+    padding-top: 15px;
+    padding-bottom: 5px;
+    font-size: 40px;
 }
 
 .move {
-  position: relative;
-  /*padding-left: 110px;*/
-  margin-left: 110px;
+    position: relative;
+    /*padding-left: 110px;*/
+    margin-left: 110px;
+}
+
+.side-nav li {
+    cursor: hand;
+    cursor: pointer;
+}
+
+.side-nav ul li {
+    list-style-type: none;
+}
+a {
+    color: #4C4C4C;
+}
+a:hover {
+    color: white;
 }
