@@ -12,6 +12,10 @@ Template.myProfile.helpers({
     seeSchedule: function() {
         return Template.instance().myPageDict.get('pageName') == "schedule";
     },
+
+    seeSchedule: function() {
+        return Template.instance().myPageDict.get('pageName') == "wishlist";
+    },
 })
 
 
@@ -24,5 +28,10 @@ Template.myProfile.events({
     "click .js-schedule": function(event) {
         event.preventDefault();
         Template.instance().myPageDict.set('pageName', "schedule");
+    },
+
+    "click .js-wishlist": function(event) {
+        event.preventDefault();
+        Template.instance().myPageDict.set('pageName', "wishlist");
     },
 })

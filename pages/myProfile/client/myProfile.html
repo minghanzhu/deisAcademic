@@ -3,13 +3,19 @@
         <div class="ui visible left demo vertical inverted sidebar labeled icon menu">
             <a class="item js-majorPlan"><i class="home icon"></i>My major plan</a>
             <a class="item js-schedule"><i class="calendar icon"></i>My schedule</a>
+            <a class="item js-wishlist"><i class="book icon"></i>My wishlist</a>
         </div>
+
         {{#if seeMajorPlan}} 
         	{{> majorPlanView}} 
         {{/if}} 
 
         {{#if seeSchedule}} 
         	{{> schedule}} 
+        {{/if}}
+
+        {{#if seeWishlist}}
+            {{> showWishlist}}
         {{/if}}
     </div>
 </template>
