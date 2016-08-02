@@ -14,9 +14,29 @@ Meteor.publish("home_userProfile", function() {
     return UserProfilePnc.find({ 
     	userId: this.userId 
     },{
-    	fields:{
+    	fields: {
     		userId: 1,
     		wishlist: 1
+    	}
+    }) 
+});
+
+Meteor.publish("schedule_userProfile", function() {
+    return UserProfilePnc.find({ 
+    	userId: this.userId 
+    },{
+    	fields: {
+    		scheduleList: 1,
+    		wishlist: 1
+    	}
+    }) 
+});
+
+Meteor.publish("schedule_term", function() {
+    return Term.find({},{
+    	fields: {
+    		id: 1,
+    		name: 1
     	}
     }) 
 });
