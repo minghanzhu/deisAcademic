@@ -59,25 +59,6 @@ body {
     margin-top: 100px;
 }
 
-.nav {
-    font-size: 25px;
-    letter-spacing: 0px;
-    line-height: px;
-    font-family: GillSans, Calibri, Trebuchet, sans-serif;
-    color: #4C4C4C;
-    box-shadow: 0 8px 6px -6px #999;
-}
-
-/*.nav ul li {
-    list-style-type: none;
-}
-a {
-    color: #4C4C4C;
-}
-a:hover {
-    text-decoration: none;
-    color: white;
-}*/
 .overlay {
     position: fixed;
     display: none;
@@ -103,7 +84,3 @@ a:hover {
 .ui.popup:before {
     opacity: 0;
 }
-/*#nav> li, a {
-    cursor: hand;
-    cursor: pointer;
-}*/
