@@ -40,7 +40,3 @@ Template.masterMajorPlan.helpers({
 		return Template.instance().masterPageDict
 	},
 })
-
-Template.masterMajorPlan.events({
-
-})
