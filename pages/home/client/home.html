@@ -361,7 +361,7 @@
         <div class="ui top attached tabular menu" id="popup-tab">
             <a class="active item" data-tab="first">Course Detail</a>
             <a class="item" data-tab="second">Section Detail</a>
-            <a class="item" data-tab="third">Statistics</a>
+            <a class="item" data-tab="third">Offering History</a>
         </div>
 
         <div class="ui bottom attached active tab segment" data-tab="first" tab-num="1">
@@ -458,7 +458,17 @@
         </div>
 
         <div class="ui bottom attached tab segment" data-tab="third" tab-num="3">
-            <h3>Here are some statistics for this course</h3>
+            <h3>Course Offering History:</h3>
+
+            <ul>
+              <br>
+              {{#each getOfferedHistory}}
+
+                <li>{{this}}<br></li>
+
+              {{/each}}
+            </ul>
+
         </div>
     </div>
 </template>

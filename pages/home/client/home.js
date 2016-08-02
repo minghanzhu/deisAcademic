@@ -374,7 +374,7 @@ Template.home.events ({
         if(error){
           console.log(error)
         }
-        // console.log(result);
+        //console.log(result);
         homeDict.set("RobApiResults", result);
 
 
@@ -426,6 +426,14 @@ Template.home.events ({
 				else {
 					instructor = $(".js-prof input").val();
 				}
+
+				// if (apiRes.data.result.parameters.Days) {
+				//
+				// 	const daysRes = apiRes.data.result.parameters.Days;
+				//
+				// 	$("select#multi-select-days[multiple][data-value='daysRes']").addClass("active");
+				// }
+
 
 
 				const req_array = $(".js-req .ui.label.transition.visible").toArray();
@@ -679,6 +687,24 @@ Template.search_result.helpers({
 		if (currSectionData) {
 			const section = currSectionData.id;
 			return _.contains(theWishlist, section);
+		}
+	},
+
+	getOfferedHistory: function(){
+		const currCourseData = homeDict.get("courseInfo");
+
+		if (currCourseData) {
+
+			Meteor.call("getCourseHistory", currCourseData.continuity_id,
+			function(err,result) {
+				if (err) {
+					console.log(err);
+				}
+				else {
+					homeDict.set("courseOfferings", result);
+				}
+			});
+			return homeDict.get("courseOfferings");
 		}
 	},
 })

@@ -1129,6 +1129,25 @@ Meteor.methods({
 
         UserProfilePnc.update({ userId: this.userId }, { $pull: { wishlist: section_id } });
     },
+
+    getCourseHistory: function(continuity_id){
+      const theHistory = Course.find({continuity_id: continuity_id}).fetch();
+
+      var historyTerms = _.pluck(theHistory, "term");
+
+      historyTerms.sort().reverse();
+
+      //console.log(historyTerms);
+
+      var newTerms = _.map(historyTerms, function(code){
+        return Term.findOne({id:code}).name;
+      })
+
+      //console.log(newTerms);
+
+      return newTerms;
+
+    },
 });
 
 const methodList = Meteor.default_server.method_handlers;
