@@ -8,9 +8,9 @@
 			<div class="ui sticky">
         <div class="ui container">
 				  <select name="term" class="js-term form-control">
-            <option value="1161">Spring 2016</option>
-            <option value="1163">Fall 2016</option>
-            <option value="1171">Spring 2017</option>              
+            {{#each term in termList}}
+              <option value="{{term.id}}">{{term.name}}</option>
+            {{/each}}                 
           </select>
         
           <div id="calendar"></div><br>

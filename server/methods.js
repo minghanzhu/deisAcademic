@@ -787,7 +787,7 @@ Meteor.methods({
         return result_array;
     },
 
-    "saveMajorPlan": function(scheduleList, major_code, availableCourseList) {
+    "saveMajorPlan": function(scheduleList, major_code, availableCourseList, term_range) {
         if (!this.userId) {
             console.log("Invalid insert: Not logged in");
             return;
@@ -805,7 +805,9 @@ Meteor.methods({
             majorId: major_code,
             userId: this.userId,
             chosenCourse: availableCourseList,
-            scheduleList: scheduleList
+            scheduleList: scheduleList,
+            start_term: term_range.start_term,
+            end_term: term_range.end_term
         };
 
         const major_plan_id = MajorPlansPnc.insert(final_major_plan);
@@ -824,7 +826,7 @@ Meteor.methods({
         console.log(return_result);
     },
 
-    "saveSchedule_MajorPlan": function(scheduleList, major_code, availableCourseList) {
+    "saveSchedule_MajorPlan": function(scheduleList, major_code, availableCourseList, term_range) {
         if (!this.userId) {
             console.log("Invaid insert: Not logged in");
         };
@@ -849,6 +851,16 @@ Meteor.methods({
             console.log("Invalid insert: No schedule found")
         };
 
+        if (!term_range.start_term || !term_range.end_term){
+            console.log("Invalid insert: Incorrect term");
+            return;
+        };
+
+        if(!Term.findOne({id: term_range.start_term}) || !Term.findOne({id: term_range.end_term})){
+            console.log("Invalid insert: No such term");
+            return;
+        };
+
         const schedule_id_list = [];
         for (let schedule of scheduleList) {
             const schedule_obj = {
@@ -861,7 +873,7 @@ Meteor.methods({
             schedule_id_list.push(schedule_id);
         };
 
-        Meteor.call("saveMajorPlan", schedule_id_list, major_code, availableCourseList, function(err, result) {
+        Meteor.call("saveMajorPlan", schedule_id_list, major_code, availableCourseList, term_range, function(err, result) {
             if (err) {
                 return err.message;
             }
@@ -892,7 +904,7 @@ Meteor.methods({
         return result;
     },
 
-    "updateSchedule_MajorPlan": function(scheduleList, major_code, availableCourseList, current_plan_id) {
+    "updateSchedule_MajorPlan": function(scheduleList, major_code, availableCourseList, current_plan_id, term_range) {
         if (!this.userId) {
             console.log("Invaid insert: Not logged in");
         };
@@ -914,7 +926,18 @@ Meteor.methods({
         };
 
         if (scheduleList.length == 0) {
-            console.log("Invalid insert: No schedule found")
+            console.log("Invalid insert: No schedule found");
+            return;
+        };
+
+        if (!term_range.start_term || !term_range.end_term){
+            console.log("Invalid insert: Incorrect term");
+            return;
+        };
+
+        if(!Term.findOne({id: term_range.start_term}) || !Term.findOne({id: term_range.end_term})){
+            console.log("Invalid insert: No such term");
+            return;
         };
 
         const plan_obj = MajorPlansPnc.findOne(current_plan_id);
@@ -933,6 +956,8 @@ Meteor.methods({
                 MajorPlansPnc.update(current_plan_id, { $push: { scheduleList: new_schedule_id } });
             }
         };
+
+        MajorPlansPnc.update(current_plan_id, {$set: {start_term: term_range.start_term, end_term: term_range.end_term}});
     },
 
     saveSchedule: function(scheduleList) {

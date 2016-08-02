@@ -192,6 +192,23 @@ Template.calendarModify.helpers({
         return !!Template.instance().calendarDict.get("masterDictSet");
     },
 
+    termList: function(){
+        const termList = Term.find().fetch().sort(function(a, b){
+            return parseInt(a.id) - parseInt(b.id);
+        });
+
+        const start_semester = Template.instance().masterDict.get("planStartSemester");
+        const end_semester = Template.instance().masterDict.get("planEndSemester");
+        for(let i = 0; i < termList.length; i++){
+            if(termList[i].id > end_semester || termList[i].id < start_semester){
+                termList.splice(i, 1);
+                i--;
+            }
+        }
+
+        return termList;
+    },
+
     calendarDict: function() {
         return Template.instance().calendarDict;
     },

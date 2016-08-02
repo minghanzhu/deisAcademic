@@ -59,12 +59,15 @@ Template.planSearch.helpers({
                         if (course_num_a >= 10 && course_num_a < 100) course_num_a = "0" + course_num_a;
                         const course_dep_a = a.code.substring(0, a.code.indexOf(" "));
                         const last_a = a.code.charAt(a.code.length - 1);
+                        const secondLast_a = a.code.charAt(a.code.length - 2);
                         let comp_string_a;
-                        if (/\w/i.test(last_a)) {
+                        if (/\w/i.test(last_a) && !/\w/i.test(secondLast_a)) {
                             comp_string_a = course_num_a + last_a;
-                        } else {
+                        } else if (!/\w/i.test(last_a) && !/\w/i.test(secondLast_a)) {
                             comp_string_a = course_num_a + "0";
-                        };
+                        } else {
+                            comp_string_a = course_num_a + last_a + secondLast_a;
+                        }
 
                         //for b
                         let course_num_b = parseInt(b.code.match(/\d+/gi)[0]);
@@ -72,12 +75,15 @@ Template.planSearch.helpers({
                         if (course_num_b >= 10 && course_num_b < 100) course_num_b = "0" + course_num_b;
                         const course_dep_b = b.code.substring(0, b.code.indexOf(" "));
                         const last_b = b.code.charAt(b.code.length - 1);
+                        const secondLast_b = b.code.charAt(b.code.length - 2);
                         let comp_string_b;
-                        if (/\w/i.test(last_b)) {
+                        if (/\w/i.test(last_b) && !/\w/i.test(secondLast_b)) {
                             comp_string_b = course_num_b + last_b;
-                        } else {
+                        } else if (!/\w/i.test(last_b) && !/\w/i.test(secondLast_b)) {
                             comp_string_b = course_num_b + "0";
-                        };
+                        } else {
+                            comp_string_b = course_num_b + last_b + secondLast_b;
+                        }
 
 
                         const major_comp = course_dep_a.localeCompare(course_dep_b);
@@ -90,12 +96,12 @@ Template.planSearch.helpers({
                     });
                     let current_course = "";
                     for(let i = 0; i < sorted_result.length; i++){
-                        if((sorted_result[i].code) === current_course){
-                            current_course = sorted_result[i].code;
+                        if((sorted_result[i].code.trim()) === current_course){
+                            current_course = sorted_result[i].code.trim();
                             sorted_result.splice(i, 1);
                             i--;
                         };
-                        current_course = sorted_result[i].code;                 
+                        current_course = sorted_result[i].code.trim();                 
                     }
                     for (let i = 0; i < sorted_result.length; i++) {
                         sorted_result[i].index = i;

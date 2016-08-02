@@ -36,6 +36,8 @@ Template.masterPlanModify.helpers({
 		Template.instance().masterPageDict.set("courseList", chosenCourse);
 		Template.instance().masterPageDict.set("pageName", "makeSchedule");
 		Template.instance().masterPageDict.set("dataReady", true);
+		Template.instance().masterPageDict.set("planStartSemester", data.start_term);
+        Template.instance().masterPageDict.set("planEndSemester", data.end_term);
 	},
 
 	dataReady: function(){
