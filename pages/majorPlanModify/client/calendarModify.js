@@ -631,7 +631,13 @@ Template.calendarModify.events({
         }
         //[{term:<term>, courseList:[{}]}]
         const current_plan_id = Router.current().params._id;
-        Meteor.call("updateSchedule_MajorPlan", schedule_list, major_code, availableCourseList, current_plan_id, function(err) {
+        const start_semester = Template.instance().masterDict.get("planStartSemester");
+        const end_semester = Template.instance().masterDict.get("planEndSemester");
+        const term_range = {
+            start_term: start_semester,
+            end_term: end_semester
+        };
+        Meteor.call("updateSchedule_MajorPlan", schedule_list, major_code, availableCourseList, current_plan_id, term_range, function(err) {
             if (err) {
                 return;
             }

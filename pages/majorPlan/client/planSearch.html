@@ -4,8 +4,9 @@
         {{getData}}
         {{#if showTable}}
             {{> plan_result planDict=planSearchDict dict=dict}}
-            <button class="ui button js-changeMajor">Change the major</button>
-
+            <button class="ui button js-changeMajor">Start over</button>
+            <button class="ui button js-changeTerm">Change term range</button>
+            {{#if hasClickedTerm}}{{clickedTerm dict}}{{/if}}
             <button class="ui button js-makeSchedule">Make my schedule</button>
             {{#if hasClickedNext}}{{clickedNext dict}}{{/if}}
         {{else}}

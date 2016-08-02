@@ -42,5 +42,9 @@ Template.masterPlanModify.helpers({
 
 	dataReady: function(){
 		return Template.instance().masterPageDict.get("dataReady");
-	}
+	},
+
+	"changeTerm": function(){
+		return Template.instance().masterPageDict.get("pageName") === "changeTerm";
+	},
 })

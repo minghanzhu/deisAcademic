@@ -14,10 +14,6 @@ Template.majorSelect.onRendered(function() {
 
 Template.majorSelect.helpers({
     clickedGo: function(dict) {
-        if (!$("#search-select input").val()) {
-            window.alert("Please choose a major. \n Or click the button below.");
-            return;
-        };
         dict.set("pageName", "chooseCourse");
         dict.set("chosenMajor", $("#search-select input").val());
     },
@@ -27,7 +23,6 @@ Template.majorSelect.helpers({
     },
 
     clickedHelp: function(dict) {
-
         dict.set("pageName", "helpChooseMajor");
         dict.set("chosenMajor", $("#search-select input").val());
     },

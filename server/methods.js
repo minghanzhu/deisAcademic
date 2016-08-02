@@ -941,6 +941,14 @@ Meteor.methods({
         };
 
         const plan_obj = MajorPlansPnc.findOne(current_plan_id);
+        const previous_schedules = plan_obj.scheduleList;
+        for(let schedule of previous_schedules){
+            const schedule_term = SchedulesPnc.findOne(schedule).term;
+            if(schedule_term < term_range.start_term || schedule_term > term_range.end_term){
+                MajorPlansPnc.update(current_plan_id, { $pull: { scheduleList: schedule } });
+                SchedulesPnc.remove(schedule);
+            }
+        }
 
         for (let schedule of scheduleList) {
             const schedule_obj = {
