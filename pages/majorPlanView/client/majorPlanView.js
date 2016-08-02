@@ -18,6 +18,12 @@ Template.majorPlanView.events({
 		const plan_id = $("#search-select-plans input").val();
 		Router.go('/majorPlan/' + plan_id);
 	},
+
+  "click .js-create-plan": function(event){
+    event.preventDefault();
+
+    Router.go('/majorPlan/new');
+  },
 })
 
 Template.planList.onRendered(function(){
