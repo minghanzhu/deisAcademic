@@ -363,12 +363,11 @@ Template.home.events ({
 
 		var recognition = new webkitSpeechRecognition();
     recognition.onresult = function(event) {
-      // console.log(event)
-      // console.log(event.results[0][0].confidence)
-      // console.log(event.results[0][0].transcript)
 
       const text = event.results[0][0].transcript;
-      // console.log(text);
+
+			//sets the user's utterance in homeDict, to show with microphone div
+			homeDict.set('userUtterance', text);
 
       Meteor.call("sendJSONtoAPI_ai", text, {returnStubValue: true},
 			function(error,result){
@@ -380,19 +379,18 @@ Template.home.events ({
 
 
 			const apiRes = homeDict.get("RobApiResults");
-			// console.log(apiRes);
 
 			if (apiRes) {
 				const dept = apiRes.data.result.parameters.Department;
 				const courseNum = apiRes.data.result.parameters.CourseNumber;
 				const courseName = apiRes.data.result.parameters.CourseName;
-				console.log(courseName);
 
 				const theQuery = dept + " " + courseNum + " " + courseName;
 
 				homeDict.set("theSearchQuery", theQuery);
 
 				var term;
+				var instructor;
 
 				if (apiRes.data.result.parameters.Terms) {
 
@@ -415,14 +413,47 @@ Template.home.events ({
 						term = 1162;
 						break;
 					}
+					$(".js-term").val(term);
 				}
 				else {
-					term = "";
+					term = $(".js-term").val();
 				}
+
+				if (apiRes.data.result.parameters.Instructor) {
+					instructor = apiRes.data.result.parameters.Instructor;
+					$(".js-prof input").val(instructor);
+				}
+				else {
+					instructor = $(".js-prof input").val();
+				}
+
+
+				const req_array = $(".js-req .ui.label.transition.visible").toArray();
+				const req_names_array = [];
+				for(let item of req_array){
+					req_names_array.push(item.innerText);
+				};
+				const days_array = $(".js-days .ui.label.transition.visible").toArray();
+				const days_names_array = [];
+				for(let item of days_array){
+					days_names_array.push($(item).attr("data-value"));
+				};
+				const start_time = $(".js-start-time input").val();
+				const end_time = $(".js-end-time input").val();
+				const time_and_date = {
+					days: days_names_array,
+					start: start_time,
+					end: end_time
+				};
+
+				const if_indept = $(".js-if-indep").is(':checked');
+				const if_not_sure = $(".js-if-not-sure").is(':checked');
 
 				const theResults = theQuery;
 
-				Meteor.call("searchCourse", theResults, term, [], null, null, {days:[],start:"",end:""}, false, false,
+				console.log(theResults);
+
+				Meteor.call("searchCourse", theResults, term, req_names_array, null, instructor, time_and_date, if_indept, if_not_sure,
 				function(err, result){
 					if(result.length == 0){
 						homeDict.set('noResult', true);
@@ -477,7 +508,7 @@ Template.home.events ({
 						homeDict.set('showTable', true);
 				}
 			);
-		}
+}
 })
 }
 	recognition.start();
@@ -639,6 +670,16 @@ Template.search_result.helpers({
 		} else {
 			return req_array;
 		};
+	},
+
+	addedToWishlist: function(event){
+		const theWishlist = UserProfilePnc.findOne().wishlist;
+		const currSectionData = homeDict.get("sectionDetail")[homeDict.get("sectionIndex")];
+
+		if (currSectionData) {
+			const section = currSectionData.id;
+			return _.contains(theWishlist, section);
+		}
 	},
 })
 

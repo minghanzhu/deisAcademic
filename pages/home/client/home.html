@@ -426,10 +426,17 @@
 
                 <div class="five wide column">
                     <div class="ui vertical labeled icon buttons">
+
+                        {{#if addedToWishlist}}
+                          <button class="ui blue button js-add-to-list">
+                            Course added to wishlist
+                          </button>
+                        {{else}}
                         <button class="ui basic button js-add-to-list">
                             <i class="plus icon"></i>
                             Add to my wishlist
                         </button>
+                        {{/if}}
 
                         <button class="ui basic button">
                             <i class="alarm icon"></i>
