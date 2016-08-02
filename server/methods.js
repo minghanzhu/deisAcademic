@@ -333,7 +333,15 @@ Meteor.methods({
             }
         }
 
-        return Course.find(searchQuery).fetch();
+        return Course.find(searchQuery, {
+            fields: {
+                _id: 0,
+                type: 0,
+                comment: 0,
+                credits: 0,
+                independent_study: 0,
+            }
+        }).fetch();
     },
 
     //this returns results with limited fields
@@ -589,7 +597,15 @@ Meteor.methods({
             }
         }
 
-        return Course.find(searchQuery, { fields: { _id: 0, credits: 0, requirements: 0, subjects: 0, type: 0, term: 0, independent_study: 0 } }).fetch();
+        return Course.find(searchQuery, { 
+            fields: { 
+                _id: 0,
+                type: 0,
+                comment: 0,
+                credits: 0,
+                independent_study: 0,
+            } 
+        }).fetch();
     },
 
     searchTerm: function(key) {
@@ -650,7 +666,14 @@ Meteor.methods({
     //takes a course object and returns all the sections of it
     getSectionDetails: function(courseData) {
         const section_key = courseData.id; //get the id of the course
-        return Section.find({ course: section_key }).fetch(); //an array of corresponding sections
+        return Section.find({ course: section_key },{ 
+            fields: {
+                _id: 0,
+                type: 0,
+                comment: 0,
+                waiting: 0,
+            }
+        }).fetch(); //an array of corresponding sections
     },
 
     //returns the array of prof. name and id
@@ -676,18 +699,39 @@ Meteor.methods({
 
     //takes a course object and returns all the sections of it
     getSections: function(courseId) {
-        return Section.find({ course: courseId }).fetch();
+        return Section.find({ course: courseId },{
+            fields: {
+                _id: 0,
+                type: 0,
+                comment: 0,
+                waiting: 0,
+            }
+        }).fetch();
     },
 
     //takes a section id and returns the section object
     getSection: function(sectionId) {
-        return Section.findOne({ id: sectionId }, { fields: { _id: 0, type: 0 } });
+        return Section.findOne({ id: sectionId }, { 
+            fields: { 
+                _id: 0,
+                type: 0,
+                comment: 0,
+                waiting: 0,
+            } 
+        });
     },
 
     getSectionList: function(section_id_list) {
         const result_array = [];
         for (let sectionId of section_id_list) {
-            result_array.push(Section.findOne({ id: sectionId }));
+            result_array.push(Section.findOne({ id: sectionId }, {
+                fields: {
+                    _id: 0,
+                    type: 0,
+                    comment: 0,
+                    waiting: 0,
+                }
+            }));
         }
 
         return result_array;
@@ -695,7 +739,15 @@ Meteor.methods({
 
     //takes a course id and returns the course object
     getCourse: function(courseId) {
-        return Course.findOne({ id: courseId });
+        return Course.findOne({ id: courseId }, {
+            fields: {
+                _id: 0,
+                type: 0,
+                comment: 0,
+                credits: 0,
+                independent_study: 0,
+            }
+        });
     },
 
 
@@ -781,7 +833,15 @@ Meteor.methods({
     "fetchCourseList": function(courseList) {
         let result_array = [];
         for (let courseId of courseList) {
-            const course_array = Course.find({ continuity_id: courseId }).fetch();
+            const course_array = Course.find({ continuity_id: courseId }, {
+                fields: {
+                    _id: 0,
+                    type: 0,
+                    comment: 0,
+                    credits: 0,
+                    independent_study: 0,
+                }
+            }).fetch();
             result_array = result_array.concat(course_array);
         };
         return result_array;
@@ -791,7 +851,15 @@ Meteor.methods({
         const result_array = [];
         for (let section of sectionList) {
             const course_id = Section.findOne({ id: section }).course;
-            result_array.push(Course.findOne({ id: course_id }));
+            result_array.push(Course.findOne({ id: course_id }, {
+                fields: {
+                    _id: 0,
+                    type: 0,
+                    comment: 0,
+                    credits: 0,
+                    independent_study: 0,
+                }
+            }));
         }
         return result_array;
     },
