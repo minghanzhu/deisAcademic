@@ -59,3 +59,24 @@ Meteor.publish("new_plan_userProfile", function() {
     	}
     }) 
 });
+
+Meteor.publish("view_plan_term", function() {
+    return Term.find({},{
+    	fields: {
+    		id: 1,
+    		name: 1
+    	}
+    }) 
+});
+
+Meteor.publish("view_plan_majorPlans", function() {
+    return MajorPlansPnc.find({ 
+    	userId: this.userId 
+    },{
+    	fields:{
+    		majorName: 1,
+    		start_term: 1,
+    		end_term: 1
+    	}
+    }) 
+});

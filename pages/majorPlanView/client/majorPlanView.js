@@ -5,7 +5,7 @@ Template.majorPlanView.helpers({
 
     getUserPlans: function() {
         return MajorPlansPnc.find().fetch();
-    },
+    },    
 })
 
 Template.majorPlanView.events({
@@ -26,6 +26,8 @@ Template.planList.onRendered(function(){
     });
 })
 
-Template.planList.events({
-
+Template.planList.helpers({
+	getTermName: function(term_id){
+    	return Term.findOne({id: term_id}).name;
+    },
 })
