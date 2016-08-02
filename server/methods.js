@@ -1017,4 +1017,39 @@ Meteor.methods({
 
         return !MajorPlansPnc.findOne({ userId: this.userId, majorId: chosenMajor });
     },
+
+    deletePlan: function(plan_id){
+        if(!this.userId){
+            console.log("Invalid remove: Not logged in");
+            return;
+        }
+
+        if(!UserProfilePnc.findOne({userId: this.userId})){
+            console.log("Invalid remove: Not such user");
+            return;
+        }
+
+        if(!/^[23456789ABCDEFGHJKLMNPQRSTWXYZabcdefghijkmnopqrstuvwxyz]{17}$/.test(plan_id)){
+            consle.log("Invalid remove: Malformed id");
+            return;
+        }
+
+        if(!MajorPlansPnc.findOne(plan_id)){
+            console.log("Invalid remove: No such plan");
+            return;
+        }
+
+        if(MajorPlansPnc.findOne(plan_id).userId !== this.userId){
+            console.log("Invalid remove: No the same user");
+            return;
+        }
+
+        const plan_obj = MajorPlansPnc.findOne(plan_id);
+        const scheduleList = plan_obj.scheduleList;
+        MajorPlansPnc.remove(plan_id);
+        for(let schedule of scheduleList){
+            SchedulesPnc.remove(schedule);
+        }
+        UserProfilePnc.update(this.userId, {$pull: {majorPlanList: plan_id}});
+    }
 });

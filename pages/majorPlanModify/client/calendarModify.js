@@ -575,6 +575,7 @@ Template.calendarModify.events({
 
     "click .js-save-plan": function() {
         $(".js-save-plan").attr("class", "ui loading disabled button js-save-plan");
+        $(".js-delete-plan").attr("class", "ui disabled red button js-delete-plan pull-right");
         //save the current term's schedule to the dict
         const current_term = $(".js-term").val();
         Template.instance().masterDict.set("chosenTerm", $(".js-term").val());
@@ -678,6 +679,19 @@ Template.calendarModify.events({
         Template.instance().masterDict.set("includeWishlist", !current_status);
         Template.instance().masterDict.set("hasCourseList", false);
     },
+
+    "click .js-delete-plan": function(){
+        $(".js-delete-plan").attr("class", "ui loading disabled red button js-delete-plan pull-right");
+        $(".js-save-plan").attr("class", "ui disabled button js-save-plan");
+        const current_plan_id = Router.current().params._id;
+        Meteor.call("deletePlan", current_plan_id, function(err, result){
+            if(err){
+                return;
+            }
+
+            Router.go("/myMajorPlan");
+        })
+    }
 })
 
 Template.scheduleCourseListView.onRendered(function() {
