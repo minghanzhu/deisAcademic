@@ -796,7 +796,45 @@ Meteor.methods({
         return result_array;
     },
 
-    "saveMajorPlan": function(scheduleList, major_code, availableCourseList) {
+    "fetchSections": function(wishlist) {
+        const result_array = [];
+        for (let section of wishlist) {
+            const section_obj = Section.findOne({ id: section });
+            const course_id = section_obj.course;
+            const course_obj = Course.findOne({ id: course_id });
+            const course_code = course_obj.code;
+            const course_term = course_obj.term;
+            const course_req = course_obj.requirements;
+            const course_title = course_obj.name;
+            const term_obj = Term.findOne({ id: course_term });
+            const term_name = term_obj.name;
+            section_obj.code = course_code;
+            section_obj.termName = term_name;
+            section_obj.term = course_term;
+            section_obj.req = course_req;
+            section_obj.courseName = course_title;
+            const instructors_list = section_obj.instructors;
+            const instructor_names = [];
+            for (let instructor of instructors_list) {
+                const instructor_obj = Instructor.findOne({ id: instructor });
+                const first_name = instructor_obj.first;
+                const last_name = instructor_obj.last;
+                let full_name = "";
+                if (first_name === "Staff" || last_name === "Staff") {
+                    full_name = "Staff"
+                } else {
+                    full_name = first_name + " " + last_name;
+                }
+                instructor_names.push(full_name);
+            }
+            section_obj.instructorNames = instructor_names;
+            result_array.push(section_obj);
+        }
+
+        return result_array;
+    },
+
+    "saveMajorPlan": function(scheduleList, major_code, availableCourseList, term_range) {
         if (!this.userId) {
             console.log("Invalid insert: Not logged in");
             return;
@@ -814,7 +852,9 @@ Meteor.methods({
             majorId: major_code,
             userId: this.userId,
             chosenCourse: availableCourseList,
-            scheduleList: scheduleList
+            scheduleList: scheduleList,
+            start_term: term_range.start_term,
+            end_term: term_range.end_term
         };
 
         const major_plan_id = MajorPlansPnc.insert(final_major_plan);
@@ -833,7 +873,7 @@ Meteor.methods({
         console.log(return_result);
     },
 
-    "saveSchedule_MajorPlan": function(scheduleList, major_code, availableCourseList) {
+    "saveSchedule_MajorPlan": function(scheduleList, major_code, availableCourseList, term_range) {
         if (!this.userId) {
             console.log("Invaid insert: Not logged in");
         };
@@ -858,6 +898,16 @@ Meteor.methods({
             console.log("Invalid insert: No schedule found")
         };
 
+        if (!term_range.start_term || !term_range.end_term) {
+            console.log("Invalid insert: Incorrect term");
+            return;
+        };
+
+        if (!Term.findOne({ id: term_range.start_term }) || !Term.findOne({ id: term_range.end_term })) {
+            console.log("Invalid insert: No such term");
+            return;
+        };
+
         const schedule_id_list = [];
         for (let schedule of scheduleList) {
             const schedule_obj = {
@@ -870,7 +920,7 @@ Meteor.methods({
             schedule_id_list.push(schedule_id);
         };
 
-        Meteor.call("saveMajorPlan", schedule_id_list, major_code, availableCourseList, function(err, result) {
+        Meteor.call("saveMajorPlan", schedule_id_list, major_code, availableCourseList, term_range, function(err, result) {
             if (err) {
                 return err.message;
             }
@@ -901,7 +951,7 @@ Meteor.methods({
         return result;
     },
 
-    "updateSchedule_MajorPlan": function(scheduleList, major_code, availableCourseList, current_plan_id) {
+    "updateSchedule_MajorPlan": function(scheduleList, major_code, availableCourseList, current_plan_id, term_range) {
         if (!this.userId) {
             console.log("Invaid insert: Not logged in");
         };
@@ -923,10 +973,29 @@ Meteor.methods({
         };
 
         if (scheduleList.length == 0) {
-            console.log("Invalid insert: No schedule found")
+            console.log("Invalid insert: No schedule found");
+            return;
+        };
+
+        if (!term_range.start_term || !term_range.end_term) {
+            console.log("Invalid insert: Incorrect term");
+            return;
+        };
+
+        if (!Term.findOne({ id: term_range.start_term }) || !Term.findOne({ id: term_range.end_term })) {
+            console.log("Invalid insert: No such term");
+            return;
         };
 
         const plan_obj = MajorPlansPnc.findOne(current_plan_id);
+        const previous_schedules = plan_obj.scheduleList;
+        for (let schedule of previous_schedules) {
+            const schedule_term = SchedulesPnc.findOne(schedule).term;
+            if (schedule_term < term_range.start_term || schedule_term > term_range.end_term) {
+                MajorPlansPnc.update(current_plan_id, { $pull: { scheduleList: schedule } });
+                SchedulesPnc.remove(schedule);
+            }
+        }
 
         for (let schedule of scheduleList) {
             const schedule_obj = {
@@ -942,6 +1011,8 @@ Meteor.methods({
                 MajorPlansPnc.update(current_plan_id, { $push: { scheduleList: new_schedule_id } });
             }
         };
+
+        MajorPlansPnc.update(current_plan_id, { $set: { start_term: term_range.start_term, end_term: term_range.end_term } });
     },
 
     saveSchedule: function(scheduleList) {
@@ -963,10 +1034,10 @@ Meteor.methods({
                     userId: this.userId,
                     term: schedule.term,
                     courseList: schedule.chosenCourse
-            }
-            //if it exists, just update it
-            if (SchedulesPnc.findOne({ userId: this.userId, term: schedule.term, plan: {$exists: false}})) {
-                SchedulesPnc.update({ userId: this.userId, term: schedule.term, plan: {$exists: false}}, {
+                }
+                //if it exists, just update it
+            if (SchedulesPnc.findOne({ userId: this.userId, term: schedule.term, plan: { $exists: false } })) {
+                SchedulesPnc.update({ userId: this.userId, term: schedule.term, plan: { $exists: false } }, {
                     $set: {
                         courseList: schedule.chosenCourse
                     }
@@ -993,6 +1064,7 @@ Meteor.methods({
 
         return !MajorPlansPnc.findOne({ userId: this.userId, majorId: chosenMajor });
     },
+<<<<<<< HEAD
 })
 
 const methodList = Meteor.default_server.method_handlers;
@@ -1007,3 +1079,71 @@ DDPRateLimiter.addRule({
   // Rate limit per connection ID
   connectionId() { return true; }
 }, 5, 1000);
+=======
+
+    deletePlan: function(plan_id) {
+        if (!this.userId) {
+            console.log("Invalid remove: Not logged in");
+            return;
+        }
+
+        if (!UserProfilePnc.findOne({ userId: this.userId })) {
+            console.log("Invalid remove: Not such user");
+            return;
+        }
+
+        if (!/^[23456789ABCDEFGHJKLMNPQRSTWXYZabcdefghijkmnopqrstuvwxyz]{17}$/.test(plan_id)) {
+            consle.log("Invalid remove: Malformed id");
+            return;
+        }
+
+        if (!MajorPlansPnc.findOne(plan_id)) {
+            console.log("Invalid remove: No such plan");
+            return;
+        }
+
+        if (MajorPlansPnc.findOne(plan_id).userId !== this.userId) {
+            console.log("Invalid remove: No the same user");
+            return;
+        }
+
+        const plan_obj = MajorPlansPnc.findOne(plan_id);
+        const scheduleList = plan_obj.scheduleList;
+        MajorPlansPnc.remove(plan_id);
+        for (let schedule of scheduleList) {
+            SchedulesPnc.remove(schedule);
+        }
+        UserProfilePnc.update({ userId: this.userId }, { $pull: { majorPlanList: plan_id } });
+    },
+
+    "remove_wishlist_section": function(section_id) {
+        if (!this.userId) {
+            console.log("Invalid remove: Not logged in");
+            return;
+        }
+
+        if (!UserProfilePnc.findOne({ userId: this.userId })) {
+            console.log("Invalid remove: No such user");
+            return;
+        }
+
+        if (!section_id.includes("-")) {
+            console.log("Invalid remove: Malformed id");
+        }
+
+        const user_profile = UserProfilePnc.findOne({ userId: this.userId });
+        let isInside = false;
+        for (let section of user_profile.wishlist) {
+            if (section === section_id) {
+                isInside = true;
+                break
+            }
+        }
+        if (!isInside) {
+            console.log("Invalid remove: No such section")
+        }
+
+        UserProfilePnc.update({ userId: this.userId }, { $pull: { wishlist: section_id } });
+    }
+});
+>>>>>>> refs/heads/read-profile

@@ -15,6 +15,14 @@ Template.planSearchModify.helpers({
         dict.set("pageName", 'makeSchedule');
     },
 
+    hasClickedTerm: function(){
+        return Template.instance().planSearchDict.get('clickedTerm');
+    },
+
+    clickedTerm: function(dict){
+        dict.set("pageName", 'changeTerm');
+    },
+
     setMasterDict: function(dict){
         Template.instance().masterDict = dict;
         Template.instance().planSearchDict = dict;
@@ -25,6 +33,7 @@ Template.planSearchModify.helpers({
         Template.instance().planSearchDict.set('sectionIndex', 0);
         Template.instance().planSearchDict.set('courseData');
         Template.instance().planSearchDict.set('clickedNext', false);
+        Template.instance().planSearchDict.set('clickedTerm', false);
     },
 
     hasMajor: function(){
@@ -124,6 +133,11 @@ Template.planSearchModify.events({
         };
 
         Template.instance().planSearchDict.set('clickedNext', true);
+    },
+
+    "click .js-changeTerm": function(event){
+        event.preventDefault();
+        Template.instance().planSearchDict.set('clickedTerm', true);
     },
 })
 

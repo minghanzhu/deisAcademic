@@ -97,6 +97,23 @@ Template.calendarTest.helpers({
         return !!Template.instance().calendarDict.get("masterDictSet");
     },
 
+    termList: function(){
+        const termList = Term.find().fetch().sort(function(a, b){
+            return parseInt(a.id) - parseInt(b.id);
+        });
+
+        const start_semester = Template.instance().masterDict.get("planStartSemester");
+        const end_semester = Template.instance().masterDict.get("planEndSemester");
+        for(let i = 0; i < termList.length; i++){
+            if(termList[i].id > end_semester || termList[i].id < start_semester){
+                termList.splice(i, 1);
+                i--;
+            }
+        }
+
+        return termList;
+    },
+
     calendarDict: function() {
         return Template.instance().calendarDict;
     },
@@ -518,7 +535,14 @@ Template.calendarTest.events({
             schedule_list.push(schedule_obj);
         }
         //[{term:<term>, courseList:[{}]}]
-        Meteor.call("saveSchedule_MajorPlan", schedule_list, major_code, availableCourseList, function(err) {
+        const start_semester = Template.instance().masterDict.get("planStartSemester");
+        const end_semester = Template.instance().masterDict.get("planEndSemester");
+        const term_range = {
+            start_term: start_semester,
+            end_term: end_semester
+        };
+
+        Meteor.call("saveSchedule_MajorPlan", schedule_list, major_code, availableCourseList, term_range, function(err) {
             if (err) {
                 return;
             }

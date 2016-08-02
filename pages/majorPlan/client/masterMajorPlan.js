@@ -32,6 +32,10 @@ Template.masterMajorPlan.helpers({
 		return Template.instance().masterPageDict.get("pageName") === "makeSchedule";
 	},
 
+	"changeTerm": function(){
+		return Template.instance().masterPageDict.get("pageName") === "changeTerm";
+	},
+
 	masterDict: function(){
 		return Template.instance().masterPageDict
 	},

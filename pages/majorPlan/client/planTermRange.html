@@ -1,0 +1,45 @@
+<template name="planTermRange">
+	{{setMasterDict dict}}
+	<div id="planTermRange" class="ui form">
+		<div class="fields">
+			<div class="two wide field"></div>
+
+			<div class="six wide field">
+				<label>From: </label>
+				<div class="ui fluid search selection dropdown js-start-semester" id="search-select-start-semester">
+					<label></label>
+					<input type="hidden" name="start-semester" value="">
+					<i class="dropdown icon"></i>
+					<div class="default text">The starting semester</div>
+					<div class="menu">
+						{{#each term in termList}}
+							<div class="item" data-value="{{term.id}}">{{term.name}}</div>
+						{{/each}}
+					</div>
+				</div>
+			</div>
+
+			<div class="six wide field">
+				<label>To: </label>
+				<div class="ui fluid search selection dropdown js-end-semester" id="search-select-end-semester">
+					<label></label>
+					<input type="hidden" name="end-semester" value="">
+					<i class="dropdown icon"></i>
+					<div class="default text">The ending semester</div>
+					<div class="menu">
+						{{#each term in termList}}
+							<div class="item" data-value="{{term.id}}">{{term.name}}</div>
+						{{/each}}
+					</div>
+				</div>
+			</div>
+
+			<div class="two wide field"></div>
+		</div>
+
+		<div class="fields">
+			<button class="ui blue button js-ok">OK</button>
+			{{#if hasClickedOK}}{{clickedOK dict}}{{/if}}
+		</div>
+	</div>
+</template>

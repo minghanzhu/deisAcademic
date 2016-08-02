@@ -1,137 +1,21 @@
 <template name="myProfile">
-	<div class="ui container">
+    <div class="ui container">
+        <div class="ui visible left demo vertical inverted sidebar labeled icon menu">
+            <a class="item js-majorPlan"><i class="home icon"></i>My major plan</a>
+            <a class="item js-schedule"><i class="calendar icon"></i>My schedule</a>
+            <a class="item js-wishlist"><i class="book icon"></i>My wishlist</a>
+        </div>
 
-		<h1>Profile</h1>
-		<hr><br>
-		<div class="ui  visible left demo vertical inverted sidebar labeled icon menu">
-			<a class="item js-wishlist"><i class="home icon"></i>Wish list</a>
-			<a class="item js-history"><i class="calendar icon"></i>Course history</a>
-		</div>
+        {{#if seeMajorPlan}} 
+        	{{> majorPlanView}} 
+        {{/if}} 
 
-		{{#if seeWishlist}}
-		  {{> wishlist}}
-		{{/if}}
-		{{#if seeHistory}}
-			{{> history}}
-		{{/if}}
+        {{#if seeSchedule}} 
+        	{{> schedule}} 
+        {{/if}}
 
-	</div>
-</template>
-
-
-
-<template name="wishlist">
-	<table class="ui compact celled definition table">
-		<thead>
-			<tr><th>Course #</th><th>Course Title</th><th>Professor</th><th>Time</th><th>Add it to schedule</th></tr>
-		</thead>
-
-		<tbody>
-		  {{#each w in wishlist}}
-			<tr>
-				<td>{{w.number}}</td>
-				<td>{{w.title}}</td>
-				<td>{{w.professor}}</td>
-				<td>{{w.time}}</td>
-				<td class="collapsing">
-					<div class="ui fitted slider checkbox">
-						<input type="checkbox"> <label></label>
-					</div>
-				</td>
-			</tr>
-	  	{{/each}}
-		</tbody>
-
-		<tfoot class="full-width">
-			<tr><th></th>
-				<th colspan="4">
-					<div class="ui right floated small primary labeled icon button">
-						<i class="user icon"></i> Add Courses</div>
-				</th>
-			</tr>
-		</tfoot>
-	</table>
-</template>
-
-
-
-<template name="history">
-<div class="container">
-	<br><br>
-	<h2>To help you decide major, we need to know your course history</h2>
-	<br><br>
-
-	<div id="advSearch_form" class="ui form">
-		<div class="fields">
-
-			<div class="four wide field">
-				<div class="ui search selection dropdown js-semester" id="search-select-semester">
-					<i class="dropdown icon"></i><div class="default text">Semester</div>
-					<div class="menu">
-						<div class="item">2016 Fall</div>
-						<div class="item">2016 Summer</div>
-						<div class="item">2016 Spring</div>
-						<div class="item">2015 Fall</div>
-						<div class="item">2015 Summer</div>
-						<div class="item">2015 Spring</div>
-						<div class="item">2014 Fall</div>
-						<div class="item">2014 Summer</div>
-						<div class="item">2014 Spring</div>
-						<div class="item">2013 Fall</div>
-					</div>
-				</div>
-			</div>
-
-			<div class="five wide field">
-				<div class="ui selection dropdown js-coursenum" id="search-select-coursenum">
-					<input type="hidden" name="coursenum" value="">
-					<i class="dropdown icon"></i><div class="default text">Course</div>
-					<div class="menu">
-						<div class="item">Math 10a</div>
-						<div class="item">Cosi 11a</div>
-					</div>
-				</div>
-			</div>
-
-			<div class="four wide field">
-				<div class="ui selection dropdown js-grade" id="search-select-grade">
-					<!-- <input type="hidden" name="grade"> -->
-					<i class="dropdown icon"></i><div class="default text">Grade</div>
-					<div class="menu">
-						<div class="item">In progressing</div>
-						<div class="item">A</div>
-						<div class="item">A-</div>
-						<div class="item">B+</div>
-						<div class="item">B</div>
-						<div class="item">B-</div>
-						<div class="item">C+</div>
-						<div class="item">C</div>
-						<div class="item">P</div>
-						<div class="item">T</div>
-					</div>
-				</div>
-			</div>
-
-			<div class="three wide field">
-				<button class="fluid medium ui primary button js-add">Add it</button>
-			</div>
-		</div>
-	</div>
-	<br><br><br><br><br><br><br><br><br><br><br><br><br>
-
-
-
-	<table class="ui single line blue table">
-		<thead>
-			<tr><th>Semester</th><th>Course Number</th><th>Requirments</th><th>Grade</th></tr>
-		</thead>
-		<tbody>
-		{{#each c in coursehistory}}
-			<tr><td>{{c.semester}}</td><td>{{c.coursenum}}</td><td>{{c.requirement}}</td><td>{{c.grade}}</td></tr>
-		{{/each}}
-		</tbody>
-	</table>
-
-<br><br><br><br><br>
-</div>
+        {{#if seeWishlist}}
+            {{> wishlist}}
+        {{/if}}
+    </div>
 </template>
