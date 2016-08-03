@@ -1,14 +1,14 @@
-//Global reactive-dict
-homeDict = new ReactiveDict();
-homeDict.set('showTable', false);
-homeDict.set('majorDetail', []);
-homeDict.set('sectionDetail', []);
-homeDict.set("sectionIndex", 0);
-homeDict.set('courseData');
-
-
+Template.home.onCreated(function(){
+	this.homeDict = new ReactiveDict();
+	this.homeDict.set('showTable', false);
+	this.homeDict.set('majorDetail', []);
+	this.homeDict.set('sectionDetail', []);
+	this.homeDict.set("sectionIndex", 0);
+	this.homeDict.set('courseData');
+})
 
 Template.home.onRendered(function(){
+	const homeDict = Template.instance().homeDict;
 	//these initialize the semantic ui components
 	$('#multi-select').dropdown();
 	$('#search-select').dropdown();
@@ -137,12 +137,17 @@ Template.home.onRendered(function(){
 
 Template.home.helpers ({
 	showTable: function(){
-		return homeDict.get('showTable');
+		return Template.instance().homeDict.get('showTable');
+	},
+
+	homeDict: function(){
+		return Template.instance().homeDict;
 	},
 })
 
 Template.home.events ({
   	"submit #search_main": function(event) {
+    	const homeDict = Template.instance().homeDict;
     	event.preventDefault();
     	homeDict.set('showTable', false);
     	homeDict.set('majorDetail', []);
@@ -233,6 +238,7 @@ Template.home.events ({
   	},
 
   	"change .js-term": function(event){
+ 		const homeDict = Template.instance().homeDict;
  		event.preventDefault();
     	homeDict.set('showTable', false);
     	homeDict.set('majorDetail', []);
@@ -323,8 +329,9 @@ Template.home.events ({
  	},
 
 	"click .js-voice-search": function(){
+		const homeDict = Template.instance().homeDict;
 		event.preventDefault();
-    $("#css-voice").toggle();
+    	$("#css-voice").toggle();
 		homeDict.set('showTable', false);
 		homeDict.set('majorDetail', []);
 		homeDict.set('sectionDetail', []);
@@ -506,36 +513,62 @@ Template.home.events ({
 },
 })
 
+Template.search_result.onCreated(function(){
+	this.searchResultDict = new ReactiveDict();
+	this.searchResultDict.set("homeDictSet", false);
+})
+
+Template.search_result.onRendered(function(){
+	$('#popup-tab .item').tab();
+})
+
 Template.search_result.helpers({
+	setHomeDict: function(homeDict){
+		Template.instance().homeDict = homeDict;
+		Template.instance().searchResultDict.set("homeDictSet", true);
+	},
+
+	homeDictSet: function(){
+		return Template.instance().searchResultDict.get("homeDictSet");
+	},
+
 	detailReady: function(){
+		const homeDict = Template.instance().homeDict;
 		return homeDict.get('courseInfo') != null;
 	},
 
 	courseDataReady: function(){
+		const homeDict = Template.instance().homeDict;
 		return homeDict.get('courseData') != null;
 	},
 
 	courseData: function(){
+		const homeDict = Template.instance().homeDict;
 		return homeDict.get('courseData');
 	},
 
 	courseInfo: function(){
+		const homeDict = Template.instance().homeDict;
 		return homeDict.get('courseInfo');
 	},
 
 	majorInfo: function(){
+		const homeDict = Template.instance().homeDict;
 		return homeDict.get('majorDetail');
 	},
 
 	sectionData: function(){
+		const homeDict = Template.instance().homeDict;
 		return homeDict.get('sectionDetail');
 	},
 
 	noResult: function(){
+		const homeDict = Template.instance().homeDict;
 		return homeDict.get('noResult');
 	},
 
 	settings_course: function(){
+		const homeDict = Template.instance().homeDict;
 		return {
 			rowsPerPage: 10,
 			showFilter: false,
@@ -563,14 +596,9 @@ Template.search_result.helpers({
 			],
 		};
 	},
-})
 
-Template.search_result.onRendered(function(){
-	$('#popup-tab .item').tab();
-})
-
-Template.search_result.helpers({
 	sectionDetail: function(){
+		const homeDict = Template.instance().homeDict;
 		return homeDict.get("sectionDetail")[homeDict.get("sectionIndex")];
 	},
 
@@ -610,6 +638,7 @@ Template.search_result.helpers({
 	},
 
 	getProfInfo: function(prof_list, section_id){
+		const homeDict = Template.instance().homeDict;
 		Meteor.call("getProfInfo", prof_list, function(err, result){
 			if(result.includes("Staff")){
 				homeDict.set("instructorsName" + section_id, "Staff - This information will be updated once Brandeis posts the professor names for this section\n");
@@ -622,6 +651,7 @@ Template.search_result.helpers({
 	},
 
 	profNameLoading: function(section_id){
+		const homeDict = Template.instance().homeDict;
 		return !homeDict.get("instructorsName" + section_id);
 	},
 
@@ -654,6 +684,7 @@ Template.search_result.helpers({
 	},
 
 	addedToWishlist: function(event){
+		const homeDict = Template.instance().homeDict;
 		const theUserProfile = UserProfilePnc.findOne();
 		const currSectionData = homeDict.get("sectionDetail")[homeDict.get("sectionIndex")];
 
@@ -670,6 +701,7 @@ Template.search_result.helpers({
 	},
 
 	getOfferedHistory: function(){
+		const homeDict = Template.instance().homeDict;
 		const currCourseData = homeDict.get("courseInfo");
 
 		if (currCourseData) {
@@ -691,7 +723,7 @@ Template.search_result.events({
 		if(event.target.nodeName === "DIV"){
 			return;
 		}
-
+		const homeDict = Template.instance().homeDict;
 		homeDict.set('courseInfo');
 		homeDict.set('sectionDetail', []);
 		homeDict.set('majorDetail', []);
@@ -739,12 +771,14 @@ Template.search_result.events({
 	},
 
 	"change .js-section": function(event){
+		const homeDict = Template.instance().homeDict;
 		event.preventDefault();
 		homeDict.set("sectionIndex", $(".js-section").val());
 		homeDict.set("instructorsName");
 	},
 
 	"click .js-add-to-list": function(event){
+		const homeDict = Template.instance().homeDict;
 		event.preventDefault();
 
 		const currSectionData = homeDict.get("sectionDetail")[homeDict.get("sectionIndex")];
@@ -752,6 +786,7 @@ Template.search_result.events({
 	},
 
 	"click .js-section-up": function(event){
+		const homeDict = Template.instance().homeDict;
 		event.preventDefault();
 
 		const currSection = homeDict.get("sectionIndex");
@@ -763,6 +798,7 @@ Template.search_result.events({
 	},
 
 	"click .js-section-down": function(event){
+		const homeDict = Template.instance().homeDict;
 		event.preventDefault();
 
 		const currSection = homeDict.get("sectionIndex");
@@ -775,6 +811,7 @@ Template.search_result.events({
 	},
 
 	"click .js-textbook": function(event){
+		const homeDict = Template.instance().homeDict;
 		event.preventDefault();
 		const course_id = $(event)[0].target.attributes[1].value;
 		const course_code = homeDict.get("courseCode");
@@ -801,12 +838,28 @@ Template.description_detail.helpers({
 	},
 })
 
+Template.search_result_time_table.onCreated(function(){
+	this.timeTableDict = new ReactiveDict();
+	this.timeTableDict.set("homeDictSet", false);
+})
+
 Template.search_result_time_table.helpers({
+	setHomeDict: function(homeDict){
+		Template.instance().homeDict = homeDict;
+		Template.instance().timeTableDict.set("homeDictSet", true)
+	},
+
+	homeDictSet: function(){
+		return Template.instance().timeTableDict.get("homeDictSet");
+	},
+
 	sectionData: function(){
+		const homeDict = Template.instance().homeDict;
 		return _.sortBy(homeDict.get('sectionDetail'), 'section');
 	},
 
 	settings_result: function(){
+		const homeDict = Template.instance().homeDict;
 		return {
 			rowsPerPage: 5,
 			showFilter: false,
