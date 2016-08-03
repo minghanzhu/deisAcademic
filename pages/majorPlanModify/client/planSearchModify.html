@@ -6,7 +6,7 @@
             {{> plan_result_view planDict=planSearchDict dict=dict}}
             <button class="ui button js-changeTerm">Change term range</button>
             {{#if hasClickedTerm}}{{clickedTerm dict}}{{/if}}
-            <button class="ui button js-makeSchedule">Make my schedule</button>
+            <button class="ui primary button js-makeSchedule pull-right">Back to calendar</button>
             {{#if hasClickedNext}}{{clickedNext dict}}{{/if}}
         {{else}}
             <div class="ui active inline loader"></div>

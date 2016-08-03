@@ -489,7 +489,7 @@ Template.calendarTest.events({
     },
 
     "click .js-save-plan": function() {
-        $(".js-save-plan").attr("class", "ui loading disabled button js-save-plan");
+        $(".js-save-plan").attr("class", "ui loading disabled button js-save-plan pull-right");
         //save the current term's schedule to the dict
         const current_term = $(".js-term").val();
         Template.instance().masterDict.set("chosenTerm", $(".js-term").val());
