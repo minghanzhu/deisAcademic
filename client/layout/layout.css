@@ -41,6 +41,7 @@ a, a:hover, a:active, a:visited, a:focus {
 .move {
     position: relative;
     margin-left: 110px;
+    margin-right: 10px;
 }
 
 .side-nav li {
