@@ -11,8 +11,6 @@ SimpleSchema.messages({
     "noSuchCourse": "No such course",
     "noSuchTerm": "No such term",
     "invalidTermRange": "Invalid term range",
-
-
 })
 
 Schemas.Google = new SimpleSchema({
@@ -401,3 +399,56 @@ Schemas.MajorPlansPnc = new SimpleSchema({
 })
 
 MajorPlansPnc.attachSchema(Schemas.MajorPlansPnc);
+
+Schemas.SchedulesPnc = new SimpleSchema({
+    term: {
+        type: String,
+        min: 1,
+        custom: function(){
+            //first check if this term exists
+            if(!Term.findOne({id: this.value})){
+                return "noSuchTerm"
+            }
+        }
+    },
+    userId: {
+        type: String,
+        regEx: SimpleSchema.RegEx.Id,
+        custom: function(){
+            if(!Meteor.users.findOne(this.value)){
+                return "noSuchUser"
+            }
+        }
+    },
+    plan: {
+        type: String,
+        regEx: SimpleSchema.RegEx.Id,
+        custom: function(){
+            //can't check for existence
+            //https://github.com/aldeed/meteor-collection2/issues/38
+        },
+        optional: true
+    },
+    courseList: {
+        type: Array
+    },
+    'courseList.$': {
+        type: Object,
+        optional: true
+    },
+    'courseList.$.section_id': {
+        type: String,
+        optional: true,
+        custom: function(){
+            if(!Section.findOne({id: this.value})){
+                return "noSuchSection"
+            }
+        }
+    },
+    'courseList.$.chosen': {
+        type: Boolean,
+        optional: true
+    }
+})
+
+SchedulesPnc.attachSchema(Schemas.SchedulesPnc);
