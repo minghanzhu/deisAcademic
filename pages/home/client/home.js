@@ -675,6 +675,10 @@ Template.search_result.helpers({
 
 Template.search_result.events({
 	"click .js-result-table tbody tr": function(event){
+		if(event.target.nodeName === "DIV"){
+			return;
+		}
+
 		homeDict.set('courseInfo');
 		homeDict.set('sectionDetail', []);
 		homeDict.set('majorDetail', []);
