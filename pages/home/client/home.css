@@ -233,7 +233,7 @@ body {
     animation-duration: 2s;
     animation-iteration-count: infinite;
 }
-.green-circle {
+.blue-circle {
     position: fixed;
     top: -440px;
     left: -200px;

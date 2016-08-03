@@ -8,6 +8,14 @@ Template.home.onCreated(function(){
 })
 
 Template.home.onRendered(function(){
+
+	$('.js-voice-search')
+	.popup({
+		title: "Search by voice",
+		content: "For example \"Show me COSI courses taught by Timothy Hickey\"",
+		position: 'bottom right',
+	});
+
 	const homeDict = Template.instance().homeDict;
 	//these initialize the semantic ui components
 	$('#multi-select').dropdown();
