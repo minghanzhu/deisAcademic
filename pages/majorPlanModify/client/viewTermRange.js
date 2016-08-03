@@ -4,8 +4,12 @@ Template.viewTermRange.onCreated(function(){
 })
 
 Template.viewTermRange.onRendered(function(){
-	$('#search-select-start-semester').dropdown();
-    $('#search-select-end-semester').dropdown();
+	$('#search-select-start-semester').dropdown({
+        match: "text"
+    });
+    $('#search-select-end-semester').dropdown({
+        match: "text"
+    });
 	const start_semester = Template.instance().masterDict.get("planStartSemester");
     const end_semester = Template.instance().masterDict.get("planEndSemester");
 	$(".js-start-semester").dropdown("set selected", start_semester)

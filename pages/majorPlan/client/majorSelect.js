@@ -5,9 +5,15 @@ Template.majorSelect.onCreated(function() {
 })
 
 Template.majorSelect.onRendered(function() {
-    $('#search-select').dropdown();
-    $('#search-select-start-semester').dropdown();
-    $('#search-select-end-semester').dropdown();
+    $('#search-select').dropdown({
+        match: "text"
+    });
+    $('#search-select-start-semester').dropdown({
+        match: "text"
+    });
+    $('#search-select-end-semester').dropdown({
+        match: "text"
+    });
     const major = $("#search-select input").val();
 
 });
