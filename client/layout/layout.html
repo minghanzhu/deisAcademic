@@ -22,21 +22,7 @@
             </li>
             {{#if currentUser}}
                 {{#if existsProfile}}
-                <li>
-                    <!-- <a href="{{pathFor 'myProfile'}}"> -->
-                    <a>
-                      <div class="ui dropdown">
-                        <!-- <div class="text">Profile</div> -->
-                        <span class="text glyphicon glyphicon-user"></span>
-                        <!-- <b>Major</b> -->
-                        <div class="menu">
-                          <a class="item" href="/myMajorPlan">Major Plan</a>
-                          <a class="item" href="/schedule">Schedule</a>
-                          <a class="item" href="/myWishlist">Wishlist</a>
-                        </div>
-                      </div>
-                    </a>
-                </li>
+                {{> profileButton}}
                 <li>
                     <a class="js-log-out">
                         <span class="glyphicon glyphicon-log-out"></span><b>Log out</b>
@@ -47,12 +33,7 @@
                     <div class="ui active inline loader"></div>
                 {{/if}}
             {{else}}
-            <li>
-                <a class="js-login">
-                    <span class="glyphicon glyphicon-log-in"></span><b>Sign in</b>
-                </a>
-            </li>
-            <!-- <li><i class="sign in huge icon js-login"></i></li> -->
+            {{> loginButton}}
             {{/if}}
             <li style="padding-top: 300px;">
               <li style="font-size: 10px; overflow: hidden; white-space: nowrap;">
@@ -77,4 +58,30 @@
     <div class="move">
         {{> yield}}
     </div>
+</template>
+
+<template name="profileButton">
+  <li>
+      <!-- <a href="{{pathFor 'myProfile'}}"> -->
+      <a>
+        <div class="ui dropdown">
+          <!-- <div class="text">Profile</div> -->
+          <span class="text glyphicon glyphicon-user"></span>
+          <!-- <b>Major</b> -->
+          <div class="menu">
+            <a class="item" href="/myMajorPlan">Major Plan</a>
+            <a class="item" href="/schedule">Schedule</a>
+            <a class="item" href="/myWishlist">Wishlist</a>
+          </div>
+        </div>
+      </a>
+  </li>
+</template>
+
+<template name="loginButton">
+  <li>
+      <a class="js-login">
+          <span class="glyphicon glyphicon-log-in"></span><b>Sign in</b>
+      </a>
+  </li>
 </template>

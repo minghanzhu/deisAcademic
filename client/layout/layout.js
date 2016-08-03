@@ -11,6 +11,20 @@ Template.layout.onRendered(function() {
 
 });
 
+Template.profileButton.onRendered(function() {
+  $('.ui.dropdown').dropdown({
+    action: 'hide'
+  });
+});
+
+Template.loginButton.onRendered(function() {
+  $('.js-login span')
+  .popup({
+    content: "Sign in with your Brandeis email",
+    position: 'right center',
+  });
+});
+
 Template.layout.events({
   "click .js-login": function(event){
  		event.preventDefault();
