@@ -3,8 +3,11 @@ Template.layout.onRendered(function() {
   .popup({
     content: "Sign in with your Brandeis email",
     position: 'right center',
-  })
-;
+  });
+
+  $('.ui.dropdown').dropdown({
+    action: 'hide'
+  });
 
 });
 
@@ -34,6 +37,11 @@ Template.layout.events({
     event.preventDefault();
     Meteor.logout();
     Router.go('/');
+  },
+
+  "click .js-majorPlan": function(event) {
+      event.preventDefault();
+      Template.instance().myPageDict.set('pageName', "majorPlan");
   },
 });
 

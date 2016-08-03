@@ -324,6 +324,7 @@ Template.home.events ({
 
 	"click .js-voice-search": function(){
 		event.preventDefault();
+    $("#css-voice").toggle();
 		homeDict.set('showTable', false);
 		homeDict.set('majorDetail', []);
 		homeDict.set('sectionDetail', []);
