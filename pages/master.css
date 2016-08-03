@@ -1,3 +1,11 @@
 .ui.grid {
     margin-top: 0;
 }
+
+.ui.stackable.divided.grid {
+	margin-top: -1rem;
+}
+
+.ui.stackable.divided.grid .ui.vertical.labeled.icon.buttons {
+	width: 100%;
+}

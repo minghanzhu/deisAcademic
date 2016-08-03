@@ -90,7 +90,7 @@
     </div>
 
     <div class="ui bottom attached tab segment" data-tab="first" tab-num="1">
-      <div class="ui stackable grid">
+      <div class="ui stackable divided grid">
         <div class="eleven wide column">
           {{#if sectionReady}} 
             <h3>Section {{sectionObj.section}}</h3>
@@ -115,8 +115,6 @@
             <button class="ui basic button js-textbook" course-code="{{courseInfo.code}}" course-id="{{sectionObj.course}}" section-num="{{sectionObj.section}}"><i class="book icon"></i>Click to view</button>
           {{/if}}
         </div>
-
-        <div class="ui vertical divider">.</div>
 
         <div class="five wide column">
           <div class="ui vertical labeled icon buttons">
