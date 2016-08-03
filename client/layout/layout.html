@@ -11,17 +11,17 @@
                 </a>
             </li>
             <li>
-                <a href="{{pathFor 'schedule'}}">
-                    <span class="glyphicon glyphicon-calendar"></span><b>Schedule</b>
-                </a>
-            </li>
-            <li>
                 <a href="{{pathFor 'masterMajorPlan'}}">
                     <span class="glyphicon glyphicon-list-alt"></span><b>Major</b>
                 </a>
             </li>
             {{#if currentUser}}
                 {{#if existsProfile}}
+                <li>
+                    <a href="{{pathFor 'schedule'}}">
+                        <span class="glyphicon glyphicon-calendar"></span><b>Schedule</b>
+                    </a>
+                </li>
                 {{> profileButton}}
                 <li>
                     <a class="js-log-out">
