@@ -18,6 +18,7 @@
 <template name="plan_result">
     {{setMasterDict dict}}
     {{#if courseDataReady planDict}}
+        {{> reactiveTableFilter id="planSearchFilter" fields=["name", "code"] label="Code or Title"}}
         {{> reactiveTable class="ui stackable selectable fixed table js-result-table" collection=(courseData planDict) settings=settings_course}}
     {{else}}
         {{#if noResult planDict}}

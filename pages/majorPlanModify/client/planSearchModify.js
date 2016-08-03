@@ -184,6 +184,7 @@ Template.plan_result_view.helpers({
         return {
             rowsPerPage: 10,
             showFilter: false,
+            filters: ["planModifyFilter"],
             showNavigationRowsPerPage: false,
             multiColumnSort: false,
             fields: [{
