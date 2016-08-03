@@ -174,20 +174,22 @@ Meteor.startup(function() {
         //     doctor: "",
         // });
     }
-    /*
-    Section._ensureIndex({ "course": 1});
-    Section._ensureIndex({ "instructors": 1});
-    Section._ensureIndex({ "times": 1});
-    Major._ensureIndex({ "school": 1});
-    Course._ensureIndex({ "continuity_id": 1});
-    Course._ensureIndex({ "term": 1});
-    Course._ensureIndex({ "code": 1});
-    Course._ensureIndex({ "name": 1});
-    Course._ensureIndex({ "term": 1, "code": 1, "name": 1});
-    Course._ensureIndex({ "id": 1});
+
+    Section._ensureIndex({ "course": 1}, {background: true});
+    Section._ensureIndex({ "instructors": 1}, {background: true});
+    Section._ensureIndex({ "times": 1}, {background: true});
+    Section._ensureIndex({ "id": 1}, {background: true});
+    Major._ensureIndex({ "school": 1}, {background: true});
+    Course._ensureIndex({ "continuity_id": 1}, {background: true});
+    Course._ensureIndex({ "term": 1}, {background: true});
+    Course._ensureIndex({ "code": 1}, {background: true});
+    Course._ensureIndex({ "name": 1}, {background: true});
+    Course._ensureIndex({ "term": 1, "code": 1, "name": 1}, {background: true});
+    Course._ensureIndex({ "id": 1}, {background: true});
+    Instructor._ensureIndex({ "id": 1}, {background: true});
     console.log("index added!");
-    */
     
+
     //if (Instructor.find().count() > 0) return;
     /*
     Instructor.remove({});
@@ -223,7 +225,7 @@ Meteor.startup(function() {
                         Instructor.insert(d);
                     } else {
                         Instructor.insert(d);
-                    }   
+                    }
                 } else if (d.type == "requirement") {
                     const isInData = Requirement.findOne({id: d.id});
                     if(isInData){
@@ -231,7 +233,7 @@ Meteor.startup(function() {
                         Requirement.insert(d);
                     } else {
                         Requirement.insert(d);
-                    }   
+                    }
                 } else if (d.type == "term") {
                     const isInData = Term.findOne({id: d.id});
                     if(isInData){
@@ -239,7 +241,7 @@ Meteor.startup(function() {
                         Term.insert(d);
                     } else {
                         Term.insert(d);
-                    }   
+                    }
                 } else if (d.type == "subject") {
                     const isInData = Subject.findOne({id: d.id});
                     if(isInData){
@@ -247,7 +249,7 @@ Meteor.startup(function() {
                         Subject.insert(d);
                     } else {
                         Subject.insert(d);
-                    }   
+                    }
                 } else if (d.type == "course") {
                     const isInData = Course.findOne({id: d.id});
                     if(isInData){
@@ -255,7 +257,7 @@ Meteor.startup(function() {
                         Course.insert(d);
                     } else {
                         Course.insert(d);
-                    }   
+                    }
                 } else if (d.type == "section") {
                     const isInData = Section.findOne({id: d.id});
                     if(isInData){
@@ -263,7 +265,7 @@ Meteor.startup(function() {
                         Section.insert(d);
                     } else {
                         Section.insert(d);
-                    }   
+                    }
                 } else {
                     console.log("don't recognize data ");
                     console.log(d.type);
