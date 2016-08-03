@@ -48,7 +48,7 @@ Template.layout.events({
 Template.layout.helpers({
   createAccount: function(){
     if(Meteor.userId()){
-      Meteor.call("addUserProfile_Google",(new Date()).toLocaleString());
+      Meteor.call("addUserProfile_Google");
     };
   },
 
