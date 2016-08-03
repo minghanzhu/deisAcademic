@@ -23,8 +23,18 @@
             {{#if currentUser}}
                 {{#if existsProfile}}
                 <li>
-                    <a href="{{pathFor 'myProfile'}}">
-                        <span class="glyphicon glyphicon-user"></span><b>Profile</b>
+                    <!-- <a href="{{pathFor 'myProfile'}}"> -->
+                    <a>
+                      <div class="ui dropdown">
+                        <!-- <div class="text">Profile</div> -->
+                        <span class="text glyphicon glyphicon-user"></span>
+                        <!-- <b>Major</b> -->
+                        <div class="menu">
+                          <a class="item" href="#link1">Major Plan</a>
+                          <a class="item" href="#link2">Schedule</a>
+                          <a class="item" href="#link3">Wishlist</a>
+                        </div>
+                      </div>
                     </a>
                 </li>
                 <li>

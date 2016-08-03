@@ -29,6 +29,7 @@ a, a:hover, a:active, a:visited, a:focus {
 .nav-stacked span.glyphicon {
   display: block;
 }
+
 .nav-stacked a span{
     position: relative;
     text-align: center;
