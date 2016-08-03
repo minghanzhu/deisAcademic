@@ -2,7 +2,11 @@
 var Schemas = {};
 
 SimpleSchema.messages({
-    "notBrandeisAccount": "Please sign-up with a Brandeis Google account."
+    "notBrandeisAccount": "Please sign-up with a Brandeis Google account.",
+    "noSuchSection": "No such section.",
+    "noSuchSchedule": "No such schedule",
+    "noSuchPlan": "No such plan",
+
 })
 
 Schemas.Google = new SimpleSchema({
@@ -199,30 +203,82 @@ Meteor.users.attachSchema(Schemas.User);
 Schemas.UserProfilePnc = new SimpleSchema({
     userName: {
         type: String,
-        max: 100
+        max: 100,
+        unique: true
     },
     userId: {
         type: String,
-        regEx: SimpleSchema.RegEx.Id
+        regEx: SimpleSchema.RegEx.Id,
+        unique: true
     },
     userYear: {
         type: String,
         regEx: /^(Freshman|Sophomore|Junior|Senior|Graduate|Ph.D)$/,
     },
     wishlist: {
-        type: [String]
+        type: Array
+    },
+    'wishlist.$': {
+        type: String,
+        min: 1,
+        custom: function(){
+            if(!Section.findOne({id: this.value})){
+                return "noSuchSection"
+            }
+        },
+        optional: true
     },
     majorPlanList: {
-        type: [String]
+        type: Array
+    },
+    'majorPlanList.$': {
+        type: String,
+        min: 1,
+        custom: function(){
+            if(!MajorPlansPnc.findOne({id: this.value})){
+                return "noSuchPlan"
+            }
+        },
+        optional: true
     },
     liked: {
-        type: [Object]
+        type: Array
+    },
+    'liked.$': {
+        type: String,
+        min: 1,
+        custom: function(){
+            if(!Section.findOne({id: this.value})){
+                return "noSuchSection"
+            }
+        },
+        optional: true
     },
     watched: {
-        type: [Object]
+        type: Array
+    },
+    'watched.$': {
+        type: String,
+        min: 1,
+        custom: function(){
+            if(!Section.findOne({id: this.value})){
+                return "noSuchSection"
+            }
+        },
+        optional: true
     },
     scheduleList: {
-        type: [String]
+        type: Array
+    },
+    'scheduleList.$': {
+        type: String,
+        min: 1,
+        custom: function(){
+            if(!SchedulesPnc.findOne({id: this.value})){
+                return "noSuchSchedule"
+            }
+        },
+        optional: true
     },
     courseRate: {
         type: [Object]
