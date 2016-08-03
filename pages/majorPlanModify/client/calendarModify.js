@@ -191,6 +191,8 @@ Template.calendarModify.helpers({
         if (!Template.instance().masterDict.get("includeWishlist")) {
             Template.instance().masterDict.set("includeWishlist", false);
         }
+
+        Template.instance().masterDict.set("visited", false);
     },
 
     masterDictSet: function() {
@@ -503,6 +505,32 @@ Template.calendarModify.helpers({
 
     hasWishlist: function() {
         return Template.instance().masterDict.get("includeWishlist");
+    },
+
+    getUsername: function(){
+        const plan_id = MajorPlansPnc.findOne()._id;
+        const dict = Template.instance().masterDict;
+        Meteor.call("getUsername", plan_id, function(err, result){
+            if(err){
+                return "Unknown user"
+            }
+
+            dict.set("username", result);
+        })
+
+        return dict.get("username");
+    },
+
+    sameUser: function(){
+        if(!Meteor.userId()){
+            return false;
+        }
+
+        if(Meteor.userId() !== MajorPlansPnc.findOne().userId){
+            return false;
+        } else {
+            return true;
+        }
     },
 })
 

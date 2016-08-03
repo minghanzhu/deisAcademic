@@ -1128,29 +1128,24 @@ Meteor.methods({
 
     checkValidPlan: function(term_range, major_id){
         if(!this.userId){
-            console.log("Not logged in");
-            return;
+            return true;
         }
 
         if(!UserProfilePnc.findOne({userId: this.userId})){
-            console.log("No such user");
-            return;
+            throw new Meteor.error(201, "No such user");
         }
 
         let regexCode = new RegExp("-" + major_id + "$", "i");
         if (!Subject.findOne({ id: regexCode })) {
-            console.log("No such major id");
-            return;
+            throw new Meteor.error(202, "No such majorId");
         };
 
         if (!term_range.start_term || !term_range.end_term) {
-            console.log("Incorrect term");
-            return;
+            throw new Meteor.error(203, "Incorrect term");
         };
 
         if (!Term.findOne({ id: term_range.start_term }) || !Term.findOne({ id: term_range.end_term })) {
-            console.log("No such term");
-            return;
+            throw new Meteor.error(204, "No such term");
         };
 
         const user_profile = UserProfilePnc.findOne({userId: this.userId});
@@ -1233,6 +1228,21 @@ Meteor.methods({
       })
 
       return historyTermNames;
+    },
+
+    getUsername: function(plan_id){
+        if (!/^[23456789ABCDEFGHJKLMNPQRSTWXYZabcdefghijkmnopqrstuvwxyz]{17}$/.test(plan_id)) {
+            consle.log("Invalid remove: Malformed id");
+            return;
+        }
+
+        if (!MajorPlansPnc.findOne(plan_id)) {
+            console.log("Invalid remove: No such plan");
+            return;
+        }
+
+        const userId = MajorPlansPnc.findOne(plan_id).userId;
+        return UserProfilePnc.findOne({userId: userId}).userName;
     },
 });
 
