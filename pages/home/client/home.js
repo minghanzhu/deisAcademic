@@ -331,7 +331,7 @@ Template.home.events ({
 	"click .js-voice-search": function(){
 		const homeDict = Template.instance().homeDict;
 		event.preventDefault();
-    	$("#css-voice").toggle();
+    $("#css-voice").toggle();
 		homeDict.set('showTable', false);
 		homeDict.set('majorDetail', []);
 		homeDict.set('sectionDetail', []);
@@ -357,6 +357,11 @@ Template.home.events ({
 
 
 		var recognition = new webkitSpeechRecognition();
+
+		recognition.onaudioend = function() {
+			$("#css-voice").toggle();
+		},
+
 		recognition.onresult = function(event) {
 
 			const text = event.results[0][0].transcript;
