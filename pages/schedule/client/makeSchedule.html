@@ -6,13 +6,13 @@
 	<div class="ui grid">
 		<div class="twelve wide column">
 			<div class="ui sticky">
-        <div class="ui container">
+        <div class="ui container calendar">
 				  <select name="term" class="js-term form-control">
             {{#each term in availableTerms}}
-              <option value="{{term.id}}">{{term.name}}</option> 
-            {{/each}}            
+              <option value="{{term.id}}">{{term.name}}</option>
+            {{/each}}
           </select>
-        
+
           <div id="calendar"></div><br>
           {{#if currentUser}}
             <button class="ui primary button js-save-plan pull-right">Save My Plan</button>
@@ -25,9 +25,9 @@
 
 		<div class="four wide column">
   			<div class="ui container" id="courseList">
-				  {{#if hasCourseList}}     
+				  {{#if hasCourseList}}
             <div class="ui vertical accordion menu">
-              {{#each course in getCourseList}} 
+              {{#each course in getCourseList}}
                   {{> semesterScheduleCourseList c=course dict=calendarDict masterDict=dict}}
               {{/each}}
             </div>
@@ -35,7 +35,7 @@
   					{{pullUserCourseList}}
   					<div class="ui active inline loader"></div>
   				{{/if}}
-  			</div>	
+  			</div>
 		</div>
 	</div>
 
@@ -56,7 +56,7 @@
         {{courseInfo.description}}
         <h3>Requirements </h3>
         {{#each r in (getReq courseInfo.requirements)}}
-          {{r}} 
+          {{r}}
         {{/each}}
         <h3>Majors </h3>
         {{#if hasMajorInfo}}
@@ -77,7 +77,7 @@
     <div class="ui bottom attached tab segment" data-tab="first" tab-num="1">
       <div class="ui stackable divided grid">
         <div class="eleven wide column">
-          {{#if sectionReady}} 
+          {{#if sectionReady}}
             <h3>Section {{sectionObj.section}}</h3>
             <h3>Professor</h3>
             {{#if profNameLoading sectionObj.id}}<div class="ui active inline loader"></div>{{/if}}{{{getProfInfo sectionObj.instructors}}}<br>

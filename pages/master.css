@@ -9,3 +9,6 @@
 .ui.stackable.divided.grid .ui.vertical.labeled.icon.buttons {
 	width: 100%;
 }
+.ui.container.calendar {
+	margin-left: 10px!important;
+}

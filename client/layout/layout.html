@@ -17,11 +17,6 @@
             </li>
             {{#if currentUser}}
                 {{#if existsProfile}}
-                <li>
-                    <a href="{{pathFor 'schedule'}}">
-                        <span class="glyphicon glyphicon-calendar"></span><b>Schedule</b>
-                    </a>
-                </li>
                 {{> profileButton}}
                 <li>
                     <a class="js-log-out">
