@@ -327,6 +327,10 @@ Meteor.methods({
             }
         }
 
+        if (searchQuery.term == "/^/i" && searchQuery.code == "/^/i" && searchQuery.name == "/(?:)/i") {
+          return ["no params"];
+        }
+
         return Course.find(searchQuery, {
             fields: {
                 _id: 0,
@@ -396,7 +400,7 @@ Meteor.methods({
     //takes a course object and returns all the sections of it
     getSectionDetails: function(courseData) {
         const section_key = courseData.id; //get the id of the course
-        return Section.find({ course: section_key },{ 
+        return Section.find({ course: section_key },{
             fields: {
                 _id: 0,
                 type: 0,
@@ -441,13 +445,13 @@ Meteor.methods({
 
     //takes a section id and returns the section object
     getSection: function(sectionId) {
-        return Section.findOne({ id: sectionId }, { 
-            fields: { 
+        return Section.findOne({ id: sectionId }, {
+            fields: {
                 _id: 0,
                 type: 0,
                 comment: 0,
                 waiting: 0,
-            } 
+            }
         });
     },
 
