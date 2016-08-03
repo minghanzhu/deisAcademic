@@ -1,7 +1,9 @@
 Meteor.startup(function() {
+    /*
     Keyword.remove({});
     Dept.remove({});
     Major.remove({});
+    */
 
     if (Wishlist.find().count() == 0) {
         Wishlist.insert({
@@ -172,7 +174,7 @@ Meteor.startup(function() {
         //     doctor: "",
         // });
     }
-
+    /*
     Section._ensureIndex({ "course": 1});
     Section._ensureIndex({ "instructors": 1});
     Section._ensureIndex({ "times": 1});
@@ -183,46 +185,90 @@ Meteor.startup(function() {
     Course._ensureIndex({ "name": 1});
     Course._ensureIndex({ "term": 1, "code": 1, "name": 1});
     Course._ensureIndex({ "id": 1});
-
-
-    if (Instructor.find().count() > 0) return;
+    console.log("index added!");
+    */
+    
+    //if (Instructor.find().count() > 0) return;
+    /*
     Instructor.remove({});
     Term.remove({});
     Course.remove({});
     Section.remove({});
     Requirement.remove({});
     Subject.remove({});
+    */
+    /*
     const fs = Npm.require('fs');
     fs.readFile(
+        //"D:\\Luyi's\\JBS2016\\JSON\\export-2004-2016.json", 'utf8',
         //"D:\\Luyi's\\JBS2016\\deisAcademic\\public\\data\\classes.json", 'utf8',
         //"/Users/mhzhu/Desktop/deisAcademic/public/data/classes.json", 'utf8',
         //Meteor.settings.filePath, 'utf8',
-        "/home/pnc/deisAcademic/public/data/classes.json", 'utf8',
+        //"/home/pnc/deisAcademic/public/data/classes.json", 'utf8',
+        "/home/pnc/JSON/export-2004-2016.json", 'utf8',
         Meteor.bindEnvironment(function(err, data) {
             if (err) {
                 console.log('Error: ' + err);
                 return;
             }
             data = JSON.parse(data);
+            console.log("reading...")
             let i = 0;
             for (i = 0; i < data.length; i++) {
                 const d = data[i];
                 if (d.type == "instructor") {
-                    Instructor.insert(d);
+                    const isInData = Instructor.findOne({id: d.id});
+                    if(isInData){
+                        Instructor.remove(isInData._id);
+                        Instructor.insert(d);
+                    } else {
+                        Instructor.insert(d);
+                    }   
                 } else if (d.type == "requirement") {
-                    Requirement.insert(d);
+                    const isInData = Requirement.findOne({id: d.id});
+                    if(isInData){
+                        Requirement.remove(isInData._id);
+                        Requirement.insert(d);
+                    } else {
+                        Requirement.insert(d);
+                    }   
                 } else if (d.type == "term") {
-                    Term.insert(d);
+                    const isInData = Term.findOne({id: d.id});
+                    if(isInData){
+                        Term.remove(isInData._id);
+                        Term.insert(d);
+                    } else {
+                        Term.insert(d);
+                    }   
                 } else if (d.type == "subject") {
-                    Subject.insert(d);
+                    const isInData = Subject.findOne({id: d.id});
+                    if(isInData){
+                        Subject.remove(isInData._id);
+                        Subject.insert(d);
+                    } else {
+                        Subject.insert(d);
+                    }   
                 } else if (d.type == "course") {
-                    Course.insert(d);
+                    const isInData = Course.findOne({id: d.id});
+                    if(isInData){
+                        Course.remove(isInData._id);
+                        Course.insert(d);
+                    } else {
+                        Course.insert(d);
+                    }   
                 } else if (d.type == "section") {
-                    Section.insert(d);
+                    const isInData = Section.findOne({id: d.id});
+                    if(isInData){
+                        Section.remove(isInData._id);
+                        Section.insert(d);
+                    } else {
+                        Section.insert(d);
+                    }   
                 } else {
                     console.log("don't recognize data ");
                     console.log(d.type);
                 }
             }
-        }));
+            console.log("Done!")
+        }));*/
 })
