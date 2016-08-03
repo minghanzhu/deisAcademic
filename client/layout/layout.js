@@ -11,6 +11,12 @@ Template.layout.onRendered(function() {
 
 });
 
+Template.profileButton.onRendered(function() {
+  $('.ui.dropdown').dropdown({
+    action: 'hide'
+  });
+});
+
 Template.layout.events({
   "click .js-login": function(event){
  		event.preventDefault();

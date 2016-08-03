@@ -22,21 +22,7 @@
             </li>
             {{#if currentUser}}
                 {{#if existsProfile}}
-                <li>
-                    <!-- <a href="{{pathFor 'myProfile'}}"> -->
-                    <a>
-                      <div class="ui dropdown">
-                        <!-- <div class="text">Profile</div> -->
-                        <span class="text glyphicon glyphicon-user"></span>
-                        <!-- <b>Major</b> -->
-                        <div class="menu">
-                          <a class="item" href="/myMajorPlan">Major Plan</a>
-                          <a class="item" href="/schedule">Schedule</a>
-                          <a class="item" href="/myWishlist">Wishlist</a>
-                        </div>
-                      </div>
-                    </a>
-                </li>
+                {{> profileButton}}
                 <li>
                     <a class="js-log-out">
                         <span class="glyphicon glyphicon-log-out"></span><b>Log out</b>
@@ -77,4 +63,22 @@
     <div class="move">
         {{> yield}}
     </div>
+</template>
+
+<template name="profileButton">
+  <li>
+      <!-- <a href="{{pathFor 'myProfile'}}"> -->
+      <a>
+        <div class="ui dropdown">
+          <!-- <div class="text">Profile</div> -->
+          <span class="text glyphicon glyphicon-user"></span>
+          <!-- <b>Major</b> -->
+          <div class="menu">
+            <a class="item" href="/myMajorPlan">Major Plan</a>
+            <a class="item" href="/schedule">Schedule</a>
+            <a class="item" href="/myWishlist">Wishlist</a>
+          </div>
+        </div>
+      </a>
+  </li>
 </template>
