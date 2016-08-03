@@ -332,6 +332,23 @@ Template.home.events ({
 		homeDict.set('termName');
 		homeDict.set('noResult', false);
 
+		const if_clear_params = $(".js-if-clear-params").is(':checked');
+
+		if (if_clear_params) {
+			$(".js-submit-search").val("");
+			$(".js-term").val("");
+			$('#search-select').dropdown("clear");
+			$('#search-select-start-time').dropdown("clear");
+			$('#search-select-end-time').dropdown("clear");
+			$('#multi-select-days').dropdown("clear");
+			$('#multi-select').dropdown("clear");
+			$("#search-select input").val("");//""for no option and "all" for all departments
+			$(".js-prof input").val("");
+			$(".js-if-indep").prop("checked", false);
+			$(".js-if-not-sure").prop("checked", false);
+		}
+
+
 		var recognition = new webkitSpeechRecognition();
 		recognition.onresult = function(event) {
 
@@ -422,6 +439,10 @@ Template.home.events ({
 
 					const if_indept = $(".js-if-indep").is(':checked');
 					const if_not_sure = $(".js-if-not-sure").is(':checked');
+
+					if (!/\S/.test(theQuery) && !term && !instructor) {
+						return;
+					}
 
 					Meteor.call("searchCourse", theQuery, term, req_names_array, null, instructor, time_and_date, if_indept, if_not_sure,
 					function(err, result){
