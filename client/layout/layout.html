@@ -33,12 +33,7 @@
                     <div class="ui active inline loader"></div>
                 {{/if}}
             {{else}}
-            <li>
-                <a class="js-login">
-                    <span class="glyphicon glyphicon-log-in"></span><b>Sign in</b>
-                </a>
-            </li>
-            <!-- <li><i class="sign in huge icon js-login"></i></li> -->
+            {{> loginButton}}
             {{/if}}
             <li style="padding-top: 300px;">
               <li style="font-size: 10px; overflow: hidden; white-space: nowrap;">
@@ -79,6 +74,14 @@
             <a class="item" href="/myWishlist">Wishlist</a>
           </div>
         </div>
+      </a>
+  </li>
+</template>
+
+<template name="loginButton">
+  <li>
+      <a class="js-login">
+          <span class="glyphicon glyphicon-log-in"></span><b>Sign in</b>
       </a>
   </li>
 </template>
