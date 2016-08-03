@@ -2,7 +2,15 @@
 var Schemas = {};
 
 SimpleSchema.messages({
-    "notBrandeisAccount": "Please sign-up with a Brandeis Google account."
+    "notBrandeisAccount": "Please sign-up with a Brandeis Google account.",
+    "noSuchSection": "No such section.",
+    "noSuchSchedule": "No such schedule",
+    "noSuchPlan": "No such plan",
+    "noSuchMajor": "No such major",
+    "noSuchUser": "No such user",
+    "noSuchCourse": "No such course",
+    "noSuchTerm": "No such term",
+    "invalidTermRange": "Invalid term range",
 })
 
 Schemas.Google = new SimpleSchema({
@@ -199,30 +207,89 @@ Meteor.users.attachSchema(Schemas.User);
 Schemas.UserProfilePnc = new SimpleSchema({
     userName: {
         type: String,
-        max: 100
+        max: 100,
+        unique: true
     },
     userId: {
         type: String,
-        regEx: SimpleSchema.RegEx.Id
+        regEx: SimpleSchema.RegEx.Id,
+        unique: true,
+        custom: function(){
+            if(!Meteor.users.findOne(this.value)){
+                return "noSuchUser"
+            }
+        }
     },
     userYear: {
         type: String,
         regEx: /^(Freshman|Sophomore|Junior|Senior|Graduate|Ph.D)$/,
     },
     wishlist: {
-        type: [String]
+        type: Array
+    },
+    'wishlist.$': {
+        type: String,
+        min: 1,
+        custom: function(){
+            if(!Section.findOne({id: this.value})){
+                return "noSuchSection"
+            }
+        },
+        optional: true
     },
     majorPlanList: {
-        type: [String]
+        type: Array
+    },
+    'majorPlanList.$': {
+        type: String,
+        regEx: SimpleSchema.RegEx.Id,
+        min: 1,
+        custom: function(){
+            if(!MajorPlansPnc.findOne(this.value)){
+                return "noSuchPlan"
+            }
+        },
+        optional: true
     },
     liked: {
-        type: [Object]
+        type: Array
+    },
+    'liked.$': {
+        type: String,
+        min: 1,
+        custom: function(){
+            if(!Section.findOne({id: this.value})){
+                return "noSuchSection"
+            }
+        },
+        optional: true
     },
     watched: {
-        type: [Object]
+        type: Array
+    },
+    'watched.$': {
+        type: String,
+        min: 1,
+        custom: function(){
+            if(!Section.findOne({id: this.value})){
+                return "noSuchSection"
+            }
+        },
+        optional: true
     },
     scheduleList: {
-        type: [String]
+        type: Array
+    },
+    'scheduleList.$': {
+        type: String,
+        regEx: SimpleSchema.RegEx.Id,
+        min: 1,
+        custom: function(){
+            if(!SchedulesPnc.findOne(this.value)){
+                return "noSuchSchedule"
+            }
+        },
+        optional: true
     },
     courseRate: {
         type: [Object]
@@ -230,3 +297,158 @@ Schemas.UserProfilePnc = new SimpleSchema({
 })
 
 UserProfilePnc.attachSchema(Schemas.UserProfilePnc);
+
+Schemas.MajorPlansPnc = new SimpleSchema({
+    majorName: {
+        type: String,
+        custom: function(){
+            //first check if this major exists
+            if(!Subject.findOne({name: this.value})){
+                return "noSuchMajor"
+            }
+
+            //then make sure the major name matches the major id
+            const major_obj = Subject.findOne({name: this.value});
+            const major_id = major_obj.id.substring(major_obj.id.indexOf("-") + 1);
+            if(major_id !== this.field('majorId').value){
+                return "noSuchMajor"
+            }
+        }
+    },
+    majorId: {
+        type: String,
+        custom: function(){
+            const major_regex = new RegExp("-" + this.value + "$", "i");
+            if(!Subject.findOne({id: major_regex})){
+                return "noSuchMajor"
+            }
+
+            const major_obj = Subject.findOne({id: major_regex});
+            const major_name = major_obj.name;
+            if(major_name !== this.field('majorName').value){
+                return "noSuchMajor"
+            }
+        }
+    },
+    userId: {
+        type: String,
+        regEx: SimpleSchema.RegEx.Id,
+        custom: function(){
+            if(!Meteor.users.findOne(this.value)){
+                return "noSuchUser"
+            }
+        }
+    },
+    chosenCourse: {//array of continuity_id's
+        type: Array
+    },
+    'chosenCourse.$': {
+        type: String,
+        min: 1,
+        custom: function(){
+            if(!Course.findOne({continuity_id: this.value})){
+                return "noSuchCourse"
+            }
+        },
+        optional: true
+    },
+    scheduleList: {
+        type: Array
+    },
+    'scheduleList.$': {
+        type: String,
+        regEx: SimpleSchema.RegEx.Id,
+        min: 1,
+        custom: function(){
+            if(!SchedulesPnc.findOne(this.value)){
+                return "noSuchSchedule"
+            }
+        },
+        optional: true
+    },
+    start_term: {
+        type: String,
+        min: 1,
+        custom: function(){
+            //first check if this term exists
+            if(!Term.findOne({id: this.value})){
+                return "noSuchTerm"
+            }
+
+            //then check if it's smaller than the other
+            if(this.value >= this.field('end_term').value){
+                return "invalidTermRange"
+            }
+        }
+    },
+    end_term: {
+        type: String,
+        min: 1,
+        custom: function(){
+            //first check if this term exists
+            if(!Term.findOne({id: this.value})){
+                return "noSuchTerm"
+            }
+
+            //then check if it's smaller than the other
+            if(this.value <= this.field('start_term').value){
+                return "invalidTermRange"
+            }
+        }
+    },
+})
+
+MajorPlansPnc.attachSchema(Schemas.MajorPlansPnc);
+
+Schemas.SchedulesPnc = new SimpleSchema({
+    term: {
+        type: String,
+        min: 1,
+        custom: function(){
+            //first check if this term exists
+            if(!Term.findOne({id: this.value})){
+                return "noSuchTerm"
+            }
+        }
+    },
+    userId: {
+        type: String,
+        regEx: SimpleSchema.RegEx.Id,
+        custom: function(){
+            if(!Meteor.users.findOne(this.value)){
+                return "noSuchUser"
+            }
+        }
+    },
+    plan: {
+        type: String,
+        regEx: SimpleSchema.RegEx.Id,
+        custom: function(){
+            //can't check for existence
+            //https://github.com/aldeed/meteor-collection2/issues/38
+        },
+        optional: true
+    },
+    courseList: {
+        type: Array
+    },
+    'courseList.$': {
+        type: Object,
+        optional: true
+    },
+    'courseList.$.section_id': {
+        type: String,
+        optional: true,
+        custom: function(){
+            if(!Section.findOne({id: this.value})){
+                return "noSuchSection"
+            }
+        }
+    },
+    'courseList.$.chosen': {
+        type: Boolean,
+        optional: true
+    }
+})
+
+SchedulesPnc.attachSchema(Schemas.SchedulesPnc);
