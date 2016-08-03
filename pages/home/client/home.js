@@ -347,7 +347,7 @@ Template.home.events ({
 	"click .js-voice-search": function(){
 		const homeDict = Template.instance().homeDict;
 		event.preventDefault();
-    $("#css-voice").toggle();
+		$("#css-voice").toggle();
 		homeDict.set('showTable', false);
 		homeDict.set('majorDetail', []);
 		homeDict.set('sectionDetail', []);
@@ -390,161 +390,162 @@ Template.home.events ({
 				if(error){
 					console.log(error)
 				}
-				homeDict.set("RobApiResults", result);
 
-				const apiRes = homeDict.get("RobApiResults");
+				const apiRes = result;
+				console.log(apiRes);
 
 				if (apiRes) {
-					const dept = apiRes.data.result.parameters.Department;
-					const courseNum = apiRes.data.result.parameters.CourseNumber;
-					const courseName = apiRes.data.result.parameters.CourseName;
-					const termName = apiRes.data.result.parameters.Terms;
-					const instructorName = apiRes.data.result.parameters.Instructor;
+					if (apiRes.data.result.parameters) {
+						const dept = apiRes.data.result.parameters.Department;
+						const courseNum = apiRes.data.result.parameters.CourseNumber;
+						const courseName = apiRes.data.result.parameters.CourseName;
+						const termName = apiRes.data.result.parameters.Terms;
+						const instructorName = apiRes.data.result.parameters.Instructor;
 
-					const apiRes_obj = {
-						dept: dept,
-						courseNum: courseNum,
-						courseName: courseName,
-						termName: termName,
-						instructorName: instructorName
-					}
-
-					homeDict.set("apiResObject", apiRes_obj);
-					console.log(apiRes_obj);
-
-					const theQuery = dept + " " + courseNum + " " + courseName;
-
-					homeDict.set("theSearchQuery", theQuery);
-
-					var term;
-					var instructor;
-
-					if (apiRes.data.result.parameters.Terms) {
-						const termString = apiRes.data.result.parameters.Terms;
-
-						switch (termString) {
-							case "Fall 2016":
-							term = 1163;
-							break;
-							case "Fall 2015":
-							term = 1153;
-							break;
-							case "Spring 2016":
-							term = 1161;
-							break;
-							case "Spring 2017":
-							term = 1171;
-							break;
-							case "Summer 2016":
-							term = 1162;
-							break;
+						const apiRes_obj = {
+							dept: dept,
+							courseNum: courseNum,
+							courseName: courseName,
+							termName: termName,
+							instructorName: instructorName
 						}
-						$(".js-term").val(term);
-					}
-					else {
-						term = $(".js-term").val();
-					}
 
-					if (apiRes.data.result.parameters.Instructor) {
-						instructor = apiRes.data.result.parameters.Instructor;
-						$(".js-prof input").val(instructor);
-					}
-					else {
-						instructor = $(".js-prof input").val();
-					}
+						homeDict.set("apiResObject", apiRes_obj);
+						console.log(apiRes_obj);
 
-					// if (apiRes.data.result.parameters.Days) {
-					//
-					// 	const daysRes = apiRes.data.result.parameters.Days;
-					//
-					// 	$("select#multi-select-days[multiple][data-value='daysRes']").addClass("active");
-					// }
+						const theQuery = dept + " " + courseNum + " " + courseName;
 
-					const req_array = $(".js-req .ui.label.transition.visible").toArray();
-					const req_names_array = [];
-					for(let item of req_array){
-						req_names_array.push(item.innerText);
-					};
-					const days_array = $(".js-days .ui.label.transition.visible").toArray();
-					const days_names_array = [];
-					for(let item of days_array){
-						days_names_array.push($(item).attr("data-value"));
-					};
-					const start_time = $(".js-start-time input").val();
-					const end_time = $(".js-end-time input").val();
-					const time_and_date = {
-						days: days_names_array,
-						start: start_time,
-						end: end_time
-					};
+						homeDict.set("theSearchQuery", theQuery);
 
-					const if_indept = $(".js-if-indep").is(':checked');
-					const if_not_sure = $(".js-if-not-sure").is(':checked');
+						var term;
+						var instructor;
 
-					if (!/\S/.test(theQuery) && !term && !instructor) {
-						return;
-					}
+						if (apiRes.data.result.parameters.Terms) {
+							const termString = apiRes.data.result.parameters.Terms;
 
-					Meteor.call("searchCourse", theQuery, term, req_names_array, null, instructor, time_and_date, if_indept, if_not_sure,
-					function(err, result){
-						if(result.length == 0){
-							homeDict.set('noResult', true);
-						} else {
-							const sorted_result = result.sort(function(a, b) {
-								//for a
-								let course_num_a = parseInt(a.code.match(/\d+/gi)[0]);
-								if(course_num_a < 10) course_num_a = "00" + course_num_a;
-								if(course_num_a >= 10 && course_num_a < 100) course_num_a = "0" + course_num_a;
-								const course_dep_a = a.code.substring(0, a.code.indexOf(" "));
-								const last_a = a.code.charAt(a.code.length - 1);
-								let comp_string_a;
-								if(/\w/i.test(last_a)){
-									comp_string_a = course_num_a + last_a;
-								} else{
-									comp_string_a = course_num_a + "0";
-								};
+							switch (termString) {
+								case "Fall 2016":
+								term = 1163;
+								break;
+								case "Fall 2015":
+								term = 1153;
+								break;
+								case "Spring 2016":
+								term = 1161;
+								break;
+								case "Spring 2017":
+								term = 1171;
+								break;
+								case "Summer 2016":
+								term = 1162;
+								break;
+							}
+							$(".js-term").val(term);
+						}
+						else {
+							term = $(".js-term").val();
+						}
 
-								//for b
-								let course_num_b = parseInt(b.code.match(/\d+/gi)[0]);
-								if(course_num_b < 10) course_num_b = "00" + course_num_b;
-								if(course_num_b >= 10 && course_num_b < 100) course_num_b = "0" + course_num_b;
-								const course_dep_b = b.code.substring(0, b.code.indexOf(" "));
-								const last_b = b.code.charAt(b.code.length - 1);
-								let comp_string_b;
-								if(/\w/i.test(last_b)){
-									comp_string_b = course_num_b + last_b;
-								} else{
-									comp_string_b = course_num_b + "0";
-								};
+						if (apiRes.data.result.parameters.Instructor) {
+							instructor = apiRes.data.result.parameters.Instructor;
+							$(".js-prof input").val(instructor);
+						}
+						else {
+							instructor = $(".js-prof input").val();
+						}
 
-								if(parseInt(a.term) < parseInt(b.term)){
-									return 1;
-								}else if(parseInt(a.term) > parseInt(b.term)){
-									return -1;
-								}else{
-									const major_comp = course_dep_a.localeCompare(course_dep_b);
-									if(major_comp != 0){
-										return major_comp;
-									} else {
-										return comp_string_a.localeCompare(comp_string_b);
+						// if (apiRes.data.result.parameters.Days) {
+						//
+						// 	const daysRes = apiRes.data.result.parameters.Days;
+						//
+						// 	$("select#multi-select-days[multiple][data-value='daysRes']").addClass("active");
+						// }
+
+						const req_array = $(".js-req .ui.label.transition.visible").toArray();
+						const req_names_array = [];
+						for(let item of req_array){
+							req_names_array.push(item.innerText);
+						};
+						const days_array = $(".js-days .ui.label.transition.visible").toArray();
+						const days_names_array = [];
+						for(let item of days_array){
+							days_names_array.push($(item).attr("data-value"));
+						};
+						const start_time = $(".js-start-time input").val();
+						const end_time = $(".js-end-time input").val();
+						const time_and_date = {
+							days: days_names_array,
+							start: start_time,
+							end: end_time
+						};
+
+						const if_indept = $(".js-if-indep").is(':checked');
+						const if_not_sure = $(".js-if-not-sure").is(':checked');
+
+						if (!/\S/.test(theQuery) && !term && !instructor) {
+							return;
+						}
+
+						Meteor.call("searchCourse", theQuery, term, req_names_array, null, instructor, time_and_date, if_indept, if_not_sure,
+						function(err, result){
+							if(result.length == 0){
+								homeDict.set('noResult', true);
+							} else {
+								const sorted_result = result.sort(function(a, b) {
+									//for a
+									let course_num_a = parseInt(a.code.match(/\d+/gi)[0]);
+									if(course_num_a < 10) course_num_a = "00" + course_num_a;
+									if(course_num_a >= 10 && course_num_a < 100) course_num_a = "0" + course_num_a;
+									const course_dep_a = a.code.substring(0, a.code.indexOf(" "));
+									const last_a = a.code.charAt(a.code.length - 1);
+									let comp_string_a;
+									if(/\w/i.test(last_a)){
+										comp_string_a = course_num_a + last_a;
+									} else{
+										comp_string_a = course_num_a + "0";
+									};
+
+									//for b
+									let course_num_b = parseInt(b.code.match(/\d+/gi)[0]);
+									if(course_num_b < 10) course_num_b = "00" + course_num_b;
+									if(course_num_b >= 10 && course_num_b < 100) course_num_b = "0" + course_num_b;
+									const course_dep_b = b.code.substring(0, b.code.indexOf(" "));
+									const last_b = b.code.charAt(b.code.length - 1);
+									let comp_string_b;
+									if(/\w/i.test(last_b)){
+										comp_string_b = course_num_b + last_b;
+									} else{
+										comp_string_b = course_num_b + "0";
+									};
+
+									if(parseInt(a.term) < parseInt(b.term)){
+										return 1;
+									}else if(parseInt(a.term) > parseInt(b.term)){
+										return -1;
+									}else{
+										const major_comp = course_dep_a.localeCompare(course_dep_b);
+										if(major_comp != 0){
+											return major_comp;
+										} else {
+											return comp_string_a.localeCompare(comp_string_b);
+										}
 									}
-								}
-							});
-							for(let i = 0; i < sorted_result.length; i++){
-								sorted_result[i].index = i;
-							};
-							homeDict.set('courseData', sorted_result);
-							homeDict.set('noResult',false);
+								});
+								for(let i = 0; i < sorted_result.length; i++){
+									sorted_result[i].index = i;
+								};
+								homeDict.set('courseData', sorted_result);
+								homeDict.set('noResult',false);
+							}
+							homeDict.set('showTable', true);
 						}
-						homeDict.set('showTable', true);
-					}
-				);
-			}
-		})
-	}
-	recognition.start();
+					);
+				}}
+			})
+		}
+		recognition.start();
 
-},
+	},
 })
 
 Template.search_result.onCreated(function(){
