@@ -340,11 +340,12 @@
     </p> -->
 
     {{#if showTable}}
-        {{> search_result}}
+        {{> search_result dict=homeDict}}
     {{/if}}
 </template>
 
 <template name="search_result">
+    {{#if homeDictSet}}
     {{#if courseDataReady}}
         {{> reactiveTable class="ui stackable selectable fixed table js-result-table" collection=courseData settings=settings_course}}
     {{else}}
@@ -380,7 +381,7 @@
                 <h3>Majors </h3>
                 {{#if majorInfo}}{{#each item in majorInfo}}{{item}}<br>{{/each}}{{else}}<div class="ui active inline loader"></div>{{/if}}
                 <h3>Sections </h3>
-                {{#if sectionData}}{{> search_result_time_table}}{{else}}<div class="ui active inline loader"></div>{{/if}}
+                {{#if sectionData}}{{> search_result_time_table dict=dict}}{{else}}<div class="ui active inline loader"></div>{{/if}}
             {{else}}
                 <br>
                 <div class="ui active inline loader"></div>
@@ -402,7 +403,7 @@
                             </div>
                         </div>
                         <h3>Professor</h3>
-                        {{#if profNameLoading sectionDetail.id}}<div class="ui active inline loader"></div>{{/if}}{{{getProfInfo sectionDetail.instructors sectionDetail.id}}}<br>
+                        {{#if (profNameLoading sectionDetail.id)}}<div class="ui active inline loader"></div>{{/if}}{{{getProfInfo sectionDetail.instructors sectionDetail.id}}}<br>
                         <h3>Time and Place</h3>
                         {{#if sectionDetail.times}}
                             {{#each time in sectionDetail.times}}
@@ -478,6 +479,10 @@
             </ul>
         </div>
     </div>
+    {{else}}
+        {{setHomeDict dict}}
+        <div class="ui active inline loader"></div>
+    {{/if}}
 </template>
 
 <template name="description_detail">
@@ -494,5 +499,10 @@
 </template>
 
 <template name="search_result_time_table">
-    {{> reactiveTable class="ui table stackable js-section-table" collection=sectionData settings=settings_result}}
+    {{#if homeDictSet}}
+        {{> reactiveTable class="ui table stackable js-section-table" collection=sectionData settings=settings_result}}
+    {{else}}
+        {{setHomeDict dict}}
+        <div class="ui active inline loader"></div>
+    {{/if}}
 </template>
