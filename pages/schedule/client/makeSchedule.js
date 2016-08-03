@@ -3,6 +3,12 @@ import fullCalendar from 'fullcalendar';
 Template.semesterSchedule.onCreated(function() {
     this.calendarDict = new ReactiveDict();
     this.calendarDict.set("masterDictSet", false);
+    if(UserProfilePnc.findOne().wishlist.length == 0){
+        if(UserProfilePnc.findOne().scheduleList.length == 0){
+            window.alert("Please add some courses to your wishlist first");
+            Router.go('/')
+        }
+    };
 })
 
 Template.semesterSchedule.onRendered(function() {
@@ -217,6 +223,10 @@ Template.semesterSchedule.helpers({
     pullUserCourseList: function() {
         const dict = Template.instance().masterDict;
         const sectionList = UserProfilePnc.findOne().wishlist;//this is an array of id's of the chosen sections
+        if(sectionList.length == 0){
+            dict.set("fetched_courseList", []);
+            dict.set("hasCourseList", true);
+        }
 
         if (typeof sectionList[0] === "string") { //prevent unexpected request
             Meteor.call("fetchSectionList", sectionList,
@@ -409,21 +419,51 @@ Template.semesterSchedule.helpers({
 
     availableTerms: function(){
         const wishlist = UserProfilePnc.findOne().wishlist;
-        const wish_terms = [];
-        const term_record = [];
-        for(let section of wishlist){
-            const term = section.substring(0, section.indexOf("-"));
-            if($.inArray(term, term_record) == -1){
-                const term_obj = Term.findOne({id: term});
-                wish_terms.push(term_obj);
-                term_record.push(term);
+        const scheduleList = UserProfilePnc.findOne().scheduleList;
+
+        if(wishlist.length != 0){
+            //first check available terms in wishlist
+            const wish_terms = [];
+            const term_record = [];
+            for(let section of wishlist){
+                const term = section.substring(0, section.indexOf("-"));
+                if($.inArray(term, term_record) == -1){
+                    const term_obj = Term.findOne({id: term});
+                    wish_terms.push(term_obj);
+                    term_record.push(term);
+                }
             }
+
+            //then check available terms in schedule list
+            if(scheduleList.length != 0){
+                for(let schedule of scheduleList){
+                    const term_obj = Term.findOne({id: SchedulesPnc.findOne(schedule).term});
+                    if($.inArray(term_obj.id, term_record) == -1){
+                        wish_terms.push(term_obj);
+                        term_record.push(schedule.term);
+                    }
+                }
+            }
+
+            const result_array = wish_terms.sort(function(a, b){
+                return parseInt(b.id) - parseInt(a.id);
+            })
+            Template.instance().masterDict.set("availableTerms", result_array);
+            return result_array;
+        } else {
+            const term_list = [];
+            for(let schedule of scheduleList){
+                const term_obj = Term.findOne({id: SchedulesPnc.findOne(schedule).term});
+                term_list.push(term_obj);
+            }
+
+            const result_array = term_list.sort(function(a, b){
+                return parseInt(b.id) - parseInt(a.id);
+            })
+
+            Template.instance().masterDict.set("availableTerms", result_array);
+            return result_array;
         }
-        const result_array = wish_terms.sort(function(a, b){
-            return parseInt(b.id)-parseInt(a.id);
-        })
-        Template.instance().masterDict.set("availableTerms", result_array);
-        return result_array;
     },
 })
 
@@ -504,7 +544,7 @@ Template.semesterSchedule.events({
     },
 
     "click .js-save-plan": function() {
-        $(".js-save-plan").attr("class", "ui loading disabled button js-save-plan");
+        $(".js-save-plan").attr("class", "ui loading disabled button js-save-plan pull-right");
         //save the current term's schedule to the dict
         const current_term = $(".js-term").val();
         Template.instance().masterDict.set("chosenTerm", $(".js-term").val());
@@ -557,7 +597,7 @@ Template.semesterSchedule.events({
             }
 
             window.onbeforeunload = function (e) {};
-            Router.go('/myProfile');
+            Router.go('/');
         });
     },
 

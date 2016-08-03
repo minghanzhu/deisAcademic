@@ -1,7 +1,7 @@
 <template name="semesterSchedule">
   {{#if masterDictSet}}
   <div class="ui active dimmer">
-    <div class="ui indeterminate text loader">Loading you schedule...</div>
+    <div class="ui indeterminate text loader">Loading your schedule...</div>
   </div>
 	<div class="ui grid">
 		<div class="twelve wide column">
@@ -15,7 +15,7 @@
         
           <div id="calendar"></div><br>
           {{#if currentUser}}
-            <button class="ui button js-save-plan">Save My Plan</button>
+            <button class="ui primary button js-save-plan pull-right">Save My Plan</button>
           {{else}}
             <h3>You'll have to login to save this plan</h3>
           {{/if}}

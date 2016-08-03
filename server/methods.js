@@ -832,8 +832,7 @@ Meteor.methods({
 
     saveSchedule: function(scheduleList) {
         if (!this.userId) {
-            console.log("Invalid update: Not logged in");
-            return;
+            throw new Meteor.error(200, "Invalid update: Not logged in");
         }
 
         if (!UserProfilePnc.findOne({ userId: this.userId })) {
@@ -841,7 +840,7 @@ Meteor.methods({
         }
 
         if (scheduleList.length == 0) {
-            console.log("Invalid update: Empty schedule")
+            throw new Meteor.error(200, "Invalid update: Empty schedule");
         }
 
         for (let schedule of scheduleList) {
@@ -850,20 +849,33 @@ Meteor.methods({
                     term: schedule.term,
                     courseList: schedule.chosenCourse
                 }
+
+            if(schedule.chosenCourse.length != 0){
                 //if it exists, just update it
-            if (SchedulesPnc.findOne({ userId: this.userId, term: schedule.term, plan: { $exists: false } })) {
-                SchedulesPnc.update({ userId: this.userId, term: schedule.term, plan: { $exists: false } }, {
-                    $set: {
-                        courseList: schedule.chosenCourse
-                    }
-                });
-            } else { //if not, insert and put it to user profile
-                const new_schedule_id = SchedulesPnc.insert(schedule_obj);
-                UserProfilePnc.update({ userId: this.userId }, {
-                    $push: {
-                        scheduleList: new_schedule_id
-                    }
-                });
+                if (SchedulesPnc.findOne({ userId: this.userId, term: schedule.term, plan: { $exists: false } })) {
+                    SchedulesPnc.update({ userId: this.userId, term: schedule.term, plan: { $exists: false } }, {
+                        $set: {
+                            courseList: schedule.chosenCourse
+                        }
+                    });
+                } else { //if not, insert and put it to user profile
+                    const new_schedule_id = SchedulesPnc.insert(schedule_obj);
+                    UserProfilePnc.update({ userId: this.userId }, {
+                        $push: {
+                            scheduleList: new_schedule_id
+                        }
+                    });
+                }
+            } else {
+                if (SchedulesPnc.findOne({ userId: this.userId, term: schedule.term, plan: { $exists: false } })) {
+                    const schedule_id = SchedulesPnc.findOne({ userId: this.userId, term: schedule.term, plan: { $exists: false } })._id;
+                    SchedulesPnc.remove(schedule_id);
+                    UserProfilePnc.update({ userId: this.userId }, {
+                        $pull: {
+                            scheduleList: schedule_id
+                        }
+                    });
+                }
             }
         }
     },

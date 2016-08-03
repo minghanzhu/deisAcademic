@@ -50,6 +50,14 @@ Meteor.publish("schedule_term", function() {
     }) 
 });
 
+Meteor.publish("schedule_schduleList", function() {
+    return SchedulesPnc.find({ userId: this.userId, plan:{$exists:false}}, {
+        fields: {
+            term: 1
+        }
+    }) 
+});
+
 Meteor.publish("new_plan_term", function() {
     return Term.find({},{
     	fields: {
