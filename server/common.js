@@ -6,6 +6,12 @@ SimpleSchema.messages({
     "noSuchSection": "No such section.",
     "noSuchSchedule": "No such schedule",
     "noSuchPlan": "No such plan",
+    "noSuchMajor": "No such major",
+    "noSuchUser": "No such user",
+    "noSuchCourse": "No such course",
+    "noSuchTerm": "No such term",
+    "invalidTermRange": "Invalid term range",
+
 
 })
 
@@ -209,7 +215,12 @@ Schemas.UserProfilePnc = new SimpleSchema({
     userId: {
         type: String,
         regEx: SimpleSchema.RegEx.Id,
-        unique: true
+        unique: true,
+        custom: function(){
+            if(!Meteor.users.findOne(this.value)){
+                return "noSuchUser"
+            }
+        }
     },
     userYear: {
         type: String,
@@ -233,9 +244,10 @@ Schemas.UserProfilePnc = new SimpleSchema({
     },
     'majorPlanList.$': {
         type: String,
+        regEx: SimpleSchema.RegEx.Id,
         min: 1,
         custom: function(){
-            if(!MajorPlansPnc.findOne({id: this.value})){
+            if(!MajorPlansPnc.findOne(this.value)){
                 return "noSuchPlan"
             }
         },
@@ -272,9 +284,10 @@ Schemas.UserProfilePnc = new SimpleSchema({
     },
     'scheduleList.$': {
         type: String,
+        regEx: SimpleSchema.RegEx.Id,
         min: 1,
         custom: function(){
-            if(!SchedulesPnc.findOne({id: this.value})){
+            if(!SchedulesPnc.findOne(this.value)){
                 return "noSuchSchedule"
             }
         },
@@ -286,3 +299,105 @@ Schemas.UserProfilePnc = new SimpleSchema({
 })
 
 UserProfilePnc.attachSchema(Schemas.UserProfilePnc);
+
+Schemas.MajorPlansPnc = new SimpleSchema({
+    majorName: {
+        type: String,
+        custom: function(){
+            //first check if this major exists
+            if(!Subject.findOne({name: this.value})){
+                return "noSuchMajor"
+            }
+
+            //then make sure the major name matches the major id
+            const major_obj = Subject.findOne({name: this.value});
+            const major_id = major_obj.id.substring(major_obj.id.indexOf("-") + 1);
+            if(major_id !== this.field('majorId').value){
+                return "noSuchMajor"
+            }
+        }
+    },
+    majorId: {
+        type: String,
+        custom: function(){
+            const major_regex = new RegExp("-" + this.value + "$", "i");
+            if(!Subject.findOne({id: major_regex})){
+                return "noSuchMajor"
+            }
+
+            const major_obj = Subject.findOne({id: major_regex});
+            const major_name = major_obj.name;
+            if(major_name !== this.field('majorName').value){
+                return "noSuchMajor"
+            }
+        }
+    },
+    userId: {
+        type: String,
+        regEx: SimpleSchema.RegEx.Id,
+        custom: function(){
+            if(!Meteor.users.findOne(this.value)){
+                return "noSuchUser"
+            }
+        }
+    },
+    chosenCourse: {//array of continuity_id's
+        type: Array
+    },
+    'chosenCourse.$': {
+        type: String,
+        min: 1,
+        custom: function(){
+            if(!Course.findOne({continuity_id: this.value})){
+                return "noSuchCourse"
+            }
+        },
+        optional: true
+    },
+    scheduleList: {
+        type: Array
+    },
+    'scheduleList.$': {
+        type: String,
+        regEx: SimpleSchema.RegEx.Id,
+        min: 1,
+        custom: function(){
+            if(!SchedulesPnc.findOne(this.value)){
+                return "noSuchSchedule"
+            }
+        },
+        optional: true
+    },
+    start_term: {
+        type: String,
+        min: 1,
+        custom: function(){
+            //first check if this term exists
+            if(!Term.findOne({id: this.value})){
+                return "noSuchTerm"
+            }
+
+            //then check if it's smaller than the other
+            if(this.value >= this.field('end_term').value){
+                return "invalidTermRange"
+            }
+        }
+    },
+    end_term: {
+        type: String,
+        min: 1,
+        custom: function(){
+            //first check if this term exists
+            if(!Term.findOne({id: this.value})){
+                return "noSuchTerm"
+            }
+
+            //then check if it's smaller than the other
+            if(this.value <= this.field('start_term').value){
+                return "invalidTermRange"
+            }
+        }
+    },
+})
+
+MajorPlansPnc.attachSchema(Schemas.MajorPlansPnc);
