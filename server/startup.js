@@ -173,6 +173,18 @@ Meteor.startup(function() {
         // });
     }
 
+    Section._ensureIndex({ "course": 1});
+    Section._ensureIndex({ "instructors": 1});
+    Section._ensureIndex({ "times": 1});
+    Major._ensureIndex({ "school": 1});
+    Course._ensureIndex({ "continuity_id": 1});
+    Course._ensureIndex({ "term": 1});
+    Course._ensureIndex({ "code": 1});
+    Course._ensureIndex({ "name": 1});
+    Course._ensureIndex({ "term": 1, "code": 1, "name": 1});
+    Course._ensureIndex({ "id": 1});
+
+
     if (Instructor.find().count() > 0) return;
     Instructor.remove({});
     Term.remove({});

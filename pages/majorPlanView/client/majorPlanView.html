@@ -3,26 +3,25 @@
         <div class="nine wide column">
             <div class="ui form">
                 <div class="fields">
-                    {{#if dataReady}}
-                    	{{#if hasMajorPlan}}
-                    		<div class="ui fluid search selection dropdown js-plan-choose" id="search-select-plans">
-                        		<input type="hidden" name="choose_plan" value="">
-                        		<i class="dropdown icon"></i>
-                        		<div class="default text">Select your major plan</div>
-                        		<div class="menu" id="planList">
-                            		{{> planList getUserPlans=getUserPlans}}
-                        		</div>
-                    		</div>
+                    {{#if hasMajorPlan}}
+                    	<div class="ui fluid search selection dropdown js-plan-choose" id="search-select-plans">
+                        	<input type="hidden" name="choose_plan" value="">
+                        	<i class="dropdown icon"></i>
+                        	<div class="default text">Select your major plan</div>
+                        	<div class="menu" id="planList">
+                            	{{> planList getUserPlans=getUserPlans}}
+                        	</div>
+                    	</div>
 
-                    		<button class="ui blue button js-go-plan">Go</button>
-                    	{{else}}
-                    		<h3>You don't currently have any major plan to view</h3>
-                    		<button class="ui blue basic button js-create-plan">Create one now</button>
-                    	{{/if}} 
+                    	<button class="ui blue button js-go-plan">Go</button>
                     {{else}}
-                    	<div class="ui active inline loader"></div>
+                    	<h3 class="no-plan-text">You don't currently have any major plan to view</h3>
                     {{/if}}
                 </div>
+
+                {{#if hasMajorPlan}}{{else}}
+                    <button class="ui primary button js-create-plan">Create one now</button>
+                {{/if}} 
             </div>
         </div>
     </div>
@@ -30,6 +29,6 @@
 
 <template name="planList">
 	{{#each plan in getUserPlans}}
-        <div class="item" data-value="{{plan._id}}">{{plan.majorName}}</div>
+        <div class="item" data-value="{{plan._id}}">{{plan.majorName}} - <b>{{getTermName plan.start_term}}</b> to <b>{{getTermName plan.end_term}}</b></div>
     {{/each}}
 </template>

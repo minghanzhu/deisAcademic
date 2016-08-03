@@ -5,12 +5,7 @@ Template.majorPlanView.helpers({
 
     getUserPlans: function() {
         return MajorPlansPnc.find().fetch();
-    },
-
-    dataReady: function() {
-        return !!UserProfilePnc.findOne() &&
-            MajorPlansPnc.find().fetch() != 0;
-    },
+    },    
 })
 
 Template.majorPlanView.events({
@@ -23,6 +18,12 @@ Template.majorPlanView.events({
 		const plan_id = $("#search-select-plans input").val();
 		Router.go('/majorPlan/' + plan_id);
 	},
+
+  "click .js-create-plan": function(event){
+    event.preventDefault();
+
+    Router.go('/majorPlan/new');
+  },
 })
 
 Template.planList.onRendered(function(){
@@ -31,6 +32,8 @@ Template.planList.onRendered(function(){
     });
 })
 
-Template.planList.events({
-
+Template.planList.helpers({
+	getTermName: function(term_id){
+    	return Term.findOne({id: term_id}).name;
+    },
 })

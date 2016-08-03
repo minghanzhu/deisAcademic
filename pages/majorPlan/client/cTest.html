@@ -5,18 +5,20 @@
 			<div class="ui sticky">
         <div class="ui container">
 				  <select name="term" class="js-term form-control">
-            <option value="1161">Spring 2016</option>
-            <option value="1163">Fall 2016</option>
-            <option value="1171">Spring 2017</option>              
+            {{#each term in termList}}
+              <option value="{{term.id}}">{{term.name}}</option>
+            {{/each}}              
           </select>
         
           <div id="calendar"></div><br>
           <button class="ui button js-change-course">Change Chosen Courses</button>
           {{#if hasClickedChange}}{{clickedChange}}{{/if}}
           {{#if currentUser}}
-            <button class="ui button js-save-plan">Save My Plan</button>
+            <button class="ui primary button js-save-plan pull-right">Save My Plan</button>
           {{else}}
-            <h3>You'll have to login to save this plan</h3>
+            <div class="js-not-save-plan pull-right">
+              <button class="ui disabled primary button">Save the plan</button>
+            </div>
           {{/if}}
         </div>
 			</div>
@@ -118,17 +120,17 @@
 
         <div class="five wide column">
           <div class="ui vertical labeled icon buttons">
-            <button class="ui basic button js-add-to-list">
+            <!--<button class="ui basic button js-add-to-list">
               <i class="plus icon"></i>
               Add to my wishlist
-            </button>
+            </button>-->
 
-            <button class="ui basic button">
+            <!--<button class="ui basic button">
               <i class="alarm icon"></i>
               Watch this section for any change
-            </button>
+            </button>-->
 
-            <button class="ui basic button">
+            <!--<button class="ui basic button">
               <i class="angle double up icon"></i>
               Previous section
             </button>
@@ -136,7 +138,7 @@
             <button class="ui basic button">
               <i class="angle double down icon"></i>
               Next section
-            </button>
+            </button>-->
 
             {{#if isSectionChosen}}
               <button class="ui blue button js-take" section-id="{{sectionObj.id}}">

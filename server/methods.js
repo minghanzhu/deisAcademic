@@ -333,7 +333,15 @@ Meteor.methods({
             }
         }
 
-        return Course.find(searchQuery).fetch();
+        return Course.find(searchQuery, {
+            fields: {
+                _id: 0,
+                type: 0,
+                comment: 0,
+                credits: 0,
+                independent_study: 0,
+            }
+        }).fetch();
     },
 
     //this returns results with limited fields
@@ -589,7 +597,15 @@ Meteor.methods({
             }
         }
 
-        return Course.find(searchQuery, { fields: { _id: 0, credits: 0, requirements: 0, subjects: 0, type: 0, term: 0, independent_study: 0 } }).fetch();
+        return Course.find(searchQuery, { 
+            fields: { 
+                _id: 0,
+                type: 0,
+                comment: 0,
+                credits: 0,
+                independent_study: 0,
+            } 
+        }).fetch();
     },
 
     searchTerm: function(key) {
@@ -650,7 +666,14 @@ Meteor.methods({
     //takes a course object and returns all the sections of it
     getSectionDetails: function(courseData) {
         const section_key = courseData.id; //get the id of the course
-        return Section.find({ course: section_key }).fetch(); //an array of corresponding sections
+        return Section.find({ course: section_key },{ 
+            fields: {
+                _id: 0,
+                type: 0,
+                comment: 0,
+                waiting: 0,
+            }
+        }).fetch(); //an array of corresponding sections
     },
 
     //returns the array of prof. name and id
@@ -676,18 +699,39 @@ Meteor.methods({
 
     //takes a course object and returns all the sections of it
     getSections: function(courseId) {
-        return Section.find({ course: courseId }).fetch();
+        return Section.find({ course: courseId },{
+            fields: {
+                _id: 0,
+                type: 0,
+                comment: 0,
+                waiting: 0,
+            }
+        }).fetch();
     },
 
     //takes a section id and returns the section object
     getSection: function(sectionId) {
-        return Section.findOne({ id: sectionId }, { fields: { _id: 0, type: 0 } });
+        return Section.findOne({ id: sectionId }, { 
+            fields: { 
+                _id: 0,
+                type: 0,
+                comment: 0,
+                waiting: 0,
+            } 
+        });
     },
 
     getSectionList: function(section_id_list) {
         const result_array = [];
         for (let sectionId of section_id_list) {
-            result_array.push(Section.findOne({ id: sectionId }));
+            result_array.push(Section.findOne({ id: sectionId }, {
+                fields: {
+                    _id: 0,
+                    type: 0,
+                    comment: 0,
+                    waiting: 0,
+                }
+            }));
         }
 
         return result_array;
@@ -695,7 +739,15 @@ Meteor.methods({
 
     //takes a course id and returns the course object
     getCourse: function(courseId) {
-        return Course.findOne({ id: courseId });
+        return Course.findOne({ id: courseId }, {
+            fields: {
+                _id: 0,
+                type: 0,
+                comment: 0,
+                credits: 0,
+                independent_study: 0,
+            }
+        });
     },
 
 
@@ -738,7 +790,16 @@ Meteor.methods({
 
 
     "addToWishlist": function(sectionID) {
+      const currUser = UserProfilePnc.findOne({ userId: this.userId });
+
+      //if section not already in user's wishlist, add it
+      if (!_.contains(currUser.wishlist, sectionID)) {
         UserProfilePnc.update({ userId: this.userId }, { $push: { wishlist: sectionID } });
+      }
+      //if section is already in user's wishlist, remove it
+      else if (_.contains(currUser.wishlist, sectionID)) {
+        UserProfilePnc.update({ userId: this.userId }, { $pull: { wishlist: sectionID } });
+      }
     },
 
 
@@ -772,7 +833,15 @@ Meteor.methods({
     "fetchCourseList": function(courseList) {
         let result_array = [];
         for (let courseId of courseList) {
-            const course_array = Course.find({ continuity_id: courseId }).fetch();
+            const course_array = Course.find({ continuity_id: courseId }, {
+                fields: {
+                    _id: 0,
+                    type: 0,
+                    comment: 0,
+                    credits: 0,
+                    independent_study: 0,
+                }
+            }).fetch();
             result_array = result_array.concat(course_array);
         };
         return result_array;
@@ -782,12 +851,58 @@ Meteor.methods({
         const result_array = [];
         for (let section of sectionList) {
             const course_id = Section.findOne({ id: section }).course;
-            result_array.push(Course.findOne({ id: course_id }));
+            result_array.push(Course.findOne({ id: course_id }, {
+                fields: {
+                    _id: 0,
+                    type: 0,
+                    comment: 0,
+                    credits: 0,
+                    independent_study: 0,
+                }
+            }));
         }
         return result_array;
     },
 
-    "saveMajorPlan": function(scheduleList, major_code, availableCourseList) {
+    "fetchSections": function(wishlist) {
+        const result_array = [];
+        for (let section of wishlist) {
+            const section_obj = Section.findOne({ id: section });
+            const course_id = section_obj.course;
+            const course_obj = Course.findOne({ id: course_id });
+            const course_code = course_obj.code;
+            const course_term = course_obj.term;
+            const course_req = course_obj.requirements;
+            const course_title = course_obj.name;
+            const term_obj = Term.findOne({ id: course_term });
+            const term_name = term_obj.name;
+            section_obj.code = course_code;
+            section_obj.termName = term_name;
+            section_obj.term = course_term;
+            section_obj.req = course_req;
+            section_obj.courseName = course_title;
+            const instructors_list = section_obj.instructors;
+            const instructor_names = [];
+            for (let instructor of instructors_list) {
+                const instructor_obj = Instructor.findOne({ id: instructor });
+                const first_name = instructor_obj.first;
+                const last_name = instructor_obj.last;
+                let full_name = "";
+                if (first_name === "Staff" || last_name === "Staff") {
+                    full_name = "Staff"
+                } else {
+                    full_name = first_name + " " + last_name;
+                }
+                instructor_names.push(full_name);
+            }
+            section_obj.instructorNames = instructor_names;
+            result_array.push(section_obj);
+        }
+
+        return result_array;
+    },
+
+    "saveMajorPlan": function(scheduleList, major_code, availableCourseList, term_range) {
         if (!this.userId) {
             console.log("Invalid insert: Not logged in");
             return;
@@ -805,7 +920,9 @@ Meteor.methods({
             majorId: major_code,
             userId: this.userId,
             chosenCourse: availableCourseList,
-            scheduleList: scheduleList
+            scheduleList: scheduleList,
+            start_term: term_range.start_term,
+            end_term: term_range.end_term
         };
 
         const major_plan_id = MajorPlansPnc.insert(final_major_plan);
@@ -824,7 +941,7 @@ Meteor.methods({
         console.log(return_result);
     },
 
-    "saveSchedule_MajorPlan": function(scheduleList, major_code, availableCourseList) {
+    "saveSchedule_MajorPlan": function(scheduleList, major_code, availableCourseList, term_range) {
         if (!this.userId) {
             console.log("Invaid insert: Not logged in");
         };
@@ -849,6 +966,21 @@ Meteor.methods({
             console.log("Invalid insert: No schedule found")
         };
 
+        if (!term_range.start_term || !term_range.end_term) {
+            console.log("Invalid insert: Incorrect term");
+            return;
+        };
+
+        if (!Term.findOne({ id: term_range.start_term }) || !Term.findOne({ id: term_range.end_term })) {
+            console.log("Invalid insert: No such term");
+            return;
+        };
+
+        if (MajorPlansPnc.findOne({userId: this.userId, majorId: major_code, start_term: term_range.start_term, end_term: term_range.end_term})){
+            console.log("Invalid insert: Duplicate plans");
+            return;
+        };
+
         const schedule_id_list = [];
         for (let schedule of scheduleList) {
             const schedule_obj = {
@@ -861,7 +993,7 @@ Meteor.methods({
             schedule_id_list.push(schedule_id);
         };
 
-        Meteor.call("saveMajorPlan", schedule_id_list, major_code, availableCourseList, function(err, result) {
+        Meteor.call("saveMajorPlan", schedule_id_list, major_code, availableCourseList, term_range, function(err, result) {
             if (err) {
                 return err.message;
             }
@@ -892,7 +1024,7 @@ Meteor.methods({
         return result;
     },
 
-    "updateSchedule_MajorPlan": function(scheduleList, major_code, availableCourseList, current_plan_id) {
+    "updateSchedule_MajorPlan": function(scheduleList, major_code, availableCourseList, current_plan_id, term_range) {
         if (!this.userId) {
             console.log("Invaid insert: Not logged in");
         };
@@ -914,10 +1046,29 @@ Meteor.methods({
         };
 
         if (scheduleList.length == 0) {
-            console.log("Invalid insert: No schedule found")
+            console.log("Invalid insert: No schedule found");
+            return;
+        };
+
+        if (!term_range.start_term || !term_range.end_term) {
+            console.log("Invalid insert: Incorrect term");
+            return;
+        };
+
+        if (!Term.findOne({ id: term_range.start_term }) || !Term.findOne({ id: term_range.end_term })) {
+            console.log("Invalid insert: No such term");
+            return;
         };
 
         const plan_obj = MajorPlansPnc.findOne(current_plan_id);
+        const previous_schedules = plan_obj.scheduleList;
+        for (let schedule of previous_schedules) {
+            const schedule_term = SchedulesPnc.findOne(schedule).term;
+            if (schedule_term < term_range.start_term || schedule_term > term_range.end_term) {
+                MajorPlansPnc.update(current_plan_id, { $pull: { scheduleList: schedule } });
+                SchedulesPnc.remove(schedule);
+            }
+        }
 
         for (let schedule of scheduleList) {
             const schedule_obj = {
@@ -933,6 +1084,8 @@ Meteor.methods({
                 MajorPlansPnc.update(current_plan_id, { $push: { scheduleList: new_schedule_id } });
             }
         };
+
+        MajorPlansPnc.update(current_plan_id, { $set: { start_term: term_range.start_term, end_term: term_range.end_term } });
     },
 
     saveSchedule: function(scheduleList) {
@@ -954,10 +1107,10 @@ Meteor.methods({
                     userId: this.userId,
                     term: schedule.term,
                     courseList: schedule.chosenCourse
-            }
-            //if it exists, just update it
-            if (SchedulesPnc.findOne({ userId: this.userId, term: schedule.term, plan: {$exists: false}})) {
-                SchedulesPnc.update({ userId: this.userId, term: schedule.term, plan: {$exists: false}}, {
+                }
+                //if it exists, just update it
+            if (SchedulesPnc.findOne({ userId: this.userId, term: schedule.term, plan: { $exists: false } })) {
+                SchedulesPnc.update({ userId: this.userId, term: schedule.term, plan: { $exists: false } }, {
                     $set: {
                         courseList: schedule.chosenCourse
                     }
@@ -973,15 +1126,135 @@ Meteor.methods({
         }
     },
 
-    checkMajor: function(chosenMajor) {
-        if (!this.userId) {
+    checkValidPlan: function(term_range, major_id){
+        if(!this.userId){
             return true;
         }
 
-        if (!UserProfilePnc.findOne({ userId: this.userId })) {
-            throw new Meteor.error(100, "There is something wrong with your profile, please try again later\nIf this keeps showing up, please contact us");
+        if(!UserProfilePnc.findOne({userId: this.userId})){
+            throw new Meteor.error(201, "No such user");
         }
 
-        return !MajorPlansPnc.findOne({ userId: this.userId, majorId: chosenMajor });
+        let regexCode = new RegExp("-" + major_id + "$", "i");
+        if (!Subject.findOne({ id: regexCode })) {
+            throw new Meteor.error(202, "No such majorId");
+        };
+
+        if (!term_range.start_term || !term_range.end_term) {
+            throw new Meteor.error(203, "Incorrect term");
+        };
+
+        if (!Term.findOne({ id: term_range.start_term }) || !Term.findOne({ id: term_range.end_term })) {
+            throw new Meteor.error(204, "No such term");
+        };
+
+        const user_profile = UserProfilePnc.findOne({userId: this.userId});
+        return !MajorPlansPnc.findOne({userId: this.userId, majorId: major_id, start_term: term_range.start_term, end_term: term_range.end_term});
+    },
+
+    deletePlan: function(plan_id) {
+        if (!this.userId) {
+            console.log("Invalid remove: Not logged in");
+            return;
+        }
+
+        if (!UserProfilePnc.findOne({ userId: this.userId })) {
+            console.log("Invalid remove: Not such user");
+            return;
+        }
+
+        if (!/^[23456789ABCDEFGHJKLMNPQRSTWXYZabcdefghijkmnopqrstuvwxyz]{17}$/.test(plan_id)) {
+            consle.log("Invalid remove: Malformed id");
+            return;
+        }
+
+        if (!MajorPlansPnc.findOne(plan_id)) {
+            console.log("Invalid remove: No such plan");
+            return;
+        }
+
+        if (MajorPlansPnc.findOne(plan_id).userId !== this.userId) {
+            console.log("Invalid remove: No the same user");
+            return;
+        }
+
+        const plan_obj = MajorPlansPnc.findOne(plan_id);
+        const scheduleList = plan_obj.scheduleList;
+        MajorPlansPnc.remove(plan_id);
+        for (let schedule of scheduleList) {
+            SchedulesPnc.remove(schedule);
+        }
+        UserProfilePnc.update({ userId: this.userId }, { $pull: { majorPlanList: plan_id } });
+    },
+
+    "remove_wishlist_section": function(section_id) {
+        if (!this.userId) {
+            console.log("Invalid remove: Not logged in");
+            return;
+        }
+
+        if (!UserProfilePnc.findOne({ userId: this.userId })) {
+            console.log("Invalid remove: No such user");
+            return;
+        }
+
+        if (!section_id.includes("-")) {
+            console.log("Invalid remove: Malformed id");
+        }
+
+        const user_profile = UserProfilePnc.findOne({ userId: this.userId });
+        let isInside = false;
+        for (let section of user_profile.wishlist) {
+            if (section === section_id) {
+                isInside = true;
+                break
+            }
+        }
+        if (!isInside) {
+            console.log("Invalid remove: No such section")
+        }
+
+        UserProfilePnc.update({ userId: this.userId }, { $pull: { wishlist: section_id } });
+    },
+
+    getCourseHistory: function(continuity_id){
+      const theHistory = Course.find({continuity_id: continuity_id}).fetch();
+      var historyTermCodes = _.pluck(theHistory, "term");
+
+      historyTermCodes.sort().reverse();
+
+      var historyTermNames = _.map(historyTermCodes, function(code){
+        return Term.findOne({id:code}).name;
+      })
+
+      return historyTermNames;
+    },
+
+    getUsername: function(plan_id){
+        if (!/^[23456789ABCDEFGHJKLMNPQRSTWXYZabcdefghijkmnopqrstuvwxyz]{17}$/.test(plan_id)) {
+            consle.log("Invalid remove: Malformed id");
+            return;
+        }
+
+        if (!MajorPlansPnc.findOne(plan_id)) {
+            console.log("Invalid remove: No such plan");
+            return;
+        }
+
+        const userId = MajorPlansPnc.findOne(plan_id).userId;
+        return UserProfilePnc.findOne({userId: userId}).userName;
     },
 });
+
+const methodList = Meteor.default_server.method_handlers;
+const nameList = _.pluck(methodList, 'name');
+const nameListFiltered = _.filter(nameList, function(name){return name != ''});
+
+DDPRateLimiter.addRule({
+  name(name) {
+    return _.contains(nameListFiltered, name);
+  },
+
+  // Rate limit per connection ID
+  connectionId() { return true; }
+}, 20, 5000);

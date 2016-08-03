@@ -1,31 +1,29 @@
 <template name="calendarModify">
   {{#if masterDictSet}}
   <div class="ui active dimmer">
-    <div class="ui indeterminate text loader">Loading you schedule...</div>
+    <div class="ui indeterminate text loader">Loading your schedule...</div>
   </div>
 	<div class="ui grid">
-		<div class="twelve wide column">
-			<div class="ui sticky">
-        <div class="ui container">
-				  <select name="term" class="js-term form-control">
-            <option value="1161">Spring 2016</option>
-            <option value="1163">Fall 2016</option>
-            <option value="1171">Spring 2017</option>              
-          </select>
-        
-          <div id="calendar"></div><br>
-          <button class="ui button js-change-course">Change Chosen Courses</button>
-          {{#if hasClickedChange}}{{clickedChange}}{{/if}}
-          {{#if currentUser}}
-            <button class="ui button js-save-plan">Save My Plan</button>
-          {{else}}
-            <h3>You'll have to login to save this plan</h3>
-          {{/if}}
-        </div>
-			</div>
-		</div>
+		{{#if currentUser AND sameUser}}
+      <div class="twelve wide column">
+			  <div class="ui sticky">
+          <div class="ui container">
+				    <select name="term" class="js-term form-control">
+              {{#each term in termList}}
+                <option value="{{term.id}}">{{term.name}}</option>
+              {{/each}}                 
+            </select>
 
-		<div class="four wide column">
+            <div id="calendar"></div><br>
+            <button class="ui button js-change-course">Change chosen courses</button>
+            {{#if hasClickedChange}}{{clickedChange}}{{/if}}
+            <button class="ui button js-save-plan">Save the plan</button>
+            <button class="ui red button js-delete-plan pull-right">Delete the plan</button>
+          </div>
+			  </div>
+		  </div>
+
+      <div class="four wide column">
   			<div class="ui container" id="courseList">
 				  {{#if hasCourseList}}  
             {{#if currentUser}}
@@ -50,9 +48,26 @@
   				{{else}}
   					{{pullUserCourseList}}
   					<div class="ui active inline loader"></div>
-  				{{/if}}
-  			</div>	
-		</div>
+          {{/if}}
+  		  </div>	
+      </div>
+    {{else}}
+      <div class="sixteen wide column">
+        <div class="ui sticky">
+          <div class="ui container">
+            {{#if currentUser AND sameUser}}{{else}}
+              <h2>Plan made by {{getUsername}}</h2>
+            {{/if}}
+            <select name="term" class="js-term form-control">
+              {{#each term in termList}}
+                <option value="{{term.id}}">{{term.name}}</option>
+              {{/each}}                 
+            </select>
+            <div id="calendar"></div><br>
+          </div>
+        </div>
+      </div>
+    {{/if}}
 	</div>
 
   <div class="overlay-calendar"></div>
@@ -92,7 +107,8 @@
 
     <div class="ui bottom attached tab segment" data-tab="first" tab-num="1">
       <div class="ui stackable grid">
-        <div class="eleven wide column">
+        {{#if currentUser AND sameUser}}
+          <div class="eleven wide column">
           {{#if sectionReady}} 
             <h3>Section {{sectionObj.section}}</h3>
             <h3>Professor</h3>
@@ -115,13 +131,40 @@
             <h3>Textbook Information</h3>
             <button class="ui basic button js-textbook" course-code="{{courseInfo.code}}" course-id="{{sectionObj.course}}" section-num="{{sectionObj.section}}"><i class="book icon"></i>Click to view</button>
           {{/if}}
-        </div>
+          </div>
+        {{else}}
+          <div class="sixteen wide column">
+          {{#if sectionReady}} 
+            <h3>Section {{sectionObj.section}}</h3>
+            <h3>Professor</h3>
+            {{#if profNameLoading sectionObj.id}}<div class="ui active inline loader"></div>{{/if}}{{{getProfInfo sectionObj.instructors}}}<br>
+            <h3>Time and Place</h3>
+            {{#if sectionObj.times}}
+              {{#each time in sectionObj.times}}
+                {{#if notFirstTime @index}}<div class="ui horizontal divider"></div>{{/if}}
+                {{#if time.start}}<b>{{getSectionDays time.days}}:</b> {{convertTime time.start}} to {{convertTime time.end}}<br>{{else}}TBD<br>{{/if}}
+                {{#if time.building}}{{time.building}} - {{time.room}}<br>{{else}}Please wait until Brandeis posts place information for this section<br>{{/if}}
+                {{#if time.type}}<b>Type: </b>{{time.type}}{{/if}}
+              {{/each}}
+            {{else}}
+              <p>Please wait until Brandeis posts time and day information for this section</p>
+            {{/if}}
+            <h3>Enrollment</h3>
+            {{sectionObj.enrolled}}/{{limitNum sectionObj.limit}} - {{sectionObj.status_text}}
+            <h3>Detailed Description</h3>
+            <p>{{#if sectionObj.details}}{{sectionObj.details}}{{else}}Currently no additional information for this section{{/if}}</p>
+            <h3>Textbook Information</h3>
+            <button class="ui basic button js-textbook" course-code="{{courseInfo.code}}" course-id="{{sectionObj.course}}" section-num="{{sectionObj.section}}"><i class="book icon"></i>Click to view</button>
+          {{/if}}
+          </div>
+        {{/if}}
 
+        {{#if currentUser AND sameUser}}
         <div class="ui vertical divider">.</div>
 
         <div class="five wide column">
           <div class="ui vertical labeled icon buttons">
-            <button class="ui basic button js-add-to-list">
+            <!--<button class="ui basic button js-add-to-list">
               <i class="plus icon"></i>
               Add to my wishlist
             </button>
@@ -139,7 +182,7 @@
             <button class="ui basic button">
               <i class="angle double down icon"></i>
               Next section
-            </button>
+            </button>-->
 
             {{#if isSectionChosen}}
               <button class="ui blue button js-take" section-id="{{sectionObj.id}}">
@@ -158,6 +201,7 @@
             </button>
           </div>
         </div>
+        {{/if}}
       </div>
     </div>
 

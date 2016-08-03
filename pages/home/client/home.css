@@ -69,6 +69,7 @@ body {
     left: 0;
     bottom: 0;
     right: 0;
+    z-index: 1;
 }
 .ui.container.popup {
     position: absolute;
@@ -79,6 +80,7 @@ body {
     text-align: left;
     /* center it ? */
     left: 0;
+    right: 5%;
     z-index: 1000!important;
 }
 .ui.popup:before {

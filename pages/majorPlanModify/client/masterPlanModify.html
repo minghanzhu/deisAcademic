@@ -7,6 +7,10 @@
 		{{#if makeSchedule}}
 			{{> calendarModify dict=masterDict}}
 		{{/if}}
+
+		{{#if changeTerm}}
+			{{> viewTermRange dict=masterDict}}
+		{{/if}}
 	{{else}}
 		{{setData this}}
 	{{/if}}

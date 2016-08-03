@@ -14,4 +14,8 @@
 	{{#if makeSchedule}}
 		{{> calendarTest dict=masterDict}}
 	{{/if}}
+
+	{{#if changeTerm}}
+		{{> planTermRange dict=masterDict}}
+	{{/if}}
 </template>

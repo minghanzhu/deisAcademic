@@ -73,6 +73,11 @@ Template.calendarModify.onRendered(function() {
     } else {
         Template.instance().masterDict.set("chosenTerm", $(".js-term").val());
     }
+
+    $(".js-not-save-plan").popup({
+        content: "Please login to save the plan",
+        position: "right center"
+    })
 })
 
 Template.calendarModify.helpers({
@@ -183,13 +188,32 @@ Template.calendarModify.helpers({
             Template.instance().masterDict.set("clickedChange", false);
         }
 
-        if(!Template.instance().masterDict.get("includeWishlist")){
+        if (!Template.instance().masterDict.get("includeWishlist")) {
             Template.instance().masterDict.set("includeWishlist", false);
         }
+
+        Template.instance().masterDict.set("visited", false);
     },
 
     masterDictSet: function() {
         return !!Template.instance().calendarDict.get("masterDictSet");
+    },
+
+    termList: function(){
+        const termList = Term.find().fetch().sort(function(a, b){
+            return parseInt(a.id) - parseInt(b.id);
+        });
+
+        const start_semester = Template.instance().masterDict.get("planStartSemester");
+        const end_semester = Template.instance().masterDict.get("planEndSemester");
+        for(let i = 0; i < termList.length; i++){
+            if(termList[i].id > end_semester || termList[i].id < start_semester){
+                termList.splice(i, 1);
+                i--;
+            }
+        }
+
+        return termList;
     },
 
     calendarDict: function() {
@@ -222,7 +246,11 @@ Template.calendarModify.helpers({
     pullUserCourseList: function() {
         const dict = Template.instance().masterDict;
         const courseList = dict.get('courseList');
-        const sectionList = UserProfilePnc.findOne().wishlist;
+
+        let sectionList = [];
+        if(UserProfilePnc.findOne()){
+            sectionList = UserProfilePnc.findOne().wishlist;
+        }
 
         if (typeof courseList[0] === "string") { //prevent unexpected request
             Meteor.call("fetchCourseList", courseList,
@@ -236,7 +264,21 @@ Template.calendarModify.helpers({
 
                                 if (section_result.length != 0) {
                                     const wishlist_course = section_result;
-                                    const combined_list = result.concat(wishlist_course);
+                                    const new_course = [];
+                                    for(let course_wish of wishlist_course){
+                                        let isChosen = false
+                                        for(let course_major of result){
+                                            if(course_major.id === course_wish.id){
+                                                isChosen = true;
+                                                break;
+                                            }
+                                        }
+                                        if(!isChosen){
+                                            new_course.push(course_wish)
+                                        }
+                                    }
+                                    const combined_list = result.concat(new_course);
+
 
                                     const sorted_result = combined_list.sort(function(a, b) {
                                         //for a
@@ -272,17 +314,6 @@ Template.calendarModify.helpers({
                                             return comp_string_a.localeCompare(comp_string_b);
                                         }
                                     });
-
-                                    //remove repeated courses
-                                    let current_course = "";
-                                    for (let i = 0; i < sorted_result.length; i++) {
-                                        if ((sorted_result[i].id) === current_course) {
-                                            current_course = sorted_result[i].id;
-                                            sorted_result.splice(i, 1);
-                                            i--;
-                                        };
-                                        current_course = sorted_result[i].id;
-                                    }
 
                                     dict.set("fetched_courseList", sorted_result);
                                     dict.set("hasCourseList", true);
@@ -323,6 +354,7 @@ Template.calendarModify.helpers({
                                     return comp_string_a.localeCompare(comp_string_b);
                                 }
                             });
+
                             dict.set("fetched_courseList", sorted_result);
                             dict.set("hasCourseList", true);
                         }
@@ -471,8 +503,34 @@ Template.calendarModify.helpers({
         return Template.instance().masterDict.get("clickedChange");
     },
 
-    hasWishlist: function(){
+    hasWishlist: function() {
         return Template.instance().masterDict.get("includeWishlist");
+    },
+
+    getUsername: function(){
+        const plan_id = MajorPlansPnc.findOne()._id;
+        const dict = Template.instance().masterDict;
+        Meteor.call("getUsername", plan_id, function(err, result){
+            if(err){
+                return "Unknown user"
+            }
+
+            dict.set("username", result);
+        })
+
+        return dict.get("username");
+    },
+
+    sameUser: function(){
+        if(!Meteor.userId()){
+            return false;
+        }
+
+        if(Meteor.userId() !== MajorPlansPnc.findOne().userId){
+            return false;
+        } else {
+            return true;
+        }
     },
 })
 
@@ -554,6 +612,7 @@ Template.calendarModify.events({
 
     "click .js-save-plan": function() {
         $(".js-save-plan").attr("class", "ui loading disabled button js-save-plan");
+        $(".js-delete-plan").attr("class", "ui disabled red button js-delete-plan pull-right");
         //save the current term's schedule to the dict
         const current_term = $(".js-term").val();
         Template.instance().masterDict.set("chosenTerm", $(".js-term").val());
@@ -578,18 +637,14 @@ Template.calendarModify.events({
         ////////////////////////////////////////////
 
         //turn the dict data into user data to save
+        const masterDict = Template.instance().masterDict;
+        const major_code = masterDict.get("chosenMajor");
+        const availableCourseList = masterDict.get("courseList");
         const major_plan_object = {
             majorId: major_code,
             chosenCourse: availableCourseList,
-
         }
-        const masterDict = Template.instance().masterDict;
-        const major_code = masterDict.get("chosenMajor");
-        const availableCourseList = [];
-        const current_chosen_courses = masterDict.get("fetched_courseList");
-        for (let course of current_chosen_courses) {
-            availableCourseList.push(course.continuity_id);
-        };
+
         //this gets the current saved schedule list
         //{"<term>":{term:"<term>",courseList:[<courses>]}}
         const final_schedule_list = Template.instance().masterDict.get("scheduleList");
@@ -614,7 +669,13 @@ Template.calendarModify.events({
         }
         //[{term:<term>, courseList:[{}]}]
         const current_plan_id = Router.current().params._id;
-        Meteor.call("updateSchedule_MajorPlan", schedule_list, major_code, availableCourseList, current_plan_id, function(err) {
+        const start_semester = Template.instance().masterDict.get("planStartSemester");
+        const end_semester = Template.instance().masterDict.get("planEndSemester");
+        const term_range = {
+            start_term: start_semester,
+            end_term: end_semester
+        };
+        Meteor.call("updateSchedule_MajorPlan", schedule_list, major_code, availableCourseList, current_plan_id, term_range, function(err) {
             if (err) {
                 return;
             }
@@ -655,6 +716,19 @@ Template.calendarModify.events({
         Template.instance().masterDict.set("includeWishlist", !current_status);
         Template.instance().masterDict.set("hasCourseList", false);
     },
+
+    "click .js-delete-plan": function(){
+        $(".js-delete-plan").attr("class", "ui loading disabled red button js-delete-plan pull-right");
+        $(".js-save-plan").attr("class", "ui disabled button js-save-plan");
+        const current_plan_id = Router.current().params._id;
+        Meteor.call("deletePlan", current_plan_id, function(err, result){
+            if(err){
+                return;
+            }
+
+            Router.go("/myMajorPlan");
+        })
+    }
 })
 
 Template.scheduleCourseListView.onRendered(function() {

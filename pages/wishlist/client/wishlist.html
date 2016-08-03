@@ -1,0 +1,21 @@
+<template name="wishlist">
+	{{#if dataReady}}
+		{{> reactiveTable class= "ui table stackable js-wishlist-table" collection=wishlistData settings=settings}}
+	{{else}}
+		{{wishlist}}
+		<div class="ui active inline loader"></div>
+	{{/if}}
+</template>
+
+<template name="section_detail">
+    <div class="ui accordion">
+        <div class="title">
+            <i class="dropdown icon"></i>
+            {{showDescription this.details}}
+        </div>
+
+        <div class="content">
+            {{this.details}}
+        </div>
+    </div>
+</template>
