@@ -10,16 +10,23 @@ Template.layout.onRendered(function() {
 
 Template.layout.events({
   "click .js-login": function(event){
-    console.log("clicked");
  		event.preventDefault();
- 		Meteor.loginWithGoogle(function(err, result){
+ 		Meteor.loginWithGoogle(function(err){
 			if(err){
 				if(err.toString() === "Error: Please sign-up with a Brandeis Google account. [400]"){
 					window.alert(err);
 					return;
 				}
-				return;
-			};
+      };
+
+      const current_url = Router.current().url;
+      const arg = current_url.substring(current_url.lastIndexOf("/") + 1);
+      if(/^[23456789ABCDEFGHJKLMNPQRSTWXYZabcdefghijkmnopqrstuvwxyz]{17}$/.test(arg)){
+        window.onbeforeunload = function(e) {};
+        document.location.reload(true);
+      }
+
+      return;
 		});
  	},
 
