@@ -40,7 +40,6 @@ a, a:hover, a:active, a:visited, a:focus {
 
 .move {
     position: relative;
-    /*padding-left: 110px;*/
     margin-left: 110px;
 }
 
@@ -52,9 +51,9 @@ a, a:hover, a:active, a:visited, a:focus {
 .side-nav ul li {
     list-style-type: none;
 }
-a {
+.side-nav a {
     color: #4C4C4C;
 }
-a:hover {
+.side-nav a:hover {
     color: white;
 }
