@@ -377,6 +377,19 @@ Template.home.events ({
 					const dept = apiRes.data.result.parameters.Department;
 					const courseNum = apiRes.data.result.parameters.CourseNumber;
 					const courseName = apiRes.data.result.parameters.CourseName;
+					const termName = apiRes.data.result.parameters.Terms;
+					const instructorName = apiRes.data.result.parameters.Instructor;
+
+					const apiRes_obj = {
+						dept: dept,
+						courseNum: courseNum,
+						courseName: courseName,
+						termName: termName,
+						instructorName: instructorName
+					}
+
+					homeDict.set("apiResObject", apiRes_obj);
+					console.log(apiRes_obj);
 
 					const theQuery = dept + " " + courseNum + " " + courseName;
 
