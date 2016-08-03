@@ -907,15 +907,15 @@ Template.scheduleCourseListView.events({
         if (!Template.instance().masterDict.get("chosenTerm")) {
             Template.instance().masterDict.set("chosenTerm", $(".js-term").val());
         };
+        setTimeout(function() {
+            const sticky_height = $(".ui.sticky").height();
+            const target_height = $("#courseList").height();
 
-        const sticky_height = $(".ui.sticky").height();
-        const target_height = $("#courseList").height();
-        if (sticky_height < target_height) {
-            setTimeout(function() {
+            if (sticky_height < target_height) {
                 $('.ui.sticky').sticky({
                     context: '#courseList'
                 });
-            }, 1000);
-        }
+            }
+        }, 600);    
     },
 })
