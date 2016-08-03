@@ -557,17 +557,8 @@ Template.search_result.helpers({
 					};
 				}},
 				{key:'description', label:'Description', tmpl:Template.description_detail, headerClass: "five wide", sortable: false},
-				{key:'term', label:'Term', headerClass: "two wide", sortable: false, fn: function(key, object){
-					Meteor.call("searchTerm", key, function(err, result){
-						homeDict.set("termName" + object.id, result);
-					});
-
-					const term_name = homeDict.get("termName" + object.id);
-					if(!term_name){
-						return new Spacebars.SafeString("<div class=\"ui active inline loader\"></div>");
-					} else {
-						return term_name;
-					}
+				{key:'term', label:'Term', headerClass: "two wide", sortable: false, fn: function(key){
+					return Term.findOne({id: key}).name;
 				}},
 			],
 		};

@@ -21,6 +21,15 @@ Meteor.publish("home_userProfile", function() {
     }) 
 });
 
+Meteor.publish("home_term", function() {
+    return Term.find({},{
+        fields: {
+            id: 1,
+            name: 1
+        }
+    }) 
+});
+
 Meteor.publish("schedule_userProfile", function() {
     return UserProfilePnc.find({ 
     	userId: this.userId 
