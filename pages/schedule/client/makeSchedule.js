@@ -596,7 +596,6 @@ Template.semesterSchedule.events({
                 return;
             }
 
-            window.onbeforeunload = function (e) {};
             Router.go('/');
         });
     },

@@ -143,7 +143,6 @@ Template.planSearch.events({
 
     "click .js-changeMajor": function(event){
         event.preventDefault();
-        window.onbeforeunload = function (e) {};
         window.location.reload();
     },
 

@@ -679,7 +679,7 @@ Template.calendarModify.events({
             if (err) {
                 return;
             }
-            window.onbeforeunload = function(e) {};
+
             Router.go('/myMajorPlan');
         });
     },
