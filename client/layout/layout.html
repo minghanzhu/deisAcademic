@@ -16,21 +16,16 @@
                 </a>
             </li>
             {{#if currentUser}}
-                {{#if existsProfile}}
+              {{#if existsProfile}}
                 {{> profileButton}}
-                <li>
-                    <a class="js-log-out">
-                        <span class="glyphicon glyphicon-log-out"></span><b>Log out</b>
-                    </a>
-                </li>
-                {{else}}
-                    {{createAccount}}
-                    <div class="ui active inline loader"></div>
-                {{/if}}
+              {{else}}
+                {{createAccount}}
+                <div class="ui active inline loader"></div>
+              {{/if}}
             {{else}}
-            {{> loginButton}}
+              {{> loginButton}}
             {{/if}}
-            <li style="padding-top: 300px;">
+            <!-- <li style="padding-top: 300px; bottom: 0;">
               <li style="font-size: 10px; overflow: hidden; white-space: nowrap;">
                 <a href="{{pathFor 'terms'}}">
                     <b>Terms of Service</b>
@@ -46,7 +41,24 @@
                     <b>Contact Us</b>
                 </a>
             </li>
-          </li>
+          </li>-->
+        </ul>
+        <ul>
+            <li style="font-size: 10px; overflow: hidden; white-space: nowrap;">
+                <a href="{{pathFor 'terms'}}">
+                    <b>Terms of Service</b>
+                </a>
+            </li>
+            <li style="font-size: 10px; overflow: hidden; white-space: nowrap;">
+                <a href="{{pathFor 'privacy'}}">
+                    <b>Privacy Policy</b>
+                </a>
+            </li>
+            <li style="font-size: 10px; overflow: hidden; white-space: nowrap;">
+                <a href="mailto:admin@plandeis.com?subject=Brandeis University PlanDeis">
+                    <b>Contact Us</b>
+                </a>
+            </li>
         </ul>
         <!-- {{> loginButtons}} -->
     </div>
@@ -56,27 +68,28 @@
 </template>
 
 <template name="profileButton">
-  <li>
-      <!-- <a href="{{pathFor 'myProfile'}}"> -->
-      <a>
-        <div class="ui dropdown">
-          <!-- <div class="text">Profile</div> -->
-          <span class="text glyphicon glyphicon-user"></span>
-          <!-- <b>Major</b> -->
-          <div class="menu">
-            <a class="item" href="/myMajorPlan">My Plan</a>
-            <a class="item" href="/schedule">Schedule</a>
-            <a class="item" href="/myWishlist">Wishlist</a>
-          </div>
-        </div>
-      </a>
-  </li>
+    <li>
+        <!-- <a href="{{pathFor 'myProfile'}}"> -->
+        <a>
+            <div class="ui dropdown">
+                <!-- <div class="text">Profile</div> -->
+                <span class="text glyphicon glyphicon-user"></span>
+                <!-- <b>Major</b> -->
+                <div class="menu">
+                    <a class="item" href="/myMajorPlan">My Plan</a>
+                    <a class="item" href="/schedule">Schedule</a>
+                    <a class="item" href="/myWishlist">Wishlist</a>
+                    <a class="item js-log-out"><b>Log out</b></a>
+                </div>
+            </div>
+        </a>
+    </li>
 </template>
 
 <template name="loginButton">
-  <li>
-      <a class="js-login">
-          <span class="glyphicon glyphicon-log-in"></span><b>Sign in</b>
-      </a>
-  </li>
+    <li>
+        <a class="js-login">
+            <span class="glyphicon glyphicon-log-in"></span><b>Sign in</b>
+        </a>
+    </li>
 </template>
