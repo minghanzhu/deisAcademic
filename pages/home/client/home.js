@@ -20,7 +20,6 @@ Template.voiceButton.onRendered(function() {
 })
 
 Template.home.onRendered(function() {
-
     const homeDict = Template.instance().homeDict;
     //these initialize the semantic ui components
     $('#multi-select').dropdown();
@@ -32,7 +31,8 @@ Template.home.onRendered(function() {
     //this monitors the pressing of enter, if so, do a search
     $('body').keydown(function(e) {
         if(Router.current().url !== "http://turing.cs-i.brandeis.edu:5000/" 
-            && Router.current().url !== "/"){
+            && Router.current().url !== "/"
+            && Router.current().url !== "http://localhost:3000/"){
             return;
         }
 

@@ -39,7 +39,7 @@ Template.viewTermRange.helpers({
 })
 
 Template.viewTermRange.events({
-	"click .js-ok": function() {
+	"click .js-ok": function(event) {
         event.preventDefault();
         //get the sorted term list
         let termList = [];

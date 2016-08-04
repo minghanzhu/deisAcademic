@@ -50,7 +50,7 @@ Template.majorSelect.helpers({
 })
 
 Template.majorSelect.events({
-    "click .js-majorGo": function() {
+    "click .js-majorGo": function(event) {
         event.preventDefault();
         //get the sorted term list
         let termList = [];
@@ -110,7 +110,7 @@ Template.majorSelect.events({
         })
     },
 
-    "click .js-majorBulletin": function() {
+    "click .js-majorBulletin": function(event) {
         event.preventDefault();
         Template.instance().majorSelectDict.set("clickedHelp", true);
     },

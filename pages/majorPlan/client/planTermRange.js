@@ -39,7 +39,7 @@ Template.planTermRange.helpers({
 })
 
 Template.planTermRange.events({
-	"click .js-ok": function() {
+	"click .js-ok": function(event) {
         event.preventDefault();
         //get the sorted term list
         let termList = [];

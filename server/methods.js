@@ -335,7 +335,7 @@ Meteor.methods({
             && !searchQuery["subjects.id"]) {
           return ["no params"];
         }
-
+        
         return Course.find(searchQuery, {
             fields: {
                 _id: 0,
@@ -689,7 +689,6 @@ Meteor.methods({
         };
 
         return return_result;
-        console.log(return_result);
     },
 
     "saveSchedule_MajorPlan": function(scheduleList, major_code, availableCourseList, term_range) {
@@ -1020,4 +1019,4 @@ DDPRateLimiter.addRule({
 
   // Rate limit per connection ID
   connectionId() { return true; }
-}, 200, 50000);
+}, 20, 5000);
