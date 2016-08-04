@@ -68,12 +68,12 @@
 </template>
 
 <template name="profileButton">
-    <li style="padding-bottom: 19px;">
+    <li>
         <!-- <a href="{{pathFor 'myProfile'}}"> -->
         <a>
             <div class="ui dropdown">
                 <!-- <div class="text">Profile</div> -->
-                <span class="text glyphicon glyphicon-user"></span>
+                <span class="text glyphicon glyphicon-user"></span><label><b style="">Profile</b></label>
                 <!-- <b>Major</b> -->
                 <div class="menu">
                     <a class="item" href="/myMajorPlan">My Plan</a>
@@ -82,12 +82,13 @@
                     <a class="item js-log-out"><b>Log out</b></a>
                 </div>
             </div>
+            <br>
         </a>
     </li>
 </template>
 
 <template name="loginButton">
-    <li>
+    <li style="padding-bottom: 5px">
         <a class="js-login">
             <span class="glyphicon glyphicon-log-in"></span><b>Sign in</b>
         </a>
