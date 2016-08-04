@@ -19,16 +19,12 @@
 }
 .ui.container.popup-calendar {
     position: absolute;
-    min-width: 500px;
-    min-height: 300px;
+    min-width: 450px;
+    /*min-height: 300px;*/
     display: none;
     background-color: white;
     border-radius: 5px;
     text-align: left;
-
-    /* center it ? */
-    left: 0%;
-
     z-index: 10000!important;
 }
 .ui.popup-calendar:before {

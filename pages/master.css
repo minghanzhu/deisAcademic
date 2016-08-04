@@ -12,3 +12,20 @@
 .ui.container.calendar {
 	margin-left: 10px!important;
 }
+
+/*this fix the zero margin-bottom for offering history*/
+.css-offering-history {
+	margin-bottom: 1rem;
+}
+
+.ui.segment[class*="bottom attached"]:last-child {
+    margin-bottom: 1em;
+}
+
+#home-popup {
+	padding-bottom: 0;
+}
+
+.ui.container.popup-calendar {
+	padding-top: 1rem;
+}

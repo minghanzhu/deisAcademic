@@ -39,6 +39,7 @@ Template.calendarTest.onRendered(function() {
             dict.set("majorDetail"); //this holds the major names and notes for the current chosen event
             dict.set("instructorsName"); //this hold the instructor names and emails for the current chosen event
             dict.set("sectionChosen") //this hold the boolean value if this section is decided to take by the user
+            dict.set("historyReady", false);
             dict.set("courseId", calEvent.section_obj.course);
             dict.set("sectionObj", calEvent.section_obj);
             dict.set("sectionChosen", $("#calendar").fullCalendar("getEventSourceById", calEvent.section_obj.id).chosen);
@@ -50,10 +51,12 @@ Template.calendarTest.onRendered(function() {
 
             //then pops up the popup window
             let popup = $(".popup-calendar");
-            //this makes sure that the popup in the center of the screen
-            setTimeout(function() {
-                popup.css("top", (($(window).height() - popup.outerHeight()) / 2) + $(window).scrollTop() + 30 + "px");
-            }, 400);
+            $('.popup-calendar').css("top", 40 + $(window).scrollTop());
+            if($(window).width() < 768){
+                $('.popup-calendar').css("left", -55);
+            } else {
+                $('.popup-calendar').css("left", (($(".move").width() - $('.popup-calendar').width()) / 2) - 80);
+            }
             $(".overlay-calendar, .popup-calendar").fadeToggle();
         },
     });
@@ -409,6 +412,32 @@ Template.calendarTest.helpers({
 
     hasWishlist: function() {
         return Template.instance().masterDict.get("includeWishlist");
+    },
+
+    getOfferedHistory: function() {
+        return Template.instance().calendarDict.get("courseOfferings")
+    },
+
+    historyReady: function(){
+        return Template.instance().calendarDict.get("historyReady");
+    },
+
+    fetchHistory: function(){
+        const calendarDict = Template.instance().calendarDict;
+        const currCourseData = calendarDict.get("courseObj");
+        if(!currCourseData) return;
+
+        Meteor.call("getCourseHistory", currCourseData.continuity_id,
+            function(err, result) {
+                if (err) {
+                    console.log(err);
+                    return;
+                }
+
+                calendarDict.set("courseOfferings", result);
+                calendarDict.set("historyReady", true);
+            }
+        );
     },
 })
 

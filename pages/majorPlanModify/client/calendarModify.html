@@ -3,7 +3,7 @@
   <div class="ui active dimmer">
     <div class="ui indeterminate text loader">Loading your schedule...</div>
   </div>
-	<div class="ui grid">
+	<div class="ui stackable grid">
 		{{#if currentUser AND sameUser}}
       <div class="twelve wide column">
 			  <div class="ui sticky">
@@ -76,7 +76,7 @@
     <div class="ui top attached tabular menu" id="popup-tab">
       <a class="item" data-tab="second">Course Detail</a>
       <a class="active item" data-tab="first">Section Detail</a>
-      <a class="item" data-tab="third">Statistics</a>
+      <a class="item" data-tab="third">Offering History</a>
     </div>
 
     <div class="ui bottom attached active tab segment" data-tab="second" tab-num="2">
@@ -204,8 +204,19 @@
       </div>
     </div>
 
-    <div class="ui bottom attached tab segment" data-tab="third" tab-num="3">
-      <h3>Here are some statistics for this course</h3>
+    <div class="ui bottom attached tab segment css-offering-history" data-tab="third" tab-num="3">
+      {{#if historyReady}}
+        <h3>Course Offering History:</h3>
+        <ul>
+          <br>
+          {{#each getOfferedHistory}}
+            <li>{{this}}<br></li>
+            {{/each}}
+        </ul>
+      {{else}}
+        {{fetchHistory}}
+        <div class="ui active inline loader"></div>
+      {{/if}}
     </div>
   </div>
   {{else}}

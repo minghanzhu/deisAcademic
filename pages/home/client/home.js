@@ -759,21 +759,30 @@ Template.search_result.helpers({
     },
 
     getOfferedHistory: function() {
+        return Template.instance().homeDict.get("courseOfferings");
+    },
+
+    historyReady: function(){
+        return Template.instance().homeDict.get("historyReady");
+    },
+
+    fetchHistory: function(){
         const homeDict = Template.instance().homeDict;
         const currCourseData = homeDict.get("courseInfo");
+        if(!currCourseData) return;
+        
+        Meteor.call("getCourseHistory", currCourseData.continuity_id,
+            function(err, result) {
+                if (err) {
+                    console.log(err);
+                    return;
+                }
 
-        if (currCourseData) {
-            Meteor.call("getCourseHistory", currCourseData.continuity_id,
-                function(err, result) {
-                    if (err) {
-                        console.log(err);
-                    } else {
-                        homeDict.set("courseOfferings", result);
-                    }
-                });
-            return homeDict.get("courseOfferings");
-        }
-    },
+                homeDict.set("courseOfferings", result);
+                homeDict.set("historyReady", true);
+            }
+        );
+    }
 })
 
 Template.search_result.events({
@@ -789,6 +798,7 @@ Template.search_result.events({
         homeDict.set('courseInfo', this);
         homeDict.set('courseCode', this.code);
         homeDict.set("sectionIndex", 0);
+        homeDict.set("historyReady", false);
         //reset the default detail choice to be the first tab
         $("#popup-tab .item.active").attr("class", "item");
         $("#popup-tab [data-tab=first]").attr("class", "item active");
@@ -796,10 +806,13 @@ Template.search_result.events({
         $(".ui.container.popup [tab-num=1]").attr("class", "ui bottom attached tab segment active");
 
         let popup = $(".popup");
-        popup.css("top", (($(window).height() - popup.outerHeight()) / 2) + $(window).scrollTop() + 30 + "px");
+        $('.popup').css("top", 40 + $(window).scrollTop());
+        if($(window).width() < 768){
+            $('.popup').css("left", -55);
+        } else {
+            $('.popup').css("left", (($(".move").width() - $('.popup').width()) / 2) - 110 - 48);
+        }
         $(".overlay, .popup").fadeToggle();
-
-
 
         if (!homeDict.get('courseInfo')) { //continue only if the data is ready
             return;
