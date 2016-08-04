@@ -15,7 +15,10 @@ Template.majorSelect.onRendered(function() {
         match: "text"
     });
     const major = $("#search-select input").val();
-
+    $('#help-major').popup({
+        content: "Sorry, we are still finalizing this feature...",
+        position: 'top center',
+    });
 });
 
 Template.majorSelect.helpers({

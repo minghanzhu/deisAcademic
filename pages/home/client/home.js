@@ -17,6 +17,12 @@ Template.voiceButton.onRendered(function() {
           position: 'bottom right',
       });
 
+      $('#searchBar')
+      .popup({
+          content: "We're still optimizing the search mechanism...",
+          position: 'top right',
+      });
+
 })
 
 Template.home.onRendered(function() {
