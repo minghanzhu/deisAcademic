@@ -259,6 +259,9 @@ Template.calendarModify.helpers({
             Meteor.call("fetchCourseList", courseList,
                 function(err, result) {
                     if(err){
+                        window.alert(err.message);
+                        dict.set("hasCourseList", true);
+                        dict.set("includeWishlist", !dict.get("includeWishlist"));
                         return;
                     }
 
@@ -431,6 +434,7 @@ Template.calendarModify.helpers({
         const dict = Template.instance().calendarDict;
         Meteor.call("getProfInfo", prof_list, function(err, result) {
             if(err){
+                window.alert(err.message);
                 return;
             }
 
@@ -760,6 +764,9 @@ Template.calendarModify.events({
         const current_plan_id = Router.current().params._id;
         Meteor.call("deletePlan", current_plan_id, function(err, result){
             if(err){
+                window.alert(err.message);
+                $(".js-delete-plan").attr("class", "ui red button js-delete-plan pull-right");
+                $(".js-save-plan").attr("class", "ui primary button js-save-plan");
                 return;
             }
 

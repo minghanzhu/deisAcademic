@@ -72,6 +72,7 @@ Template.home.onRendered(function() {
             Meteor.call("searchCourse", keyword, term, req_names_array, dept, instructor, time_and_date, if_indept, if_not_sure,
                 function(err, result) {
                     if(err){
+                        window.alert(err.message);
                         return;
                     }
 
@@ -303,6 +304,7 @@ Template.home.events({
         Meteor.call("searchCourse", keyword, term, req_names_array, dept, instructor, time_and_date, if_indept, if_not_sure,
             function(err, result) {
                 if(err){
+                    window.alert(err.message);
                     return;
                 }
 
@@ -506,6 +508,7 @@ Template.home.events({
                                 Meteor.call("searchCourse", theQuery, term, req_names_array, null, instructor, time_and_date, if_indept, if_not_sure,
                                     function(err, result) {
                                         if(err){
+                                            console.log(err.message);
                                             return
                                         }
 
@@ -711,6 +714,7 @@ Template.search_result.helpers({
         const homeDict = Template.instance().homeDict;
         Meteor.call("getProfInfo", prof_list, function(err, result) {
             if(err){
+                window.alert(err.message);
                 return;
             }
 
@@ -838,6 +842,7 @@ Template.search_result.events({
         Meteor.call("getMajorDetails", homeDict.get('courseInfo'),
             function(err, result) {
                 if(err){
+                    window.alert(err.message);
                     return;
                 }
 
@@ -849,6 +854,7 @@ Template.search_result.events({
         Meteor.call("getSectionDetails", homeDict.get('courseInfo'),
             function(err, result) {
                 if(err){
+                    window.alert(err.message);
                     return
                 }
 
@@ -877,7 +883,12 @@ Template.search_result.events({
         event.preventDefault();
 
         const currSectionData = homeDict.get("sectionDetail")[homeDict.get("sectionIndex")];
-        Meteor.call("addToWishlist", currSectionData.id);
+        Meteor.call("addToWishlist", currSectionData.id, function(err){
+            if(err){
+                window.alert(err.message);
+                return;
+            }
+        });
     },
 
     "click .js-section-up": function(event) {
@@ -1048,6 +1059,7 @@ Template.search_result_time_table.helpers({
                     fn: function(key, object) {
                         Meteor.call("searchInstructorArray", key, function(err, result) {
                             if(err){
+                                window.alert(err.message);
                                 return;
                             }
 

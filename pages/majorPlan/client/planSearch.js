@@ -58,6 +58,7 @@ Template.planSearch.helpers({
         }, false, false,
             function(err, result) {
                 if(err){
+                    window.alert(err.message);
                     return;
                 }
 

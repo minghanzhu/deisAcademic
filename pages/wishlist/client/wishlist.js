@@ -215,7 +215,8 @@ Template.wishlist.events({
 			const section_id = this.id;
 			Meteor.call("remove_wishlist_section", section_id, function(err, result){
 				if(err){
-					return;
+					window.alert(err.message);
+                    return;
 				}
 
 				dict.set("dataReady", false);

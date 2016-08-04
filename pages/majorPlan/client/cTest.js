@@ -162,6 +162,9 @@ Template.calendarTest.helpers({
             Meteor.call("fetchCourseList", courseList,
                 function(err, result) {
                     if(err){
+                        window.alert(err.message);
+                        dict.set("hasCourseList", true);
+                        dict.set("includeWishlist", !dict.get("includeWishlist"));
                         return;
                     }
 
@@ -335,6 +338,7 @@ Template.calendarTest.helpers({
         const dict = Template.instance().calendarDict;
         Meteor.call("getProfInfo", prof_list, function(err, result) {
             if(err){
+                window.alert(err.message);
                 return;
             }
 

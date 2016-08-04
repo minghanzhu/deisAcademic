@@ -235,6 +235,7 @@ Template.semesterSchedule.helpers({
             Meteor.call("fetchSectionList", sectionList,
                 function(err, result) {
                     if(err){
+                        window.alert(err.message);
                         return;
                     }
 
@@ -345,6 +346,7 @@ Template.semesterSchedule.helpers({
         const dict = Template.instance().calendarDict;
         Meteor.call("getProfInfo", prof_list, function(err, result) {
             if(err){
+                window.alert(err.message);
                 return;
             }
 
@@ -630,6 +632,8 @@ Template.semesterSchedule.events({
         
         Meteor.call("saveSchedule", schedule_list, function(err){
             if(err){
+                window.alert(err.message);
+                $(".js-save-plan").attr("class", "ui button js-save-plan pull-right");
                 return;
             }
 
