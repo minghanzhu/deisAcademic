@@ -1,13 +1,13 @@
 <template name="home">
     <div class="searchContainer">
         <h1 id="siteName">planDeis</h1>
-        
+
         <div id="searchForm">
             <form id="search_main">
                 <input type="text" placeholder=" Search course code or title" name="keyword" id="searchBar" class="js-submit-search" autocomplete="off">
             </form>
             {{#if notTalking}}
-              <i class="big unmute icon js-voice-search"></i>
+              {{> voiceButton}}
             {{else}}
               <div class="ui active inline loader"></div>
             {{/if}}
@@ -483,4 +483,8 @@
         {{setHomeDict dict}}
         <div class="ui active inline loader"></div>
     {{/if}}
+</template>
+
+<template name="voiceButton">
+  <i class="big unmute icon js-voice-search"></i>
 </template>

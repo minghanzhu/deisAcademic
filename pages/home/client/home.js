@@ -8,14 +8,18 @@ Template.home.onCreated(function() {
     this.homeDict.set("notTalking", true);
 })
 
-Template.home.onRendered(function() {
+Template.voiceButton.onRendered(function() {
 
-    $('.js-voice-search')
-        .popup({
-            title: "Search by voice",
-            content: "For example \"Show me COSI courses taught by Timothy Hickey\"",
-            position: 'bottom right',
-        });
+  $('.js-voice-search')
+      .popup({
+          title: "Search by voice",
+          content: "For example \"Show me COSI courses taught by Timothy Hickey\"",
+          position: 'bottom right',
+      });
+
+})
+
+Template.home.onRendered(function() {
 
     const homeDict = Template.instance().homeDict;
     //these initialize the semantic ui components
