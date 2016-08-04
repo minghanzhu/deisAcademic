@@ -31,7 +31,7 @@ Template.layout.events({
  		Meteor.loginWithGoogle(function(err){
 			if(err){
 				if(err.toString() === "Error: Please sign-up with a Brandeis Google account. [400]"){
-					window.alert(err);
+					window.alert("Please sign-up with a Brandeis Google account. \nIf you can't switch to your Brandeis account here, please try to add it on google.com first.");
 					return;
 				}
       };
