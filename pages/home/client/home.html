@@ -23,8 +23,11 @@
             <form id="search_main">
                 <input type="text" placeholder=" Search course code or title" name="keyword" id="searchBar" class="js-submit-search" autocomplete="off">
             </form>
-
-            <i class="big unmute icon js-voice-search"></i>
+            {{#if notTalking}}
+              <i class="big unmute icon js-voice-search"></i>
+            {{else}}
+              <div class="ui active inline loader"></div>
+            {{/if}}
 
             <div class="ui checkbox">
                 <input type="checkbox" class="js-if-clear-params" checked>
