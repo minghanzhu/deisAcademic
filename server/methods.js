@@ -1020,4 +1020,4 @@ DDPRateLimiter.addRule({
 
   // Rate limit per connection ID
   connectionId() { return true; }
-}, 20, 5000);
+}, 200, 50000);
