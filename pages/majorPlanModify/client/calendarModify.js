@@ -39,6 +39,7 @@ Template.calendarModify.onRendered(function() {
             dict.set("majorDetail"); //this holds the major names and notes for the current chosen event
             dict.set("instructorsName"); //this hold the instructor names and emails for the current chosen event
             dict.set("sectionChosen") //this hold the boolean value if this section is decided to take by the user
+            dict.set("historyReady", false);
             dict.set("courseId", calEvent.section_obj.course);
             dict.set("sectionObj", calEvent.section_obj);
             dict.set("sectionChosen", $("#calendar").fullCalendar("getEventSourceById", calEvent.section_obj.id).chosen);
@@ -533,6 +534,32 @@ Template.calendarModify.helpers({
         } else {
             return true;
         }
+    },
+
+    getOfferedHistory: function() {
+        return Template.instance().calendarDict.get("courseOfferings")
+    },
+
+    historyReady: function(){
+        return Template.instance().calendarDict.get("historyReady");
+    },
+
+    fetchHistory: function(){
+        const calendarDict = Template.instance().calendarDict;
+        const currCourseData = calendarDict.get("courseObj");
+        if(!currCourseData) return;
+
+        Meteor.call("getCourseHistory", currCourseData.continuity_id,
+            function(err, result) {
+                if (err) {
+                    console.log(err);
+                    return;
+                }
+
+                calendarDict.set("courseOfferings", result);
+                calendarDict.set("historyReady", true);
+            }
+        );
     },
 })
 

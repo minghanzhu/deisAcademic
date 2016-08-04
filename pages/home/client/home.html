@@ -338,7 +338,7 @@
 
     <div class="overlay"></div>
 
-    <div class="ui container popup">
+    <div class="ui container popup" id="home-popup">
         <i class="remove icon pull-right js-close-popup"></i>
         <div class="ui top attached tabular menu" id="popup-tab">
             <a class="active item" data-tab="first">Course Detail</a>
@@ -448,13 +448,18 @@
         </div>
 
         <div class="ui bottom attached tab segment" data-tab="third" tab-num="3">
-            <h3>Course Offering History:</h3>
-            <ul>
-              <br>
-              {{#each getOfferedHistory}}
-                <li>{{this}}<br></li>
-              {{/each}}
-            </ul>
+            {{#if historyReady}}
+              <h3>Course Offering History:</h3>
+              <ul>
+                <br>
+                {{#each getOfferedHistory}}
+                  <li>{{this}}<br></li>
+                {{/each}}
+              </ul>
+            {{else}}
+              {{fetchHistory}}
+              <div class="ui active inline loader"></div>
+            {{/if}}
         </div>
     </div>
     {{else}}
