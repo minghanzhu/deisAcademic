@@ -172,6 +172,7 @@ Template.calendarTest.helpers({
                         if (dict.get("includeWishlist")) {
                             Meteor.call("fetchSectionList", sectionList, function(err, section_result) {
                                 if (err) {
+                                    window.alert(err.message);
                                     return;
                                 }
 
@@ -283,6 +284,7 @@ Template.calendarTest.helpers({
         const courseId = dict.get("courseId");
         Meteor.call("getCourse", courseId, function(err, result) {
             if (err) {
+                window.alert(err.message);
                 return;
             }
 
@@ -311,6 +313,7 @@ Template.calendarTest.helpers({
         Meteor.call("getMajorDetails", dict.get('courseObj'),
             function(err, result) {
                 if (err) {
+                    window.alert(err.message);
                     return;
                 }
                 dict.set('majorDetail', result);
@@ -442,7 +445,7 @@ Template.calendarTest.helpers({
         Meteor.call("getCourseHistory", currCourseData.continuity_id,
             function(err, result) {
                 if (err) {
-                    console.log(err);
+                    console.log(err.message);
                     return;
                 }
 
@@ -674,9 +677,14 @@ Template.scheduleCourseList.helpers({
         };
 
         const courseId = masterDict.get("chosenTerm") + "-" + courseContId;
+        //check if the info is already there
+        if(dict.get("sectionInfo" + courseId)){
+            return dict.get("sectionInfo" + courseId)
+        }
+
         Meteor.call("getSections", courseId, function(err, result) {
             if (err) {
-                window.alert(err);
+                window.alert(err.message);
                 return;
             }
             if (result.length == 0) {
@@ -752,8 +760,15 @@ Template.scheduleCourseList.events({
         const section_id = event.target.attributes[1].nodeValue;
         const course_code = event.target.attributes[2].nodeValue;
         //start  : '2010-01-09T12:30:00-5:00',this is the format of the time
+
+        //check if the section is added
+        if($("#calendar").fullCalendar( 'getEventSourceById', section_id )){
+            return;
+        }
+
         Meteor.call("getSection", section_id, function(err, result) {
             if (err) {
+                window.alert(err.message);
                 return;
             };
 
@@ -803,15 +818,7 @@ Template.scheduleCourseList.events({
                         events_array.push(event_obj);
                     }
                 }
-                //check if the course has been added
-                const event_sources = $("#calendar").fullCalendar('getEventSources')
-                for (let source of event_sources) {
-                    for (let event_obj of source.events) {
-                        if (event_obj.id == section_id) {
-                            return;
-                        }
-                    }
-                }
+
                 //add the source which contains all the events at different times for the same section into the calendar
                 $("#calendar").fullCalendar("addEventSource", {
                     events: events_array,

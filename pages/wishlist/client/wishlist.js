@@ -154,6 +154,7 @@ Template.wishlist.helpers({
 
         Meteor.call("fetchSections", wishlist, function(err, result) {
             if (err) {
+                window.alert(err.message);
                 return;
             }
 

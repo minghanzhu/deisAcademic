@@ -712,6 +712,11 @@ Template.search_result.helpers({
 
     getProfInfo: function(prof_list, section_id) {
         const homeDict = Template.instance().homeDict;
+        //check if the info is already there
+        if(homeDict.get("instructorsName" + section_id)){
+            return homeDict.get("instructorsName" + section_id);
+        }
+
         Meteor.call("getProfInfo", prof_list, function(err, result) {
             if(err){
                 window.alert(err.message);
@@ -794,7 +799,7 @@ Template.search_result.helpers({
         Meteor.call("getCourseHistory", currCourseData.continuity_id,
             function(err, result) {
                 if (err) {
-                    console.log(err);
+                    console.log(err.message);
                     return;
                 }
 
@@ -1057,6 +1062,11 @@ Template.search_result_time_table.helpers({
                     label: 'Instructor',
                     sortable: false,
                     fn: function(key, object) {
+                        //check if the info is already there
+                        if(homeDict.get("instructors" + object.id)){
+                            return homeDict.get("instructors" + object.id);
+                        }
+
                         Meteor.call("searchInstructorArray", key, function(err, result) {
                             if(err){
                                 window.alert(err.message);
