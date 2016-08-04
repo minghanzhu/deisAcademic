@@ -370,7 +370,6 @@ Template.home.events({
 
     "click .js-voice-search": function() {
         const homeDict = Template.instance().homeDict;
-        event.preventDefault();
         homeDict.set("notTalking", false);
         homeDict.set('showTable', false);
         homeDict.set('majorDetail', []);
