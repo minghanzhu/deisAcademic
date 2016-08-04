@@ -31,7 +31,8 @@ Template.home.onRendered(function() {
     $('.ui.checkbox').checkbox();
     //this monitors the pressing of enter, if so, do a search
     $('body').keydown(function(e) {
-        if(Router.current().url !== "http://localhost:3000/"){
+        if(Router.current().url !== "http://turing.cs-i.brandeis.edu:5000/" 
+            && Router.current().url !== "/"){
             return;
         }
 
