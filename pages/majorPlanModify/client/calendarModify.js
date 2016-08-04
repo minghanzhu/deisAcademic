@@ -50,10 +50,12 @@ Template.calendarModify.onRendered(function() {
 
             //then pops up the popup window
             let popup = $(".popup-calendar");
-            //this makes sure that the popup in the center of the screen
-            setTimeout(function() {
-                popup.css("top", (($(window).height() - popup.outerHeight()) / 2) + $(window).scrollTop() + 30 + "px");
-            }, 400);
+            $('.popup-calendar').css("top", 40 + $(window).scrollTop());
+            if($(window).width() < 768){
+                $('.popup-calendar').css("left", -55);
+            } else {
+                $('.popup-calendar').css("left", (($(".move").width() - $('.popup-calendar').width()) / 2) - 80);
+            }
             $(".overlay-calendar, .popup-calendar").fadeToggle();
         },
     });
