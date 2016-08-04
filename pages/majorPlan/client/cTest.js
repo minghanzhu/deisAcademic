@@ -161,6 +161,10 @@ Template.calendarTest.helpers({
         if (typeof courseList[0] === "string") { //prevent unexpected request
             Meteor.call("fetchCourseList", courseList,
                 function(err, result) {
+                    if(err){
+                        return;
+                    }
+
                     if (result.length != 0) {
                         if (dict.get("includeWishlist")) {
                             Meteor.call("fetchSectionList", sectionList, function(err, section_result) {
@@ -330,6 +334,10 @@ Template.calendarTest.helpers({
     getProfInfo: function(prof_list) {
         const dict = Template.instance().calendarDict;
         Meteor.call("getProfInfo", prof_list, function(err, result) {
+            if(err){
+                return;
+            }
+
             if (result.includes("Staff")) {
                 dict.set("instructorsName", "Staff - This information will be updated once Brandeis posts the professor names for this section\n");
             } else {

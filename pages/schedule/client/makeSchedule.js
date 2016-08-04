@@ -234,6 +234,10 @@ Template.semesterSchedule.helpers({
         if (typeof sectionList[0] === "string") { //prevent unexpected request
             Meteor.call("fetchSectionList", sectionList,
                 function(err, result) {
+                    if(err){
+                        return;
+                    }
+
                     if (result.length != 0) {
                         const sorted_result = result.sort(function(a, b) {
                             //for a
@@ -340,6 +344,10 @@ Template.semesterSchedule.helpers({
     getProfInfo: function(prof_list) {
         const dict = Template.instance().calendarDict;
         Meteor.call("getProfInfo", prof_list, function(err, result) {
+            if(err){
+                return;
+            }
+
             if (result.includes("Staff")) {
                 dict.set("instructorsName", "Staff - This information will be updated once Brandeis posts the professor names for this section\n");
             } else {

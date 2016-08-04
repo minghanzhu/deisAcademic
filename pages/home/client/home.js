@@ -71,6 +71,10 @@ Template.home.onRendered(function() {
             //call the meteor method to do the search and get results
             Meteor.call("searchCourse", keyword, term, req_names_array, dept, instructor, time_and_date, if_indept, if_not_sure,
                 function(err, result) {
+                    if(err){
+                        return;
+                    }
+
                     if (result.length == 0) {
                         homeDict.set('noResult', true);
                     } else if (result[0] == "no params") {
@@ -298,6 +302,10 @@ Template.home.events({
 
         Meteor.call("searchCourse", keyword, term, req_names_array, dept, instructor, time_and_date, if_indept, if_not_sure,
             function(err, result) {
+                if(err){
+                    return;
+                }
+
                 if (result.length == 0) {
                     homeDict.set('noResult', true);
                 } else {
@@ -497,6 +505,10 @@ Template.home.events({
 
                                 Meteor.call("searchCourse", theQuery, term, req_names_array, null, instructor, time_and_date, if_indept, if_not_sure,
                                     function(err, result) {
+                                        if(err){
+                                            return
+                                        }
+
                                         if (result.length == 0) {
                                             homeDict.set('noResult', true);
                                         } else {
@@ -698,6 +710,10 @@ Template.search_result.helpers({
     getProfInfo: function(prof_list, section_id) {
         const homeDict = Template.instance().homeDict;
         Meteor.call("getProfInfo", prof_list, function(err, result) {
+            if(err){
+                return;
+            }
+
             if (result.includes("Staff")) {
                 homeDict.set("instructorsName" + section_id, "Staff - This information will be updated once Brandeis posts the professor names for this section\n");
             } else {
@@ -821,6 +837,10 @@ Template.search_result.events({
         //get major details
         Meteor.call("getMajorDetails", homeDict.get('courseInfo'),
             function(err, result) {
+                if(err){
+                    return;
+                }
+
                 homeDict.set('majorDetail', result);
             }
         );
@@ -828,6 +848,10 @@ Template.search_result.events({
         //get section details
         Meteor.call("getSectionDetails", homeDict.get('courseInfo'),
             function(err, result) {
+                if(err){
+                    return
+                }
+
                 homeDict.set('sectionDetail', _.sortBy(result,
                     function(section) {
                         return parseInt(section.section);
@@ -1023,6 +1047,10 @@ Template.search_result_time_table.helpers({
                     sortable: false,
                     fn: function(key, object) {
                         Meteor.call("searchInstructorArray", key, function(err, result) {
+                            if(err){
+                                return;
+                            }
+
                             homeDict.set("instructors" + object.id, result);
                         });
 

@@ -57,6 +57,10 @@ Template.planSearchModify.helpers({
             end: ""
         }, false, false,
             function(err, result) {
+                if(err){
+                    return;
+                }
+
                 if (result.length == 0) {
                     planDict.set('noResult', true);
                 } else {
