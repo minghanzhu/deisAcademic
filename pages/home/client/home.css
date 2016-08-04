@@ -73,14 +73,12 @@ body {
 }
 .ui.container.popup {
     position: absolute;
-    min-width: 500px;
-    min-height: 500px;
+    min-width: 450px;
+    /*min-height: 450px;*/
     display: none;
     /*background-color: white;*/
     text-align: left;
-    /* center it ? */
-    left: 0;
-    right: 5%;
+    /*left: -55;*/
     z-index: 1000!important;
 }
 .ui.popup:before {

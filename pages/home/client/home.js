@@ -792,10 +792,15 @@ Template.search_result.events({
         $(".ui.container.popup [tab-num=1]").attr("class", "ui bottom attached tab segment active");
 
         let popup = $(".popup");
-        popup.css("top", (($(window).height() - popup.outerHeight()) / 2) + $(window).scrollTop() + 30 + "px");
+        
         $(".overlay, .popup").fadeToggle();
-
-
+        $('.popup').css("top", 40 + $(window).scrollTop());
+        if($(window).width() < 768){
+            $('.popup').css("left", -55);
+        } else {
+            $('.popup').css("left", (($(".move").width() - $('.popup').width()) / 2) - 110 - 48);
+        }
+        
 
         if (!homeDict.get('courseInfo')) { //continue only if the data is ready
             return;
