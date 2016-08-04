@@ -326,8 +326,13 @@ Meteor.methods({
                 return [];
             }
         }
-
-        if (searchQuery.term == "/^/i" && searchQuery.code == "/^/i" && searchQuery.name == "/(?:)/i") {
+        
+        if (searchQuery.term == "/^/i" 
+            && searchQuery.code == "/^/i" 
+            && searchQuery.name == "/(?:)/i"
+            && !searchQuery.$and
+            && !searchQuery.$or
+            && !searchQuery["subjects.id"]) {
           return ["no params"];
         }
 
