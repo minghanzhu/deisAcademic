@@ -31,6 +31,10 @@ Template.home.onRendered(function() {
     $('.ui.checkbox').checkbox();
     //this monitors the pressing of enter, if so, do a search
     $('body').keydown(function(e) {
+        if(Router.current().url !== "http://localhost:3000/"){
+            return;
+        }
+
         if (e.keyCode == 13 && !$(".reactive-table-navigation input").is(":focus")) {
 
 
