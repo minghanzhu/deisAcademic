@@ -27,13 +27,6 @@ Template.voiceButton.onRendered(function() {
 
 Template.home.onRendered(function() {
     const homeDict = Template.instance().homeDict;
-    //these initialize the semantic ui components
-    $('#multi-select').dropdown();
-    $('#search-select').dropdown();
-    $('#search-select-start-time').dropdown();
-    $('#search-select-end-time').dropdown();
-    $('#multi-select-days').dropdown();
-    $('.ui.checkbox').checkbox();
     //this monitors the pressing of enter, if so, do a search
     $('body').keydown(function(e) {
         if(Router.current().url !== "http://turing.cs-i.brandeis.edu:5000/" 
@@ -80,7 +73,7 @@ Template.home.onRendered(function() {
             const if_not_sure = $(".js-if-not-sure").is(':checked');
 
             //call the meteor method to do the search and get results
-            Meteor.call("searchCourse", keyword, term, req_names_array, dept, instructor, time_and_date, if_indept, if_not_sure,
+            Meteor.call("searchPnc", keyword, term, req_names_array, dept, instructor, time_and_date, if_indept, if_not_sure,
                 function(err, result) {
                     if(err){
                         window.alert(err.message);
@@ -155,7 +148,16 @@ Template.home.onRendered(function() {
                 }
             );
         }
+
     })
+
+    //these initialize the semantic ui components
+    $('#multi-select').dropdown();
+    $('#search-select').dropdown();
+    $('#search-select-start-time').dropdown();
+    $('#search-select-end-time').dropdown();
+    $('#multi-select-days').dropdown();
+    $('.ui.checkbox').checkbox();
 
     //this gets all the professors names and initialize the search selection
     //so that the user can search a professor name
@@ -277,7 +279,7 @@ Template.home.events({
         // 	}
         // );
     },
-
+    /*
     "change .js-term": function(event) {
         const homeDict = Template.instance().homeDict;
         event.preventDefault();
@@ -372,7 +374,7 @@ Template.home.events({
                 homeDict.set('showTable', true);
             }
         );
-    },
+    },*/
 
     "click .js-voice-search": function() {
         const homeDict = Template.instance().homeDict;
