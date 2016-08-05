@@ -24,7 +24,7 @@ Template.calendarTest.onRendered(function() {
         maxTime: '22:30:00', //http://fullcalendar.io/docs/agenda/maxTime/
         height: 'auto', //http://fullcalendar.io/docs/display/height/
         contentHeight: 'auto', //http://fullcalendar.io/docs/display/contentHeight/
-        defaultDate: '2000-1-3', //http://fullcalendar.io/docs/current_date/defaultDate/
+        defaultDate: '2000-01-03', //http://fullcalendar.io/docs/current_date/defaultDate/
         //Monday:   2000-1-3
         //Tuesday:  2000-1-4
         //Wednesday:2000-1-5

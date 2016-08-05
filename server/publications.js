@@ -114,8 +114,8 @@ Meteor.publish("modify_plan_majorPlans", function(plan_id) {
     }
 
     if(!MajorPlansPnc.findOne(plan_id)){
-        console.log("Invalid plan id");
-        return;
+        //console.log("Invalid plan id");
+        return MajorPlansPnc.find(plan_id);
     }
 
     const plan_obj = MajorPlansPnc.findOne(plan_id);
