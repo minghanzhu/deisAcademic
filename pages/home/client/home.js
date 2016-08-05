@@ -669,7 +669,7 @@ Template.search_result.events({
         if($(window).width() < 768){
             $('.popup').css("left", -55);
         } else {
-            $('.popup').css("left", (($(".move").width() - $('.popup').width()) / 2) - 110 - 48);
+            $('.popup').css("left", (($(".move").width() - $('.popup').width()) / 2) - 80);
         }
         $(".overlay, .popup").fadeToggle();
 
