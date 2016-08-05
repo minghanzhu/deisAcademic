@@ -644,7 +644,7 @@ Template.semesterSchedule.events({
         });
     },
 
-    "click .js-change-course": function() {
+    "click .js-change-course": function(event) {
         event.preventDefault();
         //save the current term's schedule to the dict
         const current_term = $(".js-term").val();

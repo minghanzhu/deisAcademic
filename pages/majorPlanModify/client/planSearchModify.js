@@ -51,7 +51,7 @@ Template.planSearchModify.helpers({
 
         const dept = planDict.get('majorId'); //""for no option and "all" for all departments
 
-        Meteor.call("searchCourse", "", "", [], dept, "", {
+        Meteor.call("searchPnc", "", "", [], dept, "", {
             days: [],
             start: "",
             end: ""

@@ -15,7 +15,10 @@ Template.majorSelect.onRendered(function() {
         match: "text"
     });
     const major = $("#search-select input").val();
-
+    $('#help-major').popup({
+        content: "Sorry, we are still finalizing this feature...",
+        position: 'top center',
+    });
 });
 
 Template.majorSelect.helpers({
@@ -50,7 +53,7 @@ Template.majorSelect.helpers({
 })
 
 Template.majorSelect.events({
-    "click .js-majorGo": function() {
+    "click .js-majorGo": function(event) {
         event.preventDefault();
         //get the sorted term list
         let termList = [];
@@ -110,7 +113,7 @@ Template.majorSelect.events({
         })
     },
 
-    "click .js-majorBulletin": function() {
+    "click .js-majorBulletin": function(event) {
         event.preventDefault();
         Template.instance().majorSelectDict.set("clickedHelp", true);
     },
