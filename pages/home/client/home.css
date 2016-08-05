@@ -78,6 +78,8 @@ body {
     display: none;
     /*background-color: white;*/
     text-align: left;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
     /*left: -55;*/
     z-index: 1000!important;
 }
