@@ -541,8 +541,7 @@ Meteor.methods({
             && !searchQuery.$and
             && !searchQuery["subjects.id"]
             && !searchQuery.instructors
-            && !searchQuery["times.start"]
-            && !searchQuery["times.end"]) {
+            && !searchQuery.times) {
           return ["no params"];
         }
         
