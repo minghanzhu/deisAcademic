@@ -188,7 +188,15 @@ Meteor.startup(function() {
     Course._ensureIndex({ "id": 1}, {background: true});
     Instructor._ensureIndex({ "id": 1}, {background: true});
     console.log("index added!");*/
-    
+    if(SearchPnc.find().count() != 0){
+        SearchPnc._ensureIndex({ "instructors": 1}, {background: true});
+        SearchPnc._ensureIndex({ "times": 1}, {background: true});
+        SearchPnc._ensureIndex({ "id": 1}, {background: true});
+        SearchPnc._ensureIndex({ "term": 1}, {background: true});
+        SearchPnc._ensureIndex({ "code": 1}, {background: true});
+        SearchPnc._ensureIndex({ "name": 1}, {background: true});
+        console.log("search index added!")
+    }
 
     //if (Instructor.find().count() > 0) return;
     /*
@@ -201,40 +209,29 @@ Meteor.startup(function() {
     */
     if(SearchPnc.find().count() != 0) return;
     SearchPnc.remove({});
-    const fs = Npm.require('fs');
-    fs.readFile(
-        //"D:\\Luyi's\\JBS2016\\JSON\\export-2004-2016.json", 'utf8',
-        "D:\\Luyi's\\JBS2016\\deisAcademic\\public\\data\\classes.json", 'utf8',
-        //"/Users/mhzhu/Desktop/deisAcademic/public/data/classes.json", 'utf8',
-        //Meteor.settings.filePath, 'utf8',
-        //"/home/pnc/deisAcademic/public/data/classes.json", 'utf8',
-        //"/home/pnc/JSON/export-2004-2016.json", 'utf8',
-        Meteor.bindEnvironment(function(err, data) {
-            if (err) {
-                console.log('Error: ' + err);
-                return;
-            }
-            data = JSON.parse(data);
-            console.log("reading...")
+        const data1 = Course.find().fetch();
+        const data2 = Section.find().fetch();
+        console.log("reading...")
 
-            //first insert course
-            let count1 = 0;
-            for (let item of data) {
-                if (item.type == "course") {
-                    count1++;
-                    SearchPnc.insert(item);
-                    if(count1 % 500 == 0){
-                        console.log(count1 + "courses inserted");
-                    }
+        //first insert course
+        let count1 = 0;
+        for (let item of data1) {
+            if (1 == 1) {
+                count1++;
+                SearchPnc.insert(item);
+                if(count1 % 500 == 0){
+                    console.log(count1 + "courses inserted");
                 }
             }
+        }
 
-            //then insert section field
-            let count2 = 0;
-            for (let item of data){
-                if (item.type == "section") {
-                    count2++;
-                    const course_obj = SearchPnc.findOne({id: item.course});
+        //then insert section field
+        let count2 = 0;
+        for (let item of data2){
+            if (1 == 1) {
+                count2++;
+                const course_obj = SearchPnc.findOne({id: item.course});
+                if(course_obj){
                     const course_id = course_obj._id;
                     const section_times = item.times;
                     const section_ins = item.instructors;
@@ -295,13 +292,17 @@ Meteor.startup(function() {
                             }
                         }  
                     }
-                    if(count2 % 500 == 0){
-                        console.log(count2 + "sections processed")
-                    } 
+                } else {
+                    console.log(item + "has a course id not in database");
                 }
+
+                if(count2 % 500 == 0){
+                    console.log(count2 + "sections processed")
+                } 
             }
-            console.log("Done!")
-        }));
+        }
+
+        console.log("Done!");
     /*
     const fs = Npm.require('fs');
     fs.readFile(

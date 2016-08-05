@@ -64,6 +64,7 @@ if (Term.find().count() > 0) {
 console.log("If you don't see current and future terms, please restart the server");
 
 Meteor.methods({
+    /*
     searchCourse: function(keyword, term, req_array, dept, prof, time, if_indept, if_not_sure) {
         //this removed any extra spaces
         keyword = keyword.replace(/ +/gi, " ");
@@ -345,7 +346,7 @@ Meteor.methods({
                 independent_study: 0,
             }
         }).fetch();
-    },
+    },*/
 
     searchPnc: function(keyword, term, req_array, dept, prof, time, if_indept, if_not_sure) {
         //this removed any extra spaces
@@ -531,8 +532,10 @@ Meteor.methods({
             && searchQuery.code == "/^/i" 
             && searchQuery.name == "/(?:)/i"
             && !searchQuery.$and
-            && !searchQuery.$or
-            && !searchQuery["subjects.id"]) {
+            && !searchQuery["subjects.id"]
+            && !searchQuery.instructors
+            && !searchQuery["times.start"]
+            && !searchQuery["times.end"]) {
           return ["no params"];
         }
         

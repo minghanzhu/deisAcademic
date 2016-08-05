@@ -1,7 +1,7 @@
 <template name="home">
     <div class="searchContainer">
         <h1 id="siteName">planDeis</h1>
-
+        
         <div id="searchForm">
             <form id="search_main">
                 <input type="text" placeholder=" Search course code or title" name="keyword" id="searchBar" class="js-submit-search" autocomplete="off">
@@ -76,7 +76,7 @@
                 </select>
             </div>
 
-            <div class="three wide field">
+            <div class="three wide field" id="req-select">
                 <label>Requirement: </label>
                 <select class="js-req ui fluid dropdown" multiple="" id="multi-select">
                     <option value="">Select from the list</option>
@@ -206,7 +206,7 @@
         <div class="ui horizontal divider">Time and Date</div>
 
         <div class="fields">
-            <div class="three wide field">
+            <div class="three wide field" id="day-select">
                 <label>Days: </label>
                 <select class="js-days ui fluid dropdown" multiple="" id="multi-select-days">
                     <option value="">Select from the list</option>
