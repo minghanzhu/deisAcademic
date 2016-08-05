@@ -898,7 +898,7 @@ Template.search_result_time_table.helpers({
                     fn: function(key, object) {
                         //check if the info is already there
                         if(homeDict.get("instructors" + object.id)){
-                            return homeDict.get("instructors" + object.id);
+                            return new Spacebars.SafeString(homeDict.get("instructors" + object.id));
                         }
 
                         Meteor.call("searchInstructorArray", key, function(err, result) {
