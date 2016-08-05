@@ -64,6 +64,7 @@ if (Term.find().count() > 0) {
 console.log("If you don't see current and future terms, please restart the server");
 
 Meteor.methods({
+    /*
     searchCourse: function(keyword, term, req_array, dept, prof, time, if_indept, if_not_sure) {
         //this removed any extra spaces
         keyword = keyword.replace(/ +/gi, " ");
@@ -337,6 +338,208 @@ Meteor.methods({
         }
         
         return Course.find(searchQuery, {
+            fields: {
+                _id: 0,
+                type: 0,
+                comment: 0,
+                credits: 0,
+                independent_study: 0,
+            }
+        }).fetch();
+    },*/
+
+    searchPnc: function(keyword, term, req_array, dept, prof, time, if_indept, if_not_sure) {
+        //this removed any extra spaces
+        keyword = keyword.replace(/ +/gi, " ");
+        keyword = keyword.trim();
+
+
+        const codes_record = []; //this records the user tokens
+        const keys_record = []; //this records all the matches
+        for (let item of codes) {
+            //in the form of CODE + NUM + LETTER; for exmaple
+            //cosi11a, coSi 11a, COsi 400, COsI400
+            if (item.includes("/")) { //some code is in the form of COSI/MATH
+                //the separates the string to two parts
+                //and do the same thing as the one for normal code below
+                let indexOfSlash = item.indexOf("/");
+                let first_half = item.substring(0, indexOfSlash);
+                let second_half = item.substring(indexOfSlash + 1);
+                let regex_1 = new RegExp("( |^)" + first_half + " ?(\\d{1,3}[A-Z]{0,1})?( |$)", "i");
+                let regex_2 = new RegExp("( |^)" + second_half + " ?(\\d{1,3}[A-Z]{0,1})?( |$)", "i");
+
+                if (keyword.match(regex_1)) {
+                    let code_token = keyword.match(regex_1)[0];
+                    let code_key = item + " " + code_token.trim().substring(first_half.length).trim().toUpperCase();
+                    codes_record.push(code_token);
+                    keys_record.push(code_key.trim());
+                } else if (keyword.match(regex_2)) {
+                    let code_token = keyword.match(regex_2)[0];
+                    let code_key = item + " " + code_token.trim().substring(second_half.length).trim().toUpperCase();
+                    codes_record.push(code_token);
+                    keys_record.push(code_key.trim());
+                }
+            } else { //for normal code like COSI, MUS, MATH
+                let regex = new RegExp("( |^)" + item + " ?(\\d{1,3}[A-Z]{0,1})?( |$)", "i");
+
+                if (keyword.match(regex)) {
+                    let code_token = keyword.match(regex)[0];
+                    let code_key = item + " " + code_token.trim().substring(item.length).trim().toUpperCase();
+                    codes_record.push(code_token);
+                    keys_record.push(code_key.trim());
+                }
+            }
+        }
+
+        //this extracts the code token out of the keyword string
+        //so that it won't be part of the search for course title
+        for (let key of codes_record) {
+            if (keyword.match(key)) {
+                keyword = keyword.replace(key, " ");
+                keyword = keyword.replace(/ {2, }/i, " ");
+            }
+        }
+
+        //this generates the regex for the actual search for course code
+        var regexCode;
+        if (keys_record.length != 0) {
+            //this put together all the matches by logical OR
+            let new_keyword = "(" + keys_record[0];
+            for (let i = 1; i < keys_record.length; i++) {
+                new_keyword = new_keyword + "|" + keys_record[i];
+            }
+            new_keyword = new_keyword + ")";
+
+            //this checks if the user wants to do a strict match
+            //if so, math10 or math 10 won't return math 100
+            //if not, cosi 1 can return any cosi course that has
+            //1 as the beginning of course code
+            if (!if_not_sure) {
+                if (!/\d/i.test(new_keyword)) {
+                    regexCode = new RegExp("^" + new_keyword + " \\d{1,3}([A-Z]{0,1})?$", "i");
+                } else {
+                    regexCode = new RegExp("^" + new_keyword + " ?([A-Z]{0,1})?$", "i");
+                }
+            } else {
+                regexCode = new RegExp("^" + new_keyword + " ?((\\d{1,3})?[A-Z]{0,1})?$", "i");
+            };
+        } else {
+            regexCode = new RegExp("^", "i");
+        }
+
+        //this turns the rest of the key word string into a regex for course title search
+        var regexTitle;
+        if (/^ +$/.test(keyword)) { //this makes sure there's something left in the keyword string
+            regexTitle = new RegExp("^", "i");
+        } else {
+            regexTitle = new RegExp(keyword.trim(), "i");
+        };
+
+        //this generates the regex for term search
+        var regexTerm = new RegExp("^" + term, "i");
+
+        //this creates the first query object
+        let searchQuery;
+        if (if_indept) { //if the user choose to also search independent studies
+            searchQuery = { term: regexTerm, code: regexCode, name: regexTitle };
+        } else {
+            searchQuery = { term: regexTerm, code: regexCode, name: regexTitle, independent_study: false };
+        }
+
+        //process the array of requirements
+        if (req_array.length != 0) {
+            searchQuery.$and = [];
+            for (let node of req_array) { //if there's requirement, add it to the qeury object
+                searchQuery.$and.push({ requirements: node });
+            }
+        };
+
+        //process the department
+        if (term && dept && dept !== "all") { //if there's term and department
+            const dept_query = term + "-" + dept;
+            searchQuery['subjects.id'] = dept_query;
+        } else if (!term && dept && dept !== "all") { //is there's only department
+            let regexDept = new RegExp("-" + dept + "$", "i");
+            searchQuery['subjects.id'] = regexDept;
+        }
+
+        //process professor name
+        let hasProfessor = false;
+        let prof_id; //the id for this professor
+        if (prof) {
+            let section_of_prof; //array of all sections taught by the professor
+            for (let item of prof_name_and_id) {
+                if (item.title === prof) { //loop through the professor names and see if anything matches
+                    prof_id = item.id;
+                    section_of_prof = Section.find({ instructors: prof_id }).fetch();
+                    hasProfessor = true;
+                    break;
+                }
+            }
+
+            //if no professor matches, return no result
+            if (!section_of_prof) {
+                return [];
+            } else if (section_of_prof.length == 0) {
+                return [];
+            };
+
+            //else add it to the qeury
+            searchQuery.instructors = prof_id;
+        }
+
+        //time and date
+        let days_array = time.days;
+        let search_start = time.start;
+        let search_end = time.end;
+        //make sure there's actual request on time and date
+        if (days_array.length != 0 || (search_start && search_start !== "all") || (search_end && search_end !== "all")) {
+            if (search_start && search_start !== "all") { //turns the time into minutes after 0:00 AM
+                const start_hr = parseInt(search_start.substring(0, search_start.indexOf(":")));
+                const start_min = parseInt(search_start.substring(search_start.indexOf(":") + 1));
+                search_start = start_hr * 60 + start_min;
+            } else { //if there's no request, make it 0, so it starts from the begining of the day
+                search_start = 0;
+            }
+
+            if (search_end && search_end !== "all") {
+                const end_hr = parseInt(search_end.substring(0, search_end.indexOf(":")));
+                const end_min = parseInt(search_end.substring(search_end.indexOf(":") + 1));
+                search_end = end_hr * 60 + end_min;
+            } else {
+                search_end = 1440;
+            }
+
+            if (search_start >= "0" && search_start <= "1440") { //add the start time to the search if there's any
+                searchQuery["times.start"] = { $gte: search_start, $lte: 1440 };
+            }
+
+            if (search_end >= "0" && search_end <= "1440") { //add the end time to the search if there's any
+                searchQuery["times.end"] = { $gte: 0, $lte: search_end };
+            }
+
+            if (days_array.length != 0) { //add the days to the search if there's any
+                if(!searchQuery.$and){
+                    searchQuery.$and = [];
+                } 
+                for (let day of days_array) {
+                    searchQuery.$and.push({ 'times.days': day });
+                }
+            }
+        }
+        
+        if (searchQuery.term == "/^/i" 
+            && searchQuery.code == "/^/i" 
+            && searchQuery.name == "/(?:)/i"
+            && !searchQuery.$and
+            && !searchQuery["subjects.id"]
+            && !searchQuery.instructors
+            && !searchQuery["times.start"]
+            && !searchQuery["times.end"]) {
+          return ["no params"];
+        }
+        
+        return SearchPnc.find(searchQuery, {
             fields: {
                 _id: 0,
                 type: 0,

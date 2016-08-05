@@ -16,24 +16,25 @@ Template.voiceButton.onRendered(function() {
           content: "For example \"Show me COSI courses taught by Timothy Hickey\"",
           position: 'bottom right',
       });
-
+      
+      $('#req-select, #day-select')
+      .popup({
+          content: "Sorry, but please refresh if this doesn't work. We're tyring to fix it",
+          position: 'top left',
+      });
+      /*
       $('#searchBar')
       .popup({
           content: "We're still optimizing the search mechanism...",
           position: 'top right',
       });
 
+      $('.cookie.nag').nag('show');
+      */
 })
 
 Template.home.onRendered(function() {
     const homeDict = Template.instance().homeDict;
-    //these initialize the semantic ui components
-    $('#multi-select').dropdown();
-    $('#search-select').dropdown();
-    $('#search-select-start-time').dropdown();
-    $('#search-select-end-time').dropdown();
-    $('#multi-select-days').dropdown();
-    $('.ui.checkbox').checkbox();
     //this monitors the pressing of enter, if so, do a search
     $('body').keydown(function(e) {
         if(Router.current().url !== "http://turing.cs-i.brandeis.edu:5000/" 
@@ -80,7 +81,7 @@ Template.home.onRendered(function() {
             const if_not_sure = $(".js-if-not-sure").is(':checked');
 
             //call the meteor method to do the search and get results
-            Meteor.call("searchCourse", keyword, term, req_names_array, dept, instructor, time_and_date, if_indept, if_not_sure,
+            Meteor.call("searchPnc", keyword, term, req_names_array, dept, instructor, time_and_date, if_indept, if_not_sure,
                 function(err, result) {
                     if(err){
                         window.alert(err.message);
@@ -155,7 +156,16 @@ Template.home.onRendered(function() {
                 }
             );
         }
+
     })
+
+    //these initialize the semantic ui components
+    $('#multi-select').dropdown();
+    $('#search-select').dropdown();
+    $('#search-select-start-time').dropdown();
+    $('#search-select-end-time').dropdown();
+    $('#multi-select-days').dropdown();
+    $('.ui.checkbox').checkbox();
 
     //this gets all the professors names and initialize the search selection
     //so that the user can search a professor name
@@ -185,193 +195,7 @@ Template.home.helpers({
 
 Template.home.events({
     "submit #search_main": function(event) {
-        // 	const homeDict = Template.instance().homeDict;
         event.preventDefault();
-        // 	homeDict.set('showTable', false);
-        // 	homeDict.set('majorDetail', []);
-        // homeDict.set('sectionDetail', []);
-        // homeDict.set('courseData');
-        // homeDict.set('termName');
-        // homeDict.set('noResult', false);
-        //
-        // const keyword = $(".js-submit-search").val();
-        // const term = $(".js-term").val();
-        // const req_array = $(".js-req .ui.label.transition.visible").toArray();
-        // const req_names_array = [];
-        // for(let item of req_array){
-        // 	req_names_array.push(item.innerText);
-        // };
-        // const days_array = $(".js-days .ui.label.transition.visible").toArray();
-        // const days_names_array = [];
-        // for(let item of days_array){
-        // 	days_names_array.push($(item).attr("data-value"));
-        // };
-        // const start_time = $(".js-start-time input").val();
-        // const end_time = $(".js-end-time input").val();
-        // const time_and_date = {
-        // 	days: days_names_array,
-        // 	start: start_time,
-        // 	end: end_time
-        // };
-        // const dept = $("#search-select input").val();//""for no option and "all" for all departments
-        // const instructor = $(".js-prof input").val();
-        // const if_indept = $(".js-if-indep").is(':checked');
-        // const if_not_sure = $(".js-if-not-sure").is(':checked');
-        //
-        // Meteor.call("searchCourse", keyword, term, req_names_array, dept, instructor, time_and_date, if_indept, if_not_sure,
-        // 	function(err, result){
-        // 		if(result.length == 0){
-        // 			homeDict.set('noResult', true);
-        // 		}
-        // 		else if (result[0] == "no params") {
-        // 			window.alert("Please enter some search parameters");
-        // 		} else {
-        // 			const sorted_result = result.sort(function(a, b) {
-        // 					//for a
-        //     				let course_num_a = parseInt(a.code.match(/\d+/gi)[0]);
-        // 				if(course_num_a < 10) course_num_a = "00" + course_num_a;
-        // 				if(course_num_a >= 10 && course_num_a < 100) course_num_a = "0" + course_num_a;
-        // 				const course_dep_a = a.code.substring(0, a.code.indexOf(" "));
-        // 				const last_a = a.code.charAt(a.code.length - 1);
-        // 				let comp_string_a;
-        // 				if(/\w/i.test(last_a)){
-        // 					comp_string_a = course_num_a + last_a;
-        // 				} else{
-        // 					comp_string_a = course_num_a + "0";
-        // 				};
-        //
-        // 				//for b
-        // 				let course_num_b = parseInt(b.code.match(/\d+/gi)[0]);
-        // 				if(course_num_b < 10) course_num_b = "00" + course_num_b;
-        // 				if(course_num_b >= 10 && course_num_b < 100) course_num_b = "0" + course_num_b;
-        // 				const course_dep_b = b.code.substring(0, b.code.indexOf(" "));
-        // 				const last_b = b.code.charAt(b.code.length - 1);
-        // 				let comp_string_b;
-        // 				if(/\w/i.test(last_b)){
-        // 					comp_string_b = course_num_b + last_b;
-        // 				} else{
-        // 					comp_string_b = course_num_b + "0";
-        // 				};
-        //
-        // 					if(parseInt(a.term) < parseInt(b.term)){
-        //     					return 1;
-        // 					}else if(parseInt(a.term) > parseInt(b.term)){
-        //     					return -1;
-        // 					}else{
-        //     					const major_comp = course_dep_a.localeCompare(course_dep_b);
-        //     					if(major_comp != 0){
-        //     						return major_comp;
-        //     					} else {
-        //     						return comp_string_a.localeCompare(comp_string_b);
-        //     					}
-        // 					}
-        // 			});
-        // 			for(let i = 0; i < sorted_result.length; i++){
-        // 				sorted_result[i].index = i;
-        // 			};
-        // 			homeDict.set('courseData', sorted_result);
-        // 			homeDict.set('noResult',false);
-        // 		}
-        //
-        // 			homeDict.set('showTable', true);
-        // 	}
-        // );
-    },
-
-    "change .js-term": function(event) {
-        const homeDict = Template.instance().homeDict;
-        event.preventDefault();
-        homeDict.set('showTable', false);
-        homeDict.set('majorDetail', []);
-        homeDict.set('sectionDetail', []);
-        homeDict.set('courseData');
-        homeDict.set('termName');
-        homeDict.set('noResult', false);
-
-        const keyword = $(".js-submit-search").val();
-        const term = $(".js-term").val();
-        const req_array = $(".js-req .ui.label.transition.visible").toArray();
-        const req_names_array = [];
-        for (let item of req_array) {
-            req_names_array.push(item.innerText);
-        };
-        const days_array = $(".js-days .ui.label.transition.visible").toArray();
-        const days_names_array = [];
-        for (let item of days_array) {
-            days_names_array.push($(item).attr("data-value"));
-        };
-        const start_time = $(".js-start-time input").val();
-        const end_time = $(".js-end-time input").val();
-        const time_and_date = {
-            days: days_names_array,
-            start: start_time,
-            end: end_time
-        };
-        const dept = $("#search-select input").val();
-        const instructor = $(".js-prof input").val();
-        const if_indept = $(".js-if-indep").is(':checked');
-        const if_not_sure = $(".js-if-not-sure").is(':checked');
-
-        Meteor.call("searchCourse", keyword, term, req_names_array, dept, instructor, time_and_date, if_indept, if_not_sure,
-            function(err, result) {
-                if(err){
-                    window.alert(err.message);
-                    return;
-                }
-
-                if (result.length == 0) {
-                    homeDict.set('noResult', true);
-                } else {
-                    const sorted_result = result.sort(function(a, b) {
-                        //for a
-                        let course_num_a = parseInt(a.code.match(/\d+/gi)[0]);
-                        if (course_num_a < 10) course_num_a = "00" + course_num_a;
-                        if (course_num_a >= 10 && course_num_a < 100) course_num_a = "0" + course_num_a;
-                        const course_dep_a = a.code.substring(0, a.code.indexOf(" "));
-                        const last_a = a.code.charAt(a.code.length - 1);
-                        let comp_string_a;
-                        if (/\w/i.test(last_a)) {
-                            comp_string_a = course_num_a + last_a;
-                        } else {
-                            comp_string_a = course_num_a + "0";
-                        };
-
-                        //for b
-                        let course_num_b = parseInt(b.code.match(/\d+/gi)[0]);
-                        if (course_num_b < 10) course_num_b = "00" + course_num_b;
-                        if (course_num_b >= 10 && course_num_b < 100) course_num_b = "0" + course_num_b;
-                        const course_dep_b = b.code.substring(0, b.code.indexOf(" "));
-                        const last_b = b.code.charAt(b.code.length - 1);
-                        let comp_string_b;
-                        if (/\w/i.test(last_b)) {
-                            comp_string_b = course_num_b + last_b;
-                        } else {
-                            comp_string_b = course_num_b + "0";
-                        };
-
-                        if (parseInt(a.term) < parseInt(b.term)) {
-                            return 1;
-                        } else if (parseInt(a.term) > parseInt(b.term)) {
-                            return -1;
-                        } else {
-                            const major_comp = course_dep_a.localeCompare(course_dep_b);
-                            if (major_comp != 0) {
-                                return major_comp;
-                            } else {
-                                return comp_string_a.localeCompare(comp_string_b);
-                            }
-                        }
-                    });
-                    for (let i = 0; i < sorted_result.length; i++) {
-                        sorted_result[i].index = i;
-                    };
-                    homeDict.set('courseData', sorted_result);
-                    homeDict.set('noResult', false);
-                }
-
-                homeDict.set('showTable', true);
-            }
-        );
     },
 
     "click .js-voice-search": function() {
@@ -515,7 +339,7 @@ Template.home.events({
                                     return;
                                 }
 
-                                Meteor.call("searchCourse", theQuery, term, req_names_array, null, instructor, time_and_date, if_indept, if_not_sure,
+                                Meteor.call("searchPnc", theQuery, term, req_names_array, null, instructor, time_and_date, if_indept, if_not_sure,
                                     function(err, result) {
                                         if(err){
                                             console.log(err.message);
