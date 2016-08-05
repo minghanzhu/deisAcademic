@@ -494,6 +494,13 @@ Meteor.methods({
         let search_end = time.end;
         //make sure there's actual request on time and date
         if (days_array.length != 0 || (search_start && search_start !== "all") || (search_end && search_end !== "all")) {
+            searchQuery.times = {$elemMatch:{$and:[
+                {$or:[
+                    {type:{$exists:false}},
+                    {type:{$exists:true, $in:["Lecture"]}}
+                ]}
+            ]}}
+
             if (search_start && search_start !== "all") { //turns the time into minutes after 0:00 AM
                 const start_hr = parseInt(search_start.substring(0, search_start.indexOf(":")));
                 const start_min = parseInt(search_start.substring(search_start.indexOf(":") + 1));
@@ -511,19 +518,19 @@ Meteor.methods({
             }
 
             if (search_start >= "0" && search_start <= "1440") { //add the start time to the search if there's any
-                searchQuery["times.start"] = { $gte: search_start, $lte: 1440 };
+                //searchQuery["times.start"] = { $gte: search_start, $lte: 1440 };
+                searchQuery.times.$elemMatch.$and.push({start: { $gte: search_start, $lte: 1440 }});
             }
 
             if (search_end >= "0" && search_end <= "1440") { //add the end time to the search if there's any
-                searchQuery["times.end"] = { $gte: 0, $lte: search_end };
+                //searchQuery["times.end"] = { $gte: 0, $lte: search_end };
+                searchQuery.times.$elemMatch.$and.push({end: { $gte: 0, $lte: search_end }})
             }
 
             if (days_array.length != 0) { //add the days to the search if there's any
-                if(!searchQuery.$and){
-                    searchQuery.$and = [];
-                } 
                 for (let day of days_array) {
-                    searchQuery.$and.push({ 'times.days': day });
+                    //searchQuery.$and.push({ 'times.days': day });
+                    searchQuery.times.$elemMatch.$and.push({days: day})
                 }
             }
         }
