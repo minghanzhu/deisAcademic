@@ -37,12 +37,11 @@ Template.home.onRendered(function() {
     const homeDict = Template.instance().homeDict;
     //this monitors the pressing of enter, if so, do a search
     $('body').keydown(function(e) {
-        /*
         if(Router.current().url !== "http://turing.cs-i.brandeis.edu:5000/" 
             && Router.current().url !== "/"
             && Router.current().url !== "http://localhost:3000/"){
             return;
-        }*/
+        }
 
         if (e.keyCode == 13 && !$(".reactive-table-navigation input").is(":focus")) {
 
@@ -899,7 +898,7 @@ Template.search_result_time_table.helpers({
                     fn: function(key, object) {
                         //check if the info is already there
                         if(homeDict.get("instructors" + object.id)){
-                            return new Spacebars.SafeString(homeDict.get("instructors" + object.id));
+                            return homeDict.get("instructors" + object.id);
                         }
 
                         Meteor.call("searchInstructorArray", key, function(err, result) {
