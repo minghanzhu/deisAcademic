@@ -140,8 +140,8 @@ Meteor.methods({
                 let indexOfSlash = item.indexOf("/");
                 let first_half = item.substring(0, indexOfSlash);
                 let second_half = item.substring(indexOfSlash + 1);
-                let regex_1 = new RegExp("( |^)" + first_half + " ?(\\d{1,3}[A-Z]{0,1})?( |$)", "i");
-                let regex_2 = new RegExp("( |^)" + second_half + " ?(\\d{1,3}[A-Z]{0,1})?( |$)", "i");
+                let regex_1 = new RegExp("( |^)" + first_half + " ?(\\d{1,3}[A-Z]{0,2})?( |$)", "i");
+                let regex_2 = new RegExp("( |^)" + second_half + " ?(\\d{1,3}[A-Z]{0,2})?( |$)", "i");
 
                 if (keyword.match(regex_1)) {
                     let code_token = keyword.match(regex_1)[0];
@@ -155,7 +155,7 @@ Meteor.methods({
                     keys_record.push(code_key.trim());
                 }
             } else { //for normal code like COSI, MUS, MATH
-                let regex = new RegExp("( |^)" + item + " ?(\\d{1,3}[A-Z]{0,1})?( |$)", "i");
+                let regex = new RegExp("( |^)" + item + " ?(\\d{1,3}[A-Z]{0,2})?( |$)", "i");
 
                 if (keyword.match(regex)) {
                     let code_token = keyword.match(regex)[0];
@@ -191,12 +191,12 @@ Meteor.methods({
             //1 as the beginning of course code
             if (!if_not_sure) {
                 if (!/\d/i.test(new_keyword)) {
-                    regexCode = new RegExp("^" + new_keyword + " \\d{1,3}([A-Z]{0,1})?$", "i");
+                    regexCode = new RegExp("^" + new_keyword + " \\d{1,3}([A-Z]{0,2})?$", "i");
                 } else {
-                    regexCode = new RegExp("^" + new_keyword + " ?([A-Z]{0,1})?$", "i");
+                    regexCode = new RegExp("^" + new_keyword + " ?([A-Z]{0,2})?$", "i");
                 }
             } else {
-                regexCode = new RegExp("^" + new_keyword + " ?((\\d{1,3})?[A-Z]{0,1})?$", "i");
+                regexCode = new RegExp("^" + new_keyword + " ?((\\d{1,3})?[A-Z]{0,2})?$", "i");
             };
         } else {
             regexCode = new RegExp("^", "i");
