@@ -17,6 +17,13 @@ Template.masterPlanModify.helpers({
 	},
 
 	setData: function(data){
+		//check if it exists before continue
+		if(!data){
+       		window.alert("No such plan.");
+        	Router.go('/');
+        	return;
+    	}
+
 		const chosenCourse = data.chosenCourse;
 		const chosenMajor = data.majorId;
 		Template.instance().masterPageDict.set("chosenCourse", chosenCourse);
