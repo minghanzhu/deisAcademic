@@ -397,14 +397,31 @@ Meteor.methods({
 
         for (var i = 0; i < major_key.length; i++) {
             const maj_obj = Subject.findOne({ id: major_key[i].id }); //get the major object using the id
-            let maj_detail = "No special notes";
-            if (maj_obj.segments[parseInt(major_key[i].segment)]) {
-                maj_detail = maj_obj.segments[parseInt(major_key[i].segment)].name; //get the type of the major using the id
+            if(!maj_obj){//for RSEG courses
+                ids.push("/");
+            } else {
+                let maj_detail = "No special notes";
+                if (maj_obj.segments[parseInt(major_key[i].segment)]) {
+                    maj_detail = maj_obj.segments[parseInt(major_key[i].segment)].name; //get the type of the major using the id
+                }
+                const maj_name = maj_obj.name;
+                ids.push(maj_name + " - " + maj_detail); //add the major name to the array
             }
-            const maj_name = maj_obj.name;
-            ids.push(maj_name + " - " + maj_detail); //add the major name to the array
         };
 
+        if(ids.length > 1){
+            for (let i = 0; i < ids.length; i++){
+                if(ids[i] === "/"){
+                    ids.splice(i, 1);
+                    i--;
+                }
+            }
+        }
+        
+        if(ids.length == 0){
+            ids.push("/");
+        }
+        
         return ids.sort();
     },
 
