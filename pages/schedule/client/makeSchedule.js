@@ -473,6 +473,10 @@ Template.semesterSchedule.helpers({
                 term_list.push(term_obj);
             }
 
+            if(term_list.length == 0){
+                return [];
+            }
+
             const result_array = term_list.sort(function(a, b){
                 return parseInt(b.id) - parseInt(a.id);
             })

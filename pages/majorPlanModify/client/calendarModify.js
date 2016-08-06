@@ -267,7 +267,7 @@ Template.calendarModify.helpers({
                     }
 
                     if (result.length != 0) {
-                        if (dict.get("includeWishlist")) {
+                        if (dict.get("includeWishlist") && sectionList.length != 0) {
                             Meteor.call("fetchSectionList", sectionList, function(err, section_result) {
                                 if (err) {
                                     window.alert(err.message);

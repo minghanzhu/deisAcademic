@@ -1,3 +1,62 @@
+/*
+----------------------------------
+Error list:
+
+Search: [1] 
+
+0. "Please have at least 3 characters for title search"
+
+insert: [2] , update: [3], remove: [4]
+----------user------------
+01. "Not logged in"
+02. "No such user"
+03. "Not the same user"
+04. "Malformed user id"
+05.
+---------No such --------------
+06. "No such term"
+07. "No such major"
+08. "No such section"
+09. "No such instructor"
+10. "No such requrement"
+11. "No such course"
+12. "No such plan"
+13. "No such schedule"
+14.
+15.
+16.
+17.
+18.
+19.
+-------Exists----------
+20. "No chosen course"
+21. "Empty schedule"
+22. 
+23.
+24.
+25.
+26.
+27.
+28.
+29.
+30.
+-------Check-----------
+31. "Duplicate plans"
+32. "Incomplete term"
+33. "Empty schedule"
+34.
+35.
+36.
+37.
+38.
+39.
+40.
+-------form-------
+41. "Malformed section id"
+42. "Malformed course id"
+43. "Malformed plan id"
+*/
+
 //Create an array of professor names and id's
 const prof_name_and_id = [];
 if (prof_name_and_id.length == 0) {
@@ -64,290 +123,6 @@ if (Term.find().count() > 0) {
 console.log("If you don't see current and future terms, please restart the server");
 
 Meteor.methods({
-    /*
-    searchCourse: function(keyword, term, req_array, dept, prof, time, if_indept, if_not_sure) {
-        //this removed any extra spaces
-        keyword = keyword.replace(/ +/gi, " ");
-        keyword = keyword.trim();
-
-
-        const codes_record = []; //this records the user tokens
-        const keys_record = []; //this records all the matches
-        for (let item of codes) {
-            //in the form of CODE + NUM + LETTER; for exmaple
-            //cosi11a, coSi 11a, COsi 400, COsI400
-            if (item.includes("/")) { //some code is in the form of COSI/MATH
-                //the separates the string to two parts
-                //and do the same thing as the one for normal code below
-                let indexOfSlash = item.indexOf("/");
-                let first_half = item.substring(0, indexOfSlash);
-                let second_half = item.substring(indexOfSlash + 1);
-                let regex_1 = new RegExp("( |^)" + first_half + " ?(\\d{1,3}[A-Z]{0,1})?( |$)", "i");
-                let regex_2 = new RegExp("( |^)" + second_half + " ?(\\d{1,3}[A-Z]{0,1})?( |$)", "i");
-
-                if (keyword.match(regex_1)) {
-                    let code_token = keyword.match(regex_1)[0];
-                    let code_key = item + " " + code_token.trim().substring(first_half.length).trim().toUpperCase();
-                    codes_record.push(code_token);
-                    keys_record.push(code_key.trim());
-                } else if (keyword.match(regex_2)) {
-                    let code_token = keyword.match(regex_2)[0];
-                    let code_key = item + " " + code_token.trim().substring(second_half.length).trim().toUpperCase();
-                    codes_record.push(code_token);
-                    keys_record.push(code_key.trim());
-                }
-            } else { //for normal code like COSI, MUS, MATH
-                let regex = new RegExp("( |^)" + item + " ?(\\d{1,3}[A-Z]{0,1})?( |$)", "i");
-
-                if (keyword.match(regex)) {
-                    let code_token = keyword.match(regex)[0];
-                    let code_key = item + " " + code_token.trim().substring(item.length).trim().toUpperCase();
-                    codes_record.push(code_token);
-                    keys_record.push(code_key.trim());
-                }
-            }
-        }
-
-        //this extracts the code token out of the keyword string
-        //so that it won't be part of the search for course title
-        for (let key of codes_record) {
-            if (keyword.match(key)) {
-                keyword = keyword.replace(key, " ");
-                keyword = keyword.replace(/ {2, }/i, " ");
-            }
-        }
-
-        //this generates the regex for the actual search for course code
-        var regexCode;
-        if (keys_record.length != 0) {
-            //this put together all the matches by logical OR
-            let new_keyword = "(" + keys_record[0];
-            for (let i = 1; i < keys_record.length; i++) {
-                new_keyword = new_keyword + "|" + keys_record[i];
-            }
-            new_keyword = new_keyword + ")";
-
-            //this checks if the user wants to do a strict match
-            //if so, math10 or math 10 won't return math 100
-            //if not, cosi 1 can return any cosi course that has
-            //1 as the beginning of course code
-            if (!if_not_sure) {
-                if (!/\d/i.test(new_keyword)) {
-                    regexCode = new RegExp("^" + new_keyword + " \\d{1,3}([A-Z]{0,1})?$", "i");
-                } else {
-                    regexCode = new RegExp("^" + new_keyword + " ?([A-Z]{0,1})?$", "i");
-                }
-            } else {
-                regexCode = new RegExp("^" + new_keyword + " ?((\\d{1,3})?[A-Z]{0,1})?$", "i");
-            };
-        } else {
-            regexCode = new RegExp("^", "i");
-        }
-
-        //this turns the rest of the key word string into a regex for course title search
-        var regexTitle;
-        if (/^ +$/.test(keyword)) { //this makes sure there's something left in the keyword string
-            regexTitle = new RegExp("^", "i");
-        } else {
-            regexTitle = new RegExp(keyword.trim(), "i");
-        };
-
-        //this generates the regex for term search
-        var regexTerm = new RegExp("^" + term, "i");
-
-        //this creates the first query object
-        let searchQuery;
-        if (if_indept) { //if the user choose to also search independent studies
-            searchQuery = { term: regexTerm, code: regexCode, name: regexTitle };
-        } else {
-            searchQuery = { term: regexTerm, code: regexCode, name: regexTitle, independent_study: false };
-        }
-
-        //process the array of requirements
-        if (req_array.length != 0) {
-            searchQuery.$and = [];
-            for (let node of req_array) { //if there's requirement, add it to the qeury object
-                searchQuery.$and.push({ requirements: node });
-            }
-        };
-
-        //process the department
-        if (term && dept && dept !== "all") { //if there's term and department
-            const dept_query = term + "-" + dept;
-            searchQuery['subjects.id'] = dept_query;
-        } else if (!term && dept && dept !== "all") { //is there's only department
-            let regexDept = new RegExp("-" + dept + "$", "i");
-            searchQuery['subjects.id'] = regexDept;
-        }
-
-        //process professor name
-        let hasProfessor = false;
-        let prof_id; //the id for this professor
-        if (prof) {
-            let section_of_prof; //array of all sections taught by the professor
-            for (let item of prof_name_and_id) {
-                if (item.title === prof) { //loop through the professor names and see if anything matches
-                    prof_id = item.id;
-                    section_of_prof = Section.find({ instructors: prof_id }).fetch();
-                    hasProfessor = true;
-                    break;
-                }
-            }
-
-            //if no professor matches, return no result
-            if (!section_of_prof) {
-                return [];
-            } else if (section_of_prof.length == 0) {
-                return [];
-            };
-
-            //else add the course id's to the query
-            if (prof_id && section_of_prof) {
-                let req_and = []; //saves the original $and field
-                if (req_array.length != 0) { //up to now, only requirements use $and field
-                    req_and = searchQuery.$and;
-                }
-
-                const course_id_list = []; //turns the id of section into id of courses
-
-                for (let item of section_of_prof) {
-                    course_id_list.push({ id: item.course });
-                }
-                const prof_or = { '$or': course_id_list }; //create a $or field
-                searchQuery.$and = [prof_or]; //put the course id's to the query
-
-
-                if (req_and.length != 0) { //if there's requirements, put them to the query
-                    for (let item of req_and) {
-                        searchQuery.$and.push(item);
-                    }
-                }
-            }
-        }
-
-        //time and date
-        let days_array = time.days;
-        let search_start = time.start;
-        let search_end = time.end;
-        //make sure there's actual request on time and date
-        if (days_array.length != 0 || (search_start && search_start !== "all") || (search_end && search_end !== "all")) {
-            const searchQuery_time = { $and: [] }; //create the inital search query for time and date
-            if (search_start && search_start !== "all") { //turns the time into minutes after 0:00 AM
-                const start_hr = parseInt(search_start.substring(0, search_start.indexOf(":")));
-                const start_min = parseInt(search_start.substring(search_start.indexOf(":") + 1));
-                search_start = start_hr * 60 + start_min;
-            } else { //if there's no request, make it 0, so it starts from the begining of the day
-                search_start = 0;
-            }
-
-            if (search_end && search_end !== "all") {
-                const end_hr = parseInt(search_end.substring(0, search_end.indexOf(":")));
-                const end_min = parseInt(search_end.substring(search_end.indexOf(":") + 1));
-                search_end = end_hr * 60 + end_min;
-            } else {
-                search_end = 1440;
-            }
-
-            if (search_start >= "0" && search_start <= "1440") { //add the start time to the search if there's any
-                searchQuery_time.$and.push({ 'times.start': { $gte: search_start, $lte: 1440 } });
-            }
-
-            if (search_end >= "0" && search_end <= "1440") { //add the end time to the search if there's any
-                searchQuery_time.$and.push({ 'times.end': { $gte: 0, $lte: search_end } });
-            }
-
-            if (days_array.length != 0) { //add the days to the search if there's any
-                for (let day of days_array) {
-                    searchQuery_time.$and.push({ 'times.days': day });
-                }
-            }
-
-            const section_at_time = Section.find(searchQuery_time).fetch(); //get the results of the time search
-            //make sure there's result
-            if (section_at_time.length != 0) {
-                const course_id_list_time = [];
-                for (let item of section_at_time) {
-                    course_id_list_time.push({ id: item.course });
-                }
-
-                if (searchQuery.$and) {
-                    if (!hasProfessor) { //if there's no request for prof., add an $or search to the existing $and field
-                        searchQuery.$and.push({ $or: course_id_list_time });
-                    } else { //if there is, find the course id list and do a compare
-                        //loop through the existing id list
-                        for (let i = 0; i < searchQuery.$and.length; i++) {
-                            if (searchQuery.$and[i].$or) {
-                                if (searchQuery.$and[i].$or.length != 0) {
-                                    if (searchQuery.$and[i].$or[0].id) { //make sure that the current node is an id search
-                                        for (let j = 0; j < searchQuery.$and[i].$or.length; j++) {
-                                            //Using the id in the prof course id list to search for time
-                                            //so that if the section does not meet the time request,
-                                            //remove it from the course id list
-                                            let current_section;
-                                            if (days_array.length != 0) {
-                                                let section_time_query = {
-                                                    course: searchQuery.$and[i].$or[j].id,
-                                                    instructors: prof_id,
-                                                    'times.start': { $gte: search_start, $lte: 1440 },
-                                                    'times.end': { $gte: 0, $lte: search_end }
-                                                };
-                                                section_time_query.$and = [];
-                                                for (let day of days_array) {
-                                                    section_time_query.$and.push({ 'times.days': day });
-                                                }
-                                                current_section = Section.findOne(section_time_query);
-                                            } else {
-                                                current_section = Section.findOne({
-                                                    course: searchQuery.$and[i].$or[j].id,
-                                                    instructors: prof_id,
-                                                    'times.start': { $gte: search_start, $lte: 1440 },
-                                                    'times.end': { $gte: 0, $lte: search_end }
-                                                });
-                                            };
-
-                                            if (!current_section) { //if can't find matching section, remove it from the list
-                                                searchQuery.$and[i].$or.splice(j, 1);
-                                                j--;
-                                            }
-                                        }
-                                    }
-
-                                    //if at any point, the list becomes empty, return null
-                                    if (searchQuery.$and[i].$or.length == 0) {
-                                        return [];
-                                    }
-                                }
-                            }
-                        }
-                    }
-                } else { //if there no $and field (no prof. and no requirement)
-                    searchQuery.$and = [{ $or: course_id_list_time }];
-                }
-            } else { // if there's no result, simply return null and end the search
-                return [];
-            }
-        }
-        
-        if (searchQuery.term == "/^/i" 
-            && searchQuery.code == "/^/i" 
-            && searchQuery.name == "/(?:)/i"
-            && !searchQuery.$and
-            && !searchQuery.$or
-            && !searchQuery["subjects.id"]) {
-          return ["no params"];
-        }
-        
-        return Course.find(searchQuery, {
-            fields: {
-                _id: 0,
-                type: 0,
-                comment: 0,
-                credits: 0,
-                independent_study: 0,
-            }
-        }).fetch();
-    },*/
-
     searchPnc: function(keyword, term, req_array, dept, prof, time, if_indept, if_not_sure) {
         //this removed any extra spaces
         keyword = keyword.replace(/ +/gi, " ");
@@ -542,7 +317,29 @@ Meteor.methods({
             && !searchQuery["subjects.id"]
             && !searchQuery.instructors
             && !searchQuery.times) {
-          return ["no params"];
+            return ["no params"];
+        } else if (searchQuery.term == "/^/i" 
+            && searchQuery.code == "/^/i" 
+            && searchQuery.name != "/(?:)/i"
+            && !searchQuery.$and
+            && !searchQuery["subjects.id"]
+            && !searchQuery.instructors
+            && !searchQuery.times) {//when there's only keyword, make sure it's long enough
+            //make sure it doesn't return 1800+ pages of result...
+            if(keyword.trim().length < 3){
+                console.log("[searchPnc] - Keyword too short: " + keyword);
+                throw new Meteor.Error(100, "Please have at least 3 characters for title search.");
+            }
+        } else if (searchQuery.term == "/^/i" 
+            && searchQuery.code == "/^/i" 
+            && searchQuery.name == "/(?:)/i"
+            && !searchQuery.$and
+            && !searchQuery["subjects.id"]
+            && !searchQuery.instructors
+            && searchQuery.times) {//when searching time, it's reasonable to require term.
+            //make sure it doesn't return 1800+ pages of result...
+            console.log("[searchPnc] - Only time");
+            throw new Meteor.Error(100, "Please also choose a term.");
         }
         
         return SearchPnc.find(searchQuery, {
@@ -703,15 +500,15 @@ Meteor.methods({
     "addUserProfile_Google": function() {
         //check if the user id valid
         if (!this.userId) {
-            console.log("Invalid insert: No such user");
-            return;
+            console.log("[addUserProfile_Google] - Invalid insert: Not logged in");
+            throw new Meteor.Error(201, "Invalid insert: Not logged in");
         };
 
         //check if the user id is in record
         const user_data = Meteor.users.findOne(this.userId);
         if (!user_data) {
-            console.log("Invalid insert: No such user");
-            return;
+            console.log("[addUserProfile_Google] - Invalid insert: No such user: " + this.userId);
+            throw new Meteor.Error(202, "Invalid insert: No such user");
         };
 
         var user_name = user_data.profile.name;
@@ -739,17 +536,25 @@ Meteor.methods({
 
     "addToWishlist": function(sectionID) {
       if(!this.userId){
-        throw new Meteor.error(200, "Not logged in");
+        console.log("[addToWishlist] - Invalid update: Not logged in");
+        throw new Meteor.Error(301, "Invalid update: Not logged in");
       }
 
       const currUser = UserProfilePnc.findOne({ userId: this.userId });
 
       if(!currUser){
-        throw new Meteor.error(201, "No such user");
+        console.log("[addToWishlist] - Invalid update: No such user: " + this.userId);
+        throw new Meteor.Error(302, "Invalid update: No such user");
+      }
+
+      if(!sectionID.includes("-")){
+        console.log("[addToWishlist] - Invalid update: Malformed section id: " + sectionID);
+        throw new Meteor.Error(341, "Invalid update: Malformed section id");
       }
 
       if(!Section.findOne({id: sectionID})){
-        throw new Meteor.error(205, "Invalid id");
+        console.log("[addToWishlist] - Invalid update: No such section: " + sectionID);
+        throw new Meteor.Error(308, "Invalid update: No such section");
       }
 
       //if section not already in user's wishlist, add it
@@ -776,17 +581,7 @@ Meteor.methods({
                     },
                     data: { "query": parsedText, "lang": "en" }
                 },
-                // function(error,result){
-                //   console.log(result);
-                //   // var params = result.data.result.parameters;
-                //   // console.log(params);
-                //   // console.log("Params: " + params[0] + params[1]);
-                //   console.log("Intent: " + result.data.result.metadata.intentName);
-                //   // Session.set("apiResults", result);
-                //   // return result;
-                // }
             )
-            // console.log(z);
         return z;
     },
 
@@ -864,13 +659,13 @@ Meteor.methods({
 
     "saveMajorPlan": function(scheduleList, major_code, availableCourseList, term_range) {
         if (!this.userId) {
-            console.log("Invalid insert: Not logged in");
-            return;
+            console.log("[saveMajorPlan] - Invalid insert: Not logged in");
+            throw new Meteor.Error(201, "Invalid insert: Not logged in");
         };
 
         if (!UserProfilePnc.findOne({ userId: this.userId })) {
-            console.log("Invalid insert: No such user");
-            return;
+            console.log("[saveMajorPlan] - Invalid insert: No such user: " + this.userId);
+            throw new Meteor.Error(202, "Invalid insert: No such user");
         };
 
         const code_regex = new RegExp("-" + major_code + "$", "i");
@@ -902,42 +697,44 @@ Meteor.methods({
 
     "saveSchedule_MajorPlan": function(scheduleList, major_code, availableCourseList, term_range) {
         if (!this.userId) {
-            console.log("Invaid insert: Not logged in");
+            console.log("[saveSchedule_MajorPlan] - Invaid insert: Not logged in");
+            throw new Meteor.Error(201, "Invalid insert: Not logged in");
         };
 
         if (!UserProfilePnc.findOne({ userId: this.userId })) {
-            console.log("Invalid insert: No such user");
-            return;
+            console.log("[saveSchedule_MajorPlan] - Invalid insert: No such user: " + this.userId);
+            throw new Meteor.Error(202, "Invalid insert: No such user");
         };
 
         let regexCode = new RegExp("-" + major_code + "$", "i");
         if (!Subject.findOne({ id: regexCode })) {
-            console.log("Invalid insert: No such major id");
-            return;
+            console.log("[saveSchedule_MajorPlan] - Invalid insert: No such major: " + major_code);
+            throw new Meteor.Error(207, "Invalid insert: No such major");
         };
 
         if (availableCourseList.length == 0) {
-            console.log("Invalid insert: No chosen course");
-            return;
+            console.log("[saveSchedule_MajorPlan] - Invalid insert: No chosen course");
+            throw new Meteor.Error(220, "Invalid insert: No chosen course");
         };
 
         if (scheduleList.length == 0) {
-            console.log("Invalid insert: No schedule found")
+            console.log("[saveSchedule_MajorPlan] - Invalid insert: Empty schedule");
+            throw new Meteor.Error(221, "Invalid insert: Empty schedule");
         };
 
         if (!term_range.start_term || !term_range.end_term) {
-            console.log("Invalid insert: Incorrect term");
-            return;
+            console.log("[saveSchedule_MajorPlan] - Invalid insert: Incomplete term");
+            throw new Meteor.Error(232, "Invalid insert: Incomplete term");
         };
 
         if (!Term.findOne({ id: term_range.start_term }) || !Term.findOne({ id: term_range.end_term })) {
-            console.log("Invalid insert: No such term");
-            return;
+            console.log("[saveSchedule_MajorPlan] - Invalid insert: No such term: [start: " + term_range.start_term + "] " + "[end: " + term_range.end_term + "]");
+            throw new Meteor.Error(206, "Invalid insert: No such term");
         };
 
         if (MajorPlansPnc.findOne({userId: this.userId, majorId: major_code, start_term: term_range.start_term, end_term: term_range.end_term})){
-            console.log("Invalid insert: Duplicate plans");
-            return;
+            console.log("[saveSchedule_MajorPlan] - Invalid insert: Duplicate plans");
+            throw new Meteor.Error(231, "Invalid insert: Duplicate plans");
         };
 
         const schedule_id_list = [];
@@ -985,38 +782,39 @@ Meteor.methods({
 
     "updateSchedule_MajorPlan": function(scheduleList, major_code, availableCourseList, current_plan_id, term_range) {
         if (!this.userId) {
-            console.log("Invaid insert: Not logged in");
+            console.log("[updateSchedule_MajorPlan] - Invaid update: Not logged in");
+            throw new Meteor.Error(301, "Invalid update: Not logged in");
         };
 
         if (!UserProfilePnc.findOne({ userId: this.userId })) {
-            console.log("Invalid insert: No such user");
-            return;
+            console.log("[updateSchedule_MajorPlan] - Invalid update: No such user: " + this.userId);
+            throw new Meteor.Error(302, "Invalid update: No such user");
         };
 
         let regexCode = new RegExp("-" + major_code + "$", "i");
         if (!Subject.findOne({ id: regexCode })) {
-            console.log("Invalid insert: No such major id");
-            return;
+            console.log("[updateSchedule_MajorPlan] - Invalid update: No such major: " + major_code);
+            throw new Meteor.Error(307, "Invalid update: No such major");
         };
 
         if (availableCourseList.length == 0) {
-            console.log("Invalid insert: No chosen course");
-            return;
+            console.log("[updateSchedule_MajorPlan] - Invalid update: No chosen course");
+            throw new Meteor.Error(320, "Invalid update: No chosen course");
         };
 
         if (scheduleList.length == 0) {
-            console.log("Invalid insert: No schedule found");
-            return;
+            console.log("[updateSchedule_MajorPlan] - Invalid update: Empty schedule");
+            throw new Meteor.Error(333, "Invalid update: Empty schedule");
         };
 
         if (!term_range.start_term || !term_range.end_term) {
-            console.log("Invalid insert: Incorrect term");
-            return;
+            console.log("[updateSchedule_MajorPlan] - Invalid update: Incomplete term");
+            throw new Meteor.Error(332, "Invalid update: Incomplete term");
         };
 
         if (!Term.findOne({ id: term_range.start_term }) || !Term.findOne({ id: term_range.end_term })) {
-            console.log("Invalid insert: No such term");
-            return;
+            console.log("[updateSchedule_MajorPlan] - Invalid update: No such term: [start: " + term_range.start_term + "] " + "[end: " + term_range.end_term + "]");
+            throw new Meteor.Error(306, "Invalid update: No such term");
         };
 
         const plan_obj = MajorPlansPnc.findOne(current_plan_id);
@@ -1049,15 +847,18 @@ Meteor.methods({
 
     saveSchedule: function(scheduleList) {
         if (!this.userId) {
-            throw new Meteor.error(200, "Invalid update: Not logged in");
+            console.log("[saveSchedule] - Invalid update: Not logged in")
+            throw new Meteor.Error(301, "Invalid update: Not logged in");
         }
 
         if (!UserProfilePnc.findOne({ userId: this.userId })) {
-            throw new Meteor.error(100, "There is something wrong with your profile, please try again later\nIf this keeps showing up, please contact us");
+            console.log("[saveSchedule] - Invalid update: No such user: " + this.userId);
+            throw new Meteor.Error(302, "Invalid update: No such user");
         }
 
         if (scheduleList.length == 0) {
-            throw new Meteor.error(200, "Invalid update: Empty schedule");
+            console.log("[saveSchedule] - Invalid update: Empty schedule");
+            throw new Meteor.Error(333, "Invalid update: Empty schedule");
         }
 
         for (let schedule of scheduleList) {
@@ -1099,24 +900,29 @@ Meteor.methods({
 
     checkValidPlan: function(term_range, major_id){
         if(!this.userId){
-            return true;
+            console.log("[checkValidPlan] - Not logged in");
+            throw new Meteor.Error(101, "Not logged in");
         }
 
         if(!UserProfilePnc.findOne({userId: this.userId})){
-            throw new Meteor.error(201, "No such user");
+            console.log("[checkValidPlan] No such user: " + this.userId);
+            throw new Meteor.Error(102, "No such user");
         }
 
         let regexCode = new RegExp("-" + major_id + "$", "i");
         if (!Subject.findOne({ id: regexCode })) {
-            throw new Meteor.error(202, "No such majorId");
+            console.log("[checkValidPlan] - No such major: " + major_id);
+            throw new Meteor.Error(107, "No such major");
         };
 
         if (!term_range.start_term || !term_range.end_term) {
-            throw new Meteor.error(203, "Incorrect term");
+            console.log("[checkValidPlan] - Incomplete term");
+            throw new Meteor.Error(132, "Incomplete term");
         };
 
         if (!Term.findOne({ id: term_range.start_term }) || !Term.findOne({ id: term_range.end_term })) {
-            throw new Meteor.error(204, "No such term");
+            console.log("[checkValidPlan] - No such term: [start: " + term_range.start_term + "] " + "[end: " + term_range.end_term + "]");
+            throw new Meteor.Error(106, "No such term");
         };
 
         const user_profile = UserProfilePnc.findOne({userId: this.userId});
@@ -1125,28 +931,28 @@ Meteor.methods({
 
     deletePlan: function(plan_id) {
         if (!this.userId) {
-            console.log("Invalid remove: Not logged in");
-            return;
+            console.log("[deletePlan] - Invalid remove: Not logged in");
+            throw new Meteor.Error(401, "Invalid remove: Not logged in");
         }
 
         if (!UserProfilePnc.findOne({ userId: this.userId })) {
-            console.log("Invalid remove: Not such user");
-            return;
+            console.log("[deletePlan] - Invalid remove: No such user: " + this.userId);
+            throw new Meteor.Error(402, "Invalid remove: No such user");
         }
 
         if (!/^[23456789ABCDEFGHJKLMNPQRSTWXYZabcdefghijkmnopqrstuvwxyz]{17}$/.test(plan_id)) {
-            consle.log("Invalid remove: Malformed id");
-            return;
+            consle.log("[deletePlan] - Invalid remove: Malformed plan id: " + plan_id);
+            throw new Meteor.Error(443, "Invalid remove: Malformed plan id");
         }
 
         if (!MajorPlansPnc.findOne(plan_id)) {
-            console.log("Invalid remove: No such plan");
-            return;
+            console.log("[deletePlan] - Invalid remove: No such plan: " + plan_id);
+            throw new Meteor.Error(412, "Invalid remove: No such plan");
         }
 
         if (MajorPlansPnc.findOne(plan_id).userId !== this.userId) {
-            console.log("Invalid remove: No the same user");
-            return;
+            console.log("[deletePlan] Invalid remove: Not the same user: [current: " + this.userId + "] " + "[target: " + MajorPlansPnc.findOne(plan_id).userId + "]");
+            throw new Meteor.Error(403, "Invalid remove: Not the same user");
         }
 
         const plan_obj = MajorPlansPnc.findOne(plan_id);
@@ -1160,17 +966,18 @@ Meteor.methods({
 
     "remove_wishlist_section": function(section_id) {
         if (!this.userId) {
-            console.log("Invalid remove: Not logged in");
-            return;
+            console.log("[remove_wishlist_section] - Invalid remove: Not logged in");
+            throw new Meteor.Error(401, "Invalid remove: Not logged in");
         }
 
         if (!UserProfilePnc.findOne({ userId: this.userId })) {
-            console.log("Invalid remove: No such user");
-            return;
+            console.log("[remove_wishlist_section] - Invalid remove: No such user: " + this.userId);
+            throw new Meteor.Error(402, "Invalid remove: No such user");
         }
 
         if (!section_id.includes("-")) {
-            console.log("Invalid remove: Malformed id");
+            console.log("[remove_wishlist_section] - Invalid remove: Malformed section id: " + section_id);
+            throw new Meteor.Error(441, "Invalid remove: Malformed section id");
         }
 
         const user_profile = UserProfilePnc.findOne({ userId: this.userId });
@@ -1182,7 +989,8 @@ Meteor.methods({
             }
         }
         if (!isInside) {
-            console.log("Invalid remove: No such section")
+            console.log("[remove_wishlist_section] - Invalid remove: No such section: " + section_id);
+            throw new Meteor.Error(408, "Invalid remove: No such section");
         }
 
         UserProfilePnc.update({ userId: this.userId }, { $pull: { wishlist: section_id } });
@@ -1203,13 +1011,13 @@ Meteor.methods({
 
     getUsername: function(plan_id){
         if (!/^[23456789ABCDEFGHJKLMNPQRSTWXYZabcdefghijkmnopqrstuvwxyz]{17}$/.test(plan_id)) {
-            consle.log("Invalid remove: Malformed id");
-            return;
+            consle.log("[getUsername] - Invalid remove: Malformed plan id: " + plan_id);
+            throw new Meteor.Error(443, "Invalid remove: Malformed plan id");
         }
 
         if (!MajorPlansPnc.findOne(plan_id)) {
-            console.log("Invalid remove: No such plan");
-            return;
+            console.log("[getUsername] - Invalid remove: No such plan: " + plan_id);
+            throw new Meteor.Error(412, "Invalid remove: No such plan");
         }
 
         const userId = MajorPlansPnc.findOne(plan_id).userId;
