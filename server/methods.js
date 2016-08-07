@@ -129,7 +129,6 @@ Meteor.methods({
         keyword = keyword.trim();
         const keyword_orig = keyword;
         keyword = keyword.replace(/[^a-z0-9 ]/gi, "\\$&");
-        console.log(keyword);
 
         const codes_record = []; //this records the user tokens
         const keys_record = []; //this records all the matches
