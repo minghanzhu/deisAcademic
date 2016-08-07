@@ -127,7 +127,9 @@ Meteor.methods({
         //this removed any extra spaces
         keyword = keyword.replace(/ +/gi, " ");
         keyword = keyword.trim();
-
+        const keyword_orig = keyword;
+        keyword = keyword.replace(/[^a-z0-9 ]/gi, "\\$&");
+        console.log(keyword);
 
         const codes_record = []; //this records the user tokens
         const keys_record = []; //this records all the matches
@@ -140,8 +142,8 @@ Meteor.methods({
                 let indexOfSlash = item.indexOf("/");
                 let first_half = item.substring(0, indexOfSlash);
                 let second_half = item.substring(indexOfSlash + 1);
-                let regex_1 = new RegExp("( |^)" + first_half + " ?(\\d{1,3}[A-Z]{0,1})?( |$)", "i");
-                let regex_2 = new RegExp("( |^)" + second_half + " ?(\\d{1,3}[A-Z]{0,1})?( |$)", "i");
+                let regex_1 = new RegExp("( |^)" + first_half + " ?(\\d{1,3}[A-Z]{0,2})?( |$)", "i");
+                let regex_2 = new RegExp("( |^)" + second_half + " ?(\\d{1,3}[A-Z]{0,2})?( |$)", "i");
 
                 if (keyword.match(regex_1)) {
                     let code_token = keyword.match(regex_1)[0];
@@ -155,7 +157,7 @@ Meteor.methods({
                     keys_record.push(code_key.trim());
                 }
             } else { //for normal code like COSI, MUS, MATH
-                let regex = new RegExp("( |^)" + item + " ?(\\d{1,3}[A-Z]{0,1})?( |$)", "i");
+                let regex = new RegExp("( |^)" + item + " ?(\\d{1,3}[A-Z]{0,2})?( |$)", "i");
 
                 if (keyword.match(regex)) {
                     let code_token = keyword.match(regex)[0];
@@ -191,15 +193,38 @@ Meteor.methods({
             //1 as the beginning of course code
             if (!if_not_sure) {
                 if (!/\d/i.test(new_keyword)) {
-                    regexCode = new RegExp("^" + new_keyword + " \\d{1,3}([A-Z]{0,1})?$", "i");
+                    regexCode = new RegExp("^" + new_keyword + " \\d{1,3}([A-Z]{0,2})?$", "i");
                 } else {
-                    regexCode = new RegExp("^" + new_keyword + " ?([A-Z]{0,1})?$", "i");
+                    regexCode = new RegExp("^" + new_keyword + " ?([A-Z]{0,2})?$", "i");
                 }
             } else {
-                regexCode = new RegExp("^" + new_keyword + " ?((\\d{1,3})?[A-Z]{0,1})?$", "i");
+                regexCode = new RegExp("^" + new_keyword + " ?((\\d{1,3})?[A-Z]{0,2})?$", "i");
             };
         } else {
-            regexCode = new RegExp("^", "i");
+            let regex_general = new RegExp("^\\d{1,3}[A-Z]{0,2}$", "i");
+            if(regex_general.test(keyword.trim())){
+                let code_token = keyword.match(regex_general)[0];
+                let code_key = code_token.trim().toUpperCase();
+                if(!Term.findOne({id: term}) && !Subject.findOne({id: new RegExp("-" + dept + "$", "i")})){
+                    console.log("[searchPnc] - Only general code: " + code_token);
+                    throw new Meteor.Error(100, "Please choose a term or add a department");
+                }
+
+                if(!if_not_sure){
+                    if(/\d+/i.test(code_key)){
+                        regexCode = new RegExp(" " + code_key + "[A-Z]{0,2}$", "i");
+                    } else {
+                        regexCode = new RegExp(" " + code_key + "$", "i")
+                    }
+                } else {
+                    regexCode = new RegExp(" " + code_key + "\\d{0,2}[A-Z]{0,2}$");
+                }
+
+                keyword = keyword.replace(code_token, " ");
+                keyword = keyword.replace(" {2, }/i", " ");
+            } else {
+                regexCode = new RegExp("^", "i");
+            }
         }
 
         //this turns the rest of the key word string into a regex for course title search
@@ -326,7 +351,7 @@ Meteor.methods({
             && !searchQuery.instructors
             && !searchQuery.times) {//when there's only keyword, make sure it's long enough
             //make sure it doesn't return 1800+ pages of result...
-            if(keyword.trim().length < 3){
+            if(keyword_orig.trim().length < 3){
                 console.log("[searchPnc] - Keyword too short: " + keyword);
                 throw new Meteor.Error(100, "Please have at least 3 characters for title search.");
             }
