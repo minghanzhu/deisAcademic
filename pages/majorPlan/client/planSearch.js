@@ -157,8 +157,16 @@ Template.planSearch.events({
     },
 })
 
+Template.plan_result.onCreated(function(){
+    this.filter_code = new ReactiveTable.Filter('planSearch_filter_code', ['code']);
+    this.filter_name = new ReactiveTable.Filter('planSearch_filter_name', ['name']);
+})
+
 Template.plan_result.onRendered(function() {
     $('.ui.accordion').accordion();
+    //clean all filters first
+    Template.instance().filter_code.set("");
+    Template.instance().filter_name.set("");
 })
 
 Template.plan_result.helpers({
@@ -200,9 +208,10 @@ Template.plan_result.helpers({
         return {
             rowsPerPage: 10,
             showFilter: false,
-            filters: ["planSearchFilter"],
+            filters: ["planSearch_filter_code", "planSearch_filter_name"],
             showNavigationRowsPerPage: false,
             multiColumnSort: false,
+            filterOperator: "$or",
             fields: [{
                 key: 'index',
                 hidden: true
@@ -258,5 +267,19 @@ Template.plan_result.events({
             Template.instance().planResultDict.set('chosenCourse', chosen_array);
             Template.instance().masterDict.set('courseList', chosen_array);//set the result to the master dict
         }
+    },
+
+    "keyup #planSearchFilter, input #planSearchFilter": function(event){
+        let keyword = $(event.target).val();
+        keyword = keyword.replace(/[^a-z0-9 ]/gi, "\\$&");
+        //first clean all the filter settings
+        Template.instance().filter_code.set("");
+        Template.instance().filter_name.set("");
+
+        //then add corresponding regex's
+        const regex_code = new RegExp("^" + keyword, "i");
+        const regex_name = new RegExp(keyword, "i");
+        Template.instance().filter_code.set(regex_code);
+        Template.instance().filter_name.set(regex_name);
     },
 })

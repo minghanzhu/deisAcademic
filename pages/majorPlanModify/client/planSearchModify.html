@@ -17,7 +17,12 @@
 <template name="plan_result_view">
     {{setMasterDict dict}}
     {{#if courseDataReady planDict}}
-        {{> reactiveTableFilter id="planModifyFilter" fields=["name", "code"] label="Code or Title"}}
+        <div class="ui fluid labeled input">
+            <div class="ui label">
+                Code or title
+            </div>
+            <input type="text" id="planSearchModifyFilter">
+        </div>
         {{> reactiveTable class="ui stackable selectable fixed table js-result-table" collection=(courseData planDict) settings=settings_course}}
     {{else}}
         {{#if noResult planDict}}
