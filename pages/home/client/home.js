@@ -10,13 +10,19 @@ Template.home.onCreated(function() {
 
 Template.voiceButton.onRendered(function() {
 
+  var isChrome = !!window.chrome && !!window.chrome.webstore;
+  if (isChrome === false) {
+    console.log("chrome!");
+    $(".js-voice-search").hide();
+  }
+
   $('.js-voice-search')
       .popup({
           title: "Search by voice",
           content: "For example \"Show me COSI courses taught by Timothy Hickey\"",
           position: 'bottom right',
       });
-      
+
       $('#req-select, #day-select')
       .popup({
           content: "Sorry, but please refresh if this doesn't work. We're tyring to fix it",
@@ -37,7 +43,7 @@ Template.home.onRendered(function() {
     const homeDict = Template.instance().homeDict;
     //this monitors the pressing of enter, if so, do a search
     $('body').keydown(function(e) {
-        if(Router.current().url !== "http://turing.cs-i.brandeis.edu:5000/" 
+        if(Router.current().url !== "http://turing.cs-i.brandeis.edu:5000/"
             && Router.current().url !== "/"
             && Router.current().url !== "http://localhost:3000/"){
             return;
@@ -629,7 +635,7 @@ Template.search_result.helpers({
         const homeDict = Template.instance().homeDict;
         const currCourseData = homeDict.get("courseInfo");
         if(!currCourseData) return;
-        
+
         Meteor.call("getCourseHistory", currCourseData.continuity_id,
             function(err, result) {
                 if (err) {
