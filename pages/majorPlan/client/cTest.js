@@ -534,6 +534,7 @@ Template.calendarTest.events({
 
     "click .js-save-plan": function() {
         $(".js-save-plan").attr("class", "ui loading disabled button js-save-plan pull-right");
+        $(".js-change-course").attr("class", "ui disabled button js-change-course");
         //save the current term's schedule to the dict
         const current_term = $(".js-term").val();
         Template.instance().masterDict.set("chosenTerm", $(".js-term").val());
@@ -597,21 +598,24 @@ Template.calendarTest.events({
 
         Meteor.call("checkValidPlan", term_range, major_code, function(err, result){
             if(err){
-                $(".js-save-plan").attr("class", "ui primary button js-save-plan pull-right");
                 window.alert(err.message);
+                $(".js-save-plan").attr("class", "ui primary button js-save-plan pull-right");
+                $(".js-change-course").attr("class", "ui button js-change-course");
                 return;
             }
 
             if(!result){//same major & time range
-                $(".js-save-plan").attr("class", "ui primary button js-save-plan pull-right");
                 window.alert("You already have a plan for this major during the same time range");
+                $(".js-save-plan").attr("class", "ui primary button js-save-plan pull-right");
+                $(".js-change-course").attr("class", "ui button js-change-course");
                 return;
             } 
 
             Meteor.call("saveSchedule_MajorPlan", schedule_list, major_code, availableCourseList, term_range, function(err) {
                 if (err) {
-                    $(".js-save-plan").attr("class", "ui primary button js-save-plan pull-right");
                     window.alert(err.message);
+                    $(".js-save-plan").attr("class", "ui primary button js-save-plan pull-right");
+                    $(".js-change-course").attr("class", "ui button js-change-course");
                     return;
                 }
 

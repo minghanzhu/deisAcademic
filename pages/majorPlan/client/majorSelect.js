@@ -100,6 +100,7 @@ Template.majorSelect.events({
         Meteor.call("checkValidPlan", term_range, $("#search-select input").val(), function(err, result){
             if(err){
                 window.alert(err.message);
+                $(".js-majorGo").attr("class", "medium ui primary button js-majorGo");
                 return;
             }
 

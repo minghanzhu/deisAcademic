@@ -940,16 +940,6 @@ Meteor.methods({
     },
 
     checkValidPlan: function(term_range, major_id){
-        if(!this.userId){
-            console.log("[checkValidPlan] - Not logged in");
-            throw new Meteor.Error(101, "Not logged in");
-        }
-
-        if(!UserProfilePnc.findOne({userId: this.userId})){
-            console.log("[checkValidPlan] No such user: " + this.userId);
-            throw new Meteor.Error(102, "No such user");
-        }
-
         let regexCode = new RegExp("-" + major_id + "$", "i");
         if (!Subject.findOne({ id: regexCode })) {
             console.log("[checkValidPlan] - No such major: " + major_id);
@@ -966,8 +956,17 @@ Meteor.methods({
             throw new Meteor.Error(106, "No such term");
         };
 
-        const user_profile = UserProfilePnc.findOne({userId: this.userId});
-        return !MajorPlansPnc.findOne({userId: this.userId, majorId: major_id, start_term: term_range.start_term, end_term: term_range.end_term});
+        //check if the plan exists if the user is logged in
+        if(this.userId){//when the user is logged in
+            if(!UserProfilePnc.findOne({userId: this.userId})){
+                console.log("[checkValidPlan] No such user: " + this.userId);
+                throw new Meteor.Error(102, "No such user");
+            } else {
+                return !MajorPlansPnc.findOne({userId: this.userId, majorId: major_id, start_term: term_range.start_term, end_term: term_range.end_term});
+            }
+        } else {//if it reaches here, it means it passed the check
+            return true;
+        }
     },
 
     deletePlan: function(plan_id) {
