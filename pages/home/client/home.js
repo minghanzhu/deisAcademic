@@ -25,7 +25,7 @@ Template.voiceButton.onRendered(function() {
 
       $('#req-select, #day-select')
       .popup({
-          content: "Sorry, but please refresh if this doesn't work. We're tyring to fix it",
+          content: "Sorry, but please refresh if this doesn't work. We're trying to fix it",
           position: 'top left',
       });
       /*
