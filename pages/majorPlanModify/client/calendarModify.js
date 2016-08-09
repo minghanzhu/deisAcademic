@@ -662,6 +662,7 @@ Template.calendarModify.events({
     "click .js-save-plan": function() {
         $(".js-save-plan").attr("class", "ui loading disabled button js-save-plan");
         $(".js-delete-plan").attr("class", "ui disabled red button js-delete-plan pull-right");
+        $(".js-change-course").attr("class", "ui disabled button js-change-course");
         //save the current term's schedule to the dict
         const current_term = $(".js-term").val();
         Template.instance().masterDict.set("chosenTerm", $(".js-term").val());
@@ -727,6 +728,9 @@ Template.calendarModify.events({
         Meteor.call("updateSchedule_MajorPlan", schedule_list, major_code, availableCourseList, current_plan_id, term_range, function(err) {
             if (err) {
                 window.alert(err.message);
+                $(".js-save-plan").attr("class", "ui primary button js-save-plan");
+                $(".js-delete-plan").attr("class", "ui red button js-delete-plan pull-right");
+                $(".js-change-course").attr("class", "ui button js-change-course");
                 return;
             }
 
@@ -768,20 +772,42 @@ Template.calendarModify.events({
     },
 
     "click .js-delete-plan": function(){
-        $(".js-delete-plan").attr("class", "ui loading disabled red button js-delete-plan pull-right");
-        $(".js-save-plan").attr("class", "ui disabled button js-save-plan");
-        const current_plan_id = Router.current().params._id;
-        Meteor.call("deletePlan", current_plan_id, function(err, result){
-            if(err){
-                window.alert(err.message);
-                $(".js-delete-plan").attr("class", "ui red button js-delete-plan pull-right");
-                $(".js-save-plan").attr("class", "ui primary button js-save-plan");
-                return;
-            }
+        const dict = Template.instance().calendarDict;
+        //this is the first click
+        if(!Template.instance().calendarDict.get("deleteClicked")){
+            Template.instance().calendarDict.set("deleteClicked", true);
+            $('.js-delete-plan').popup({
+                content: "Click again to delete this plan",
+                position: 'right center',
+            });
+            $('.js-delete-plan').popup('show');
+        } else {//this is the second click
+            $(".js-delete-plan").attr("class", "ui loading disabled red button js-delete-plan pull-right");
+            $(".js-save-plan").attr("class", "ui disabled button js-save-plan");
+            $(".js-change-course").attr("class", "ui disabled button js-change-course");
+            const current_plan_id = Router.current().params._id;
+            
+            Meteor.call("deletePlan", current_plan_id, function(err, result){
+                if(err){
+                    window.alert(err.message);
+                    $(".js-delete-plan").attr("class", "ui red button js-delete-plan pull-right");
+                    $(".js-save-plan").attr("class", "ui primary button js-save-plan");
+                    $(".js-change-course").attr("class", "ui button js-change-course");
+                    return;
+                }
+                
+                dict.set("deleteClicked", false);
+                Router.go("/myMajorPlan");
+            })   
+        }
+    },
 
-            Router.go("/myMajorPlan");
-        })
-    }
+    "click": function(event){
+        if(event.target.className !== "ui red button js-delete-plan pull-right visible"){
+            Template.instance().calendarDict.set("deleteClicked", false);
+            $('.js-delete-plan').popup('destroy');
+        }
+    },
 })
 
 Template.scheduleCourseListView.onRendered(function() {
