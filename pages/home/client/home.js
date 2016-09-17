@@ -22,21 +22,6 @@ Template.voiceButton.onRendered(function() {
           content: "For example \"Show me COSI courses taught by Timothy Hickey\"",
           position: 'bottom right',
       });
-
-      $('#req-select, #day-select')
-      .popup({
-          content: "Sorry, but please refresh if this doesn't work. We're trying to fix it",
-          position: 'top left',
-      });
-      /*
-      $('#searchBar')
-      .popup({
-          content: "We're still optimizing the search mechanism...",
-          position: 'top right',
-      });
-
-      $('.cookie.nag').nag('show');
-      */
 })
 
 Template.home.onRendered(function() {
