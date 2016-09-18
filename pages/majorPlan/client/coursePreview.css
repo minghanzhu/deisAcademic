@@ -1,0 +1,20 @@
+.card .checkbox {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.ui.link.card:hover {
+    cursor: default;
+}
+
+.ui.four.cards > .card {
+	height: 100%;
+}
+
+.ui.four.cards .item:hover i {
+	display: block;
+}
+
+.ui.bulleted.list i {
+	display: none;
+}

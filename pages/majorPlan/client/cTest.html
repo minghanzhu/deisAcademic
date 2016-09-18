@@ -1,17 +1,22 @@
 <template name="calendarTest">
   {{#if masterDictSet}}
-	<div class="ui stackable grid">
+  <div class="ui stackable grid">
 		<div class="twelve wide column">
 			<div class="ui sticky">
         <div class="ui container calendar">
-				  <select name="term" class="js-term form-control">
-            {{#each term in termList}}
-              <option value="{{term.id}}">{{term.name}}</option>
-            {{/each}}
-          </select>
+          {{#if viewCalendar}}
+            <select name="term" class="js-term form-control">
+              {{#each term in termList}}
+                <option value="{{term.id}}">{{term.name}}</option>
+              {{/each}}
+            </select>
 
-          <div id="calendar"></div><br>
+            {{> calendar dict=dict calendarDict=calendarDict}}
+          {{else}}
+            {{> coursePreview dict=dict calendarDict=calendarDict}} <br>
+          {{/if}}
           <button class="ui button js-change-course">Change Chosen Courses</button>
+          <button class="ui button js-view-change">Overview</button>
           {{#if hasClickedChange}}{{clickedChange}}{{/if}}
           {{#if currentUser}}
             <button class="ui primary button js-save-plan pull-right">Save My Plan</button>
@@ -210,4 +215,12 @@
       </div>
     </div>
   </div>
+</template>
+
+<template name="calendar">
+  {{#if masterDictSet}}
+    <div id="calendar"></div><br>
+  {{else}} 
+    {{setMasterDict dict}} 
+  {{/if}}
 </template>

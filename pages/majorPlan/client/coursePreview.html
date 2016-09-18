@@ -1,0 +1,42 @@
+<template name="coursePreview">
+    <div class="ui four cards">
+        {{#each term in termList}}
+        <div class="ui raised link card" term="{{term.id}}">
+            <div class="content">
+                <div class="header">
+                    {{term.name}}
+                </div>
+            </div>
+            <div class="content">
+                {{#if hasCourse term.id}}
+                <div class="ui bulleted list">
+                    {{#each course in termCourseList term.id}}
+                    <div class="item">
+                        <div class="header">
+                            {{course.code}}
+                            <i class="remove icon pull-right js-remove-course" course-code="{{course.section_id}}" term="{{term.id}}"></i>
+                        </div>
+                        Section {{course.section_obj.section}}
+                    </div>
+                    {{/each}}
+                </div>
+                {{else}}
+                <div class="description">
+                    There's no chosen course in this term yet
+                </div>
+                {{/if}}
+                <div class="ui checkbox" id="{{term.id}}">
+                    <input type="checkbox">
+                </div>
+                <div class="ui dropdown pull-right">
+                    <i class="ellipsis horizontal icon js-termCard-menu"></i>
+                    <div class="menu">
+                        <a class="item js-clear-termCourse">Clear</a>
+                        <a class="item js-view-termCourse">View in calendar</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{/each}}
+    </div>
+</template>
