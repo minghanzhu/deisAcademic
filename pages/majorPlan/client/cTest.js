@@ -461,9 +461,30 @@ Template.calendarTest.events({
         event.preventDefault();
         const dict = Template.instance().calendarDict;
         const section_id = $(event)[0].target.attributes[1].value;
-        $("#calendar").fullCalendar('removeEventSource', section_id);
-        $(".overlay-calendar, .popup-calendar").fadeToggle();
-        $("#calendar").fullCalendar('refetchEvents');
+        const is_calendarView = Template.instance().calendarDict.get("viewCalendar");
+        if(is_calendarView){
+            $("#calendar").fullCalendar('removeEventSource', section_id);
+            $(".overlay-calendar, .popup-calendar").fadeToggle();
+            $("#calendar").fullCalendar('refetchEvents');
+            
+        } else {
+            const term = section_id.substring(0, section_id.indexOf("-"));
+            const term_schedule = Template.instance().masterDict.get("scheduleList")[term];
+            const courseList = term_schedule.courseList;
+            for(var i = 0; i < courseList.length; i++){
+                if(courseList[i].id === section_id){
+                    courseList.splice(i, 1);
+                    break;
+                }
+            }
+
+            term_schedule.courseList = courseList;
+            const current_schedule = Template.instance().masterDict.get("scheduleList");
+            current_schedule[term] = term_schedule;
+            Template.instance().masterDict.set("scheduleList", current_schedule);
+            $(".overlay-calendar, .popup-calendar").fadeToggle();
+        }
+
         dict.set("courseId");
         dict.set("courseObj");
         dict.set("sectionObj");
@@ -472,37 +493,62 @@ Template.calendarTest.events({
     },
 
     "click .js-take": function(event) {
+        event.preventDefault();
         const section_id = event.target.attributes[1].value;
-        const source = $("#calendar").fullCalendar('getEventSourceById', section_id);
-        source.chosen = !source.chosen;
-        Template.instance().calendarDict.set("sectionChosen", source.chosen);
-        $("#calendar").fullCalendar("refetchEvents");
+        const is_calendarView = Template.instance().calendarDict.get("viewCalendar");
+        if(is_calendarView){
+            const source = $("#calendar").fullCalendar('getEventSourceById', section_id);
+            source.chosen = !source.chosen;
+            Template.instance().calendarDict.set("sectionChosen", source.chosen);
+            $("#calendar").fullCalendar("refetchEvents");
+        } else {
+            const term = section_id.substring(0, section_id.indexOf("-"));
+            const term_schedule = Template.instance().masterDict.get("scheduleList")[term];
+            const courseList = term_schedule.courseList;
+            for(var i = 0; i < courseList.length; i++){
+                if(courseList[i].id === section_id){
+                    const current_state = courseList[i].chosen;
+                    courseList[i].chosen = !current_state;
+                }
+            }
+
+            term_schedule.courseList = courseList;
+            const current_schedule = Template.instance().masterDict.get("scheduleList");
+            current_schedule[term] = term_schedule;
+            Template.instance().masterDict.set("scheduleList", current_schedule);
+            const current_state = Template.instance().calendarDict.get("sectionChosen");
+            Template.instance().calendarDict.set("sectionChosen", !current_state);
+        }
     },
 
     "click .js-save-plan": function() {
         $(".js-save-plan").attr("class", "ui loading disabled button js-save-plan pull-right");
         $(".js-change-course").attr("class", "ui disabled button js-change-course");
-        //save the current term's schedule to the dict
-        const current_term = $(".js-term").val() || Template.instance().masterDict.get("chosenTerm");
-        Template.instance().masterDict.set("chosenTerm", current_term);
-        const current_schedule_sources = $("#calendar").fullCalendar("getEventSources");
-        //this removes all the additional properties created by fullCalendar
-        const current_cleaned_sources = [];
-        for (let source of current_schedule_sources) {
-            const cleaned_source = {
-                events: source.origArray,
-                id: source.id,
-                chosen: source.chosen
-            };
+        const is_calendarView = Template.instance().data["dict"].get("viewCalendar");
+        if(is_calendarView){
+            //save the current term's schedule to the dict
+            const current_term = $(".js-term").val() || Template.instance().masterDict.get("chosenTerm");
+            Template.instance().masterDict.set("chosenTerm", current_term);
+            const current_schedule_sources = $("#calendar").fullCalendar("getEventSources");
+            //this removes all the additional properties created by fullCalendar
+            const current_cleaned_sources = [];
+            for (let source of current_schedule_sources) {
+                const cleaned_source = {
+                    events: source.origArray,
+                    id: source.id,
+                    chosen: source.chosen
+                };
 
-            current_cleaned_sources.push(cleaned_source);
+                current_cleaned_sources.push(cleaned_source);
+            }
+            const current_schedule_list = Template.instance().masterDict.get("scheduleList");
+            current_schedule_list[current_term] = {
+                term: current_term,
+                courseList: current_cleaned_sources
+            };
+            Template.instance().masterDict.set("scheduleList", current_schedule_list);
         }
-        const current_schedule_list = Template.instance().masterDict.get("scheduleList");
-        current_schedule_list[current_term] = {
-            term: current_term,
-            courseList: current_cleaned_sources
-        };
-        Template.instance().masterDict.set("scheduleList", current_schedule_list);
+        
         ////////////////////////////////////////////
 
         //turn the dict data into user data to save

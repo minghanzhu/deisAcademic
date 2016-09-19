@@ -2,6 +2,7 @@ Template.coursePreview.onCreated(function() {
     this.previewDict = new ReactiveDict();
     this.previewDict.set("masterDictSet", false);
     this.masterDict = this.data["dict"]; 
+    this.calendarDict = this.data["calendarDict"];
 })
 
 Template.coursePreview.onRendered(function() {
@@ -137,5 +138,52 @@ Template.coursePreview.events({
 		const previous_schedule = Template.instance().masterDict.get("scheduleList");
 		previous_schedule[term] = term_schedule;
 		Template.instance().masterDict.set("scheduleList", previous_schedule);
-	}
+	},
+
+	"click .js-view-detail": function(event){
+		//make sure it's not the remove icon gets clicked
+		if(event.target.nodeName === "DIV"){
+			const dict = Template.instance().calendarDict;
+			const term = event.currentTarget.parentElement.parentElement.parentElement.attributes[1].nodeValue;
+			const section_id = event.currentTarget.children[0].attributes[1].nodeValue;
+			const term_schedule = Template.instance().masterDict.get("scheduleList")[term];
+			const courseList = term_schedule.courseList;
+			let course_id, section_obj, is_chosen;
+			for(let course of courseList){
+				if(course.id === section_id){
+					course_id = course.events[0].section_obj.course;
+					section_obj = course.events[0].section_obj;
+					is_chosen = course.chosen;
+					break;
+				}
+			}
+
+			$('#popup-tab .item').tab(); //this initialize the tabs for the popup
+            dict.set("courseId"); //this holds the course id of the current chosen event
+            dict.set("courseObj"); //this holds the actual course object for the current chosen event
+            dict.set("sectionObj"); //this holds the actual section object for the current chosen event
+            dict.set("majorDetail"); //this holds the major names and notes for the current chosen event
+            dict.set("instructorsName"); //this hold the instructor names and emails for the current chosen event
+            dict.set("sectionChosen") //this hold the boolean value if this section is decided to take by the user
+            dict.set("historyReady", false);
+            dict.set("courseId", course_id);
+            dict.set("sectionObj", section_obj);
+            dict.set("sectionChosen", is_chosen);
+            //reset the default detail choice to be the second tab. which is the section detail tab
+            $("#popup-tab .item.active").attr("class", "item");
+            $("#popup-tab [data-tab=first]").attr("class", "item active");
+            $(".ui.container.popup-calendar .segment.active").attr("class", "ui bottom attached tab segment");
+            $(".ui.container.popup-calendar [tab-num=1]").attr("class", "ui bottom attached tab segment active");
+
+            //then pops up the popup window
+            let popup = $(".popup-calendar");
+            $('.popup-calendar').css("top", 40 + $(window).scrollTop());
+            if($(window).width() < 768){
+                $('.popup-calendar').css("left", -55);
+            } else {
+                $('.popup-calendar').css("left", (($(".move").width() - $('.popup-calendar').width()) / 2) - 80);
+            }
+            $(".overlay-calendar, .popup-calendar").fadeToggle();
+		}
+	},
 })

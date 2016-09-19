@@ -11,6 +11,11 @@
 	height: 100%;
 }
 
+.ui.four.cards .item:hover {
+	cursor: pointer;
+	cursor: hand;
+}
+
 .ui.four.cards .item:hover i {
 	display: block;
 }

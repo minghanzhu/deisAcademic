@@ -11,10 +11,10 @@
                 {{#if hasCourse term.id}}
                 <div class="ui bulleted list">
                     {{#each course in termCourseList term.id}}
-                    <div class="item">
-                        <div class="header">
+                    <div class="item js-view-detail">
+                        <div class="header" section-id="{{course.section_id}}">
                             {{course.code}}
-                            <i class="remove icon pull-right js-remove-course" course-code="{{course.section_id}}" term="{{term.id}}"></i>
+                            <i class="remove icon pull-right js-remove-course" secion-id="{{course.section_id}}" term="{{term.id}}"></i>
                         </div>
                         Section {{course.section_obj.section}}
                     </div>
@@ -22,7 +22,7 @@
                 </div>
                 {{else}}
                 <div class="description">
-                    There's no chosen course in this term yet
+                    No course added yet
                 </div>
                 {{/if}}
                 <div class="ui checkbox" id="{{term.id}}">
