@@ -384,6 +384,7 @@ Meteor.startup(function() {
     Requirement.remove({});
     Subject.remove({});
     */
+    //Meteor.call("test")
     if(SearchPnc.find().count() != 0) return;
     SearchPnc.remove({});
         const data1 = Course.find().fetch();

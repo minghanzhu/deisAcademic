@@ -11,13 +11,23 @@
                 {{#if hasCourse term.id}}
                 <div class="ui bulleted list">
                     {{#each course in termCourseList term.id}}
-                    <div class="item js-view-detail">
-                        <div class="header" section-id="{{course.section_id}}">
-                            {{course.code}}
-                            <i class="remove icon pull-right js-remove-course" secion-id="{{course.section_id}}" term="{{term.id}}"></i>
-                        </div>
-                        Section {{course.section_obj.section}}
-                    </div>
+                        {{#if isFutureTerm term.id}}
+                            <div class="item js-view-future-detail" cont-id="{{course.continuity_id}}">
+                                <div class="header">
+                                    {{course.code}}
+                                    <i class="remove icon pull-right js-remove-future-course" cont-id="{{course.continuity_id}}" term="{{term.id}}"></i>
+                                </div>
+                                Chance - {{getPercentage course.percentage}}
+                            </div>
+                        {{else}}
+                            <div class="item js-view-detail">
+                                <div class="header" section-id="{{course.section_id}}">
+                                    {{course.code}}
+                                    <i class="remove icon pull-right js-remove-course" section-id="{{course.section_id}}" term="{{term.id}}"></i>
+                                </div>
+                                Section {{course.section_obj.section}}
+                            </div>
+                        {{/if}}
                     {{/each}}
                 </div>
                 {{else}}
@@ -32,7 +42,10 @@
                     <i class="ellipsis horizontal icon js-termCard-menu"></i>
                     <div class="menu">
                         <a class="item js-clear-termCourse">Clear</a>
-                        <a class="item js-view-termCourse">View in calendar</a>
+                        {{#if isFutureTerm term.id}}
+                        {{else}}
+                            <a class="item js-view-termCourse">View in calendar</a>
+                        {{/if}}
                     </div>
                 </div>
             </div>

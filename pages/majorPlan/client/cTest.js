@@ -24,6 +24,7 @@ Template.calendarTest.helpers({
             Template.instance().masterDict.set("fetched_courseList");
             Template.instance().calendarDict.set("masterDictSet", true);
             Template.instance().masterDict.set("clickedChange", false);
+            Template.instance().masterDict.set("predictionDataReady", false);
         }
 
         if (!Template.instance().masterDict.get("includeWishlist")) {
@@ -84,9 +85,19 @@ Template.calendarTest.helpers({
                 }
             }
         } else {
+            //get all distinct courses and make sure they are the newest within the term range
+            //if the terms are all future terms, get only the follwing info using a new meteor call
+            //1. course name
+            //2. course offering prediction
+            //
+            //at the same time, if the user wants to see detailed information, make only course tag 
+            //available using the course data of the newest one in the dict.
+            //and also hide "decide to take button"
+            //
+            //create a new field in major plan object that saves chosen cont_id's for different semesters
             let currentCourse = "";
             for (let course of availableCourseList) {
-                if (course.continuity_id !== currentCourse && course.term >= start_semester && course.term <= end_semester) {
+                if (course.continuity_id !== currentCourse) {
                     courseList.push(course);
                     currentCourse = course.continuity_id;
                 }
@@ -401,6 +412,54 @@ Template.calendarTest.helpers({
             }
         );
     },
+
+    hasFutureTerm: function(){
+        const latest_term = parseInt(Term.find().fetch()[Term.find().count() - 1].id);
+        const allowed_term = 6;//global parameter, to be changed to a method call
+        const end_term = Template.instance().masterDict.get("planEndSemester");
+
+        return end_term > latest_term && end_term <= (latest_term + 30);
+    },
+
+    pullPredictionData: function(masterDict){
+        const chosen_course_list = masterDict.get("courseList");
+
+        Meteor.call("getCoursePrediction", chosen_course_list, function(err, result){
+            if(err){
+                window.alert(err.message);
+                return;
+            }
+
+            masterDict.set("predictionData", result);
+            masterDict.set("predictionDataReady", true);
+        })
+    },
+
+    predictionDataReady: function(){
+        const latest_term = parseInt(Term.find().fetch()[Term.find().count() - 1].id);
+        const allowed_term = 6;//global parameter, to be changed to a method call
+        const end_term = Template.instance().masterDict.get("planEndSemester");
+
+        if(end_term > latest_term && end_term <= (latest_term + 30)){
+            return Template.instance().masterDict.get("predictionDataReady");
+        } else{
+            return true;
+        }
+    },
+
+    isFutureTerm: function(){
+        return Template.instance().calendarDict.get("isFutureTerm");
+    },
+
+    isFuture: function(){
+        return !Term.findOne({id: Template.instance().masterDict.get("chosenTerm")});
+    },
+
+    initializeTab: function(){
+        setTimeout(function() {
+            $('#popup-tab .item').tab();
+        }, 400);
+    },
 })
 
 Template.calendarTest.events({
@@ -565,21 +624,30 @@ Template.calendarTest.events({
         const final_schedule_list = Template.instance().masterDict.get("scheduleList");
         const schedule_list = [];
         for (let term in final_schedule_list) { //access each {term="<term>", courseList:[<courses>]}
-            const user_schedule_array = [];
-            const source = final_schedule_list[term];
-            const chosenCourse = source.courseList;
-            for (let source of chosenCourse) {
-                const section_obj = {
-                    section_id: source.id,
-                    chosen: source.chosen
+            const chosenCourse = final_schedule_list[term].courseList;
+
+            if(!Term.findOne({id: term})){
+                const schedule_obj = {
+                    term: term,
+                    chosenCourse: chosenCourse
                 }
-                user_schedule_array.push(section_obj); //only save sections id's for each chosen course
-            }
-            const schedule_obj = {
-                term: term,
-                chosenCourse: user_schedule_array
-            }
-            schedule_list.push(schedule_obj);
+                schedule_list.push(schedule_obj);
+            } else {
+                const user_schedule_array = [];
+                
+                for (let source of chosenCourse) {
+                    const section_obj = {
+                        section_id: source.id,
+                        chosen: source.chosen
+                    }
+                    user_schedule_array.push(section_obj); //only save sections id's for each chosen course
+                }
+                const schedule_obj = {
+                    term: term,
+                    chosenCourse: user_schedule_array
+                }
+                schedule_list.push(schedule_obj);
+            }   
         }
         //[{term:<term>, courseList:[{}]}]
         const start_semester = Template.instance().masterDict.get("planStartSemester");
@@ -727,6 +795,11 @@ Template.calendarTest.events({
         
         Template.instance().calendarDict.set("viewCalendar", !current_state);
     },
+
+    "click .js-show-dict": function(event){
+        event.preventDefault();
+        console.log(Template.instance().masterDict);
+    }
 })
 
 Template.scheduleCourseList.onRendered(function() {
@@ -746,24 +819,32 @@ Template.scheduleCourseList.helpers({
         Template.instance().masterDict = masterDict;
     },
 
-    getSections: function(courseContId, dict, masterDict) {
+    getSections: function(courseContId, dict, masterDict, index) {
         if (!masterDict.get("chosenTerm") || !courseContId) { //continue only if the data is ready
             return;
         };
 
-        const courseId = masterDict.get("chosenTerm") + "-" + courseContId;
-        //check if the info is already there
-        if(dict.get("sectionInfo" + courseId)){
-            return dict.get("sectionInfo" + courseId)
+        if(index != 0){
+            return;
         }
 
-        Meteor.call("getSections", courseId, function(err, result) {
+        //check if the info is already there
+        const courseId = masterDict.get("chosenTerm") + "-" + courseContId;
+        if(dict.get("sectionInfo" + courseId)){
+            return;
+        }
+
+        const courseList = masterDict.get("courseList");
+        const term_range = {
+            start: masterDict.get("planStartSemester"),
+            end: masterDict.get("planEndSemester")
+        }
+        Meteor.call("getSections", courseList, term_range, function(err, result) {
             if (err) {
                 window.alert(err.message);
                 return;
             }
             if (result.length == 0) {
-                dict.set("sectionInfo" + courseId, "NR");
                 return;
             }
 
@@ -771,13 +852,26 @@ Template.scheduleCourseList.helpers({
                 return a.section - b.section;
             });
 
-            dict.set("sectionInfo" + courseId, sorted_result);
+            for(let section_info_obj of result){
+                if(section_info_obj.sections.length == 0){
+                    dict.set("sectionInfo" + section_info_obj.courseId, "NR");
+                } else {
+                    dict.set("sectionInfo" + section_info_obj.courseId, section_info_obj.sections.sort(function(a, b){
+                        return a.section - b.section;
+                    }));
+                }
+            }
         });
     },
 
     hasSectionInfo: function(courseContId, dict, masterDict) {
         const courseId = masterDict.get("chosenTerm") + "-" + courseContId;
-        return !!dict.get("sectionInfo" + courseId);
+        if(!Term.findOne({id: masterDict.get("chosenTerm")})){
+            dict.set("sectionInfo" + courseId, "NR");
+            return true;
+        } else {
+            return !!dict.get("sectionInfo" + courseId);
+        }
     },
 
     sectionInfo: function(courseContId, dict, masterDict) {
@@ -827,6 +921,24 @@ Template.scheduleCourseList.helpers({
 
         var time = Math.floor(time / 60) + ":" + min;
         return time;
+    },
+
+    getPredictionData: function(continuity_id, masterDict){
+        const term = masterDict.get("chosenTerm");
+        const prediction_obj = masterDict.get("predictionData")[continuity_id][term];
+        if(!prediction_obj){
+            return "N/A";
+        } else {
+            return prediction_obj.percentage * 100 + "%";
+        }       
+    },
+
+    isFutureTerm: function(){
+        const latest_term = parseInt(Term.find().fetch()[Term.find().count() - 1].id);
+        const allowed_term = 6;//global parameter, to be changed to a method call
+        const end_term = Template.instance().masterDict.get("chosenTerm");
+
+        return end_term > latest_term && end_term <= (latest_term + 30);
     },
 })
 
@@ -956,8 +1068,10 @@ Template.scheduleCourseList.events({
     },
 
     "click .js-title": function() {
+        const is_calendarView = Template.instance().data["dict"].get("viewCalendar");
+
         //reads the term when the user click a course to view
-        if (!Template.instance().masterDict.get("chosenTerm")) {
+        if (!Template.instance().masterDict.get("chosenTerm") && is_calendarView) {
             Template.instance().masterDict.set("chosenTerm", $(".js-term").val());
         };
 
@@ -971,6 +1085,35 @@ Template.scheduleCourseList.events({
                 });
             }
         }, 600);
+    },
+
+    "click .js-add-future-course": function(){
+        const is_calendarView = Template.instance().masterDict.get("viewCalendar");
+
+        if(!is_calendarView){
+            const term = $(".ui.four.cards .checkbox.checked")[0].attributes[1].nodeValue;
+            const continuity_id = event.target.attributes[1].nodeValue; 
+            const masterDict = Template.instance().masterDict;
+            const calendar_source = masterDict.get("scheduleList");
+            if(!calendar_source[term]){
+                const new_term_schedule = {
+                    term: term,
+                    courseList: [continuity_id]
+                }
+
+                calendar_source[term] = new_term_schedule;
+                masterDict.set("scheduleList", calendar_source);
+            } else {
+                //check if the course has been added
+                const course_list = calendar_source[term].courseList;
+                if($.inArray(continuity_id, course_list) != -1){
+                    return;
+                } else {
+                    course_list.push(continuity_id);
+                    masterDict.set("scheduleList", calendar_source);
+                }
+            }
+        }
     },
 })
 

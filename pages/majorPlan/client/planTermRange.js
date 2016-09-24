@@ -1,6 +1,40 @@
 Template.planTermRange.onCreated(function(){
 	this.termRangeDict = new ReactiveDict();
     this.termRangeDict.set("clickedOK", false);
+    this.termRangeDict.set("allowed_new_terms", 6);//global parameter
+
+    const term_list = Term.find().fetch().sort(function(a, b){
+        return parseInt(a.id) - parseInt(b.id);
+    });
+
+    for(let i = 0; i < Template.instance().termRangeDict.get("allowed_new_terms"); i++){
+        const lasted_term = parseInt(term_list[term_list.length - 1].id);
+        let new_term;
+        if(("" + lasted_term).charAt(3) == 1){
+            new_term = lasted_term + 2;//from spring to fall
+        } else if(("" + lasted_term).charAt(3) == 3){
+            new_term = lasted_term + 8;//from fall to spring
+        }
+        const year = 2000 + parseInt(("" + new_term).substring(0,3)) - 100;
+        let season;
+        if(("" + new_term).charAt(3) == 1){
+            season = "Spring";
+        } else if(("" + new_term).charAt(3) == 3) {
+            season = "Fall";
+        }
+        const name = season + " " + year;
+
+        const term_obj = {
+            id: "" + new_term,
+            name: name
+        }
+        term_list.push(term_obj);
+    }
+
+    const result = term_list.sort(function(a, b){
+        return parseInt(b.id) - parseInt(a.id);
+    });
+    this.termRangeDict.set("term_list", result);
 })
 
 Template.planTermRange.onRendered(function(){
@@ -30,11 +64,7 @@ Template.planTermRange.helpers({
     },
 
     termList: function(){
-        const termList = Term.find().fetch().sort(function(a, b){
-            return parseInt(b.id) - parseInt(a.id);
-        });
-
-        return termList;
+        return Template.instance().termRangeDict.get("term_list")
     },
 })
 
@@ -43,7 +73,7 @@ Template.planTermRange.events({
         event.preventDefault();
         //get the sorted term list
         let termList = [];
-        for(let term of Term.find().fetch()){
+        for(let term of Template.instance().termRangeDict.get("term_list")){
             const id = term.id
             termList.push(id);
         };

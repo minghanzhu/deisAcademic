@@ -77,6 +77,10 @@ Meteor.publish("new_plan_userProfile", function() {
     }) 
 });
 
+Meteor.publish("new_plan_prediction", function(){
+    return CoursePrediction.find();
+})
+
 Meteor.publish("view_plan_term", function() {
     return Term.find({},{
     	fields: {

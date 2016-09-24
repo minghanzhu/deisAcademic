@@ -366,13 +366,67 @@ Schemas.MajorPlansPnc = new SimpleSchema({
         },
         optional: true
     },
+    futureList: {
+        type: Array,
+        optional: true
+    },
+    'futureList.$': {
+        type: Object
+    },
+    'futureList.$.term':{
+        type: String,
+        min: 4,
+        custom: function(){
+            //first check if this term exists
+            if(!Term.findOne({id: this.value})){
+                const latest_term = parseInt(Term.find().fetch()[Term.find().count() - 1].id);
+                let latest_allowed_term = latest_term;
+                for(let i = 0; i < 6/*server_allowed_terms*/; i++){//global parameter
+                    if(("" + latest_allowed_term).charAt(3) == 1){
+                        latest_allowed_term += 2;
+                    } else {
+                        latest_allowed_term += 8;
+                    }
+                }
+                if(this.value > latest_allowed_term){
+                    return "noSuchTerm"
+                } else if(this.value <= latest_term){//make sure it's a future term
+                    return "noSuchTerm"
+                }
+            }
+        }
+    },
+    'futureList.$.courseList': {
+        type: Array
+    },
+    'futureList.$.courseList.$': {
+        type: String,
+        min: 1,
+        custom: function(){
+            if(!Course.findOne({continuity_id: this.value})){
+                return "noSuchCourse"
+            }
+        },
+        optional: true
+    },
     start_term: {
         type: String,
         min: 1,
         custom: function(){
             //first check if this term exists
             if(!Term.findOne({id: this.value})){
-                return "noSuchTerm"
+                const latest_term = parseInt(Term.find().fetch()[Term.find().count() - 1].id);
+                let latest_allowed_term = latest_term;
+                for(let i = 0; i < 6/*server_allowed_terms*/; i++){//global parameter
+                    if(("" + latest_allowed_term).charAt(3) == 1){
+                        latest_allowed_term += 2;
+                    } else {
+                        latest_allowed_term += 8;
+                    }
+                }
+                if(this.value > latest_allowed_term){
+                    return "noSuchTerm"
+                }
             }
 
             //then check if it's smaller than the other
@@ -387,7 +441,18 @@ Schemas.MajorPlansPnc = new SimpleSchema({
         custom: function(){
             //first check if this term exists
             if(!Term.findOne({id: this.value})){
-                return "noSuchTerm"
+                const latest_term = parseInt(Term.find().fetch()[Term.find().count() - 1].id);
+                let latest_allowed_term = latest_term;
+                for(let i = 0; i < 6/*server_allowed_terms*/; i++){//global parameter
+                    if(("" + latest_allowed_term).charAt(3) == 1){
+                        latest_allowed_term += 2;
+                    } else {
+                        latest_allowed_term += 8;
+                    }
+                }
+                if(this.value > latest_allowed_term){
+                    return "noSuchTerm"
+                }
             }
 
             //then check if it's smaller than the other

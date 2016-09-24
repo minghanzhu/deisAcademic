@@ -13,10 +13,23 @@
 
             {{> calendar dict=dict calendarDict=calendarDict}}
           {{else}}
-            {{> coursePreview dict=dict calendarDict=calendarDict}} <br>
+            {{#if predictionDataReady}}
+              {{> coursePreview dict=dict calendarDict=calendarDict}} <br>
+            {{else}}
+              <div class="ui active inline loader"></div>
+            {{/if}}
           {{/if}}
           <button class="ui button js-change-course">Change Chosen Courses</button>
-          <button class="ui button js-view-change">Overview</button>
+          {{#if viewCalendar}}
+            <button class="ui button js-view-change">Overview</button>
+          {{else}}
+            {{#if isFuture}}
+              <button class="ui disabled button js-view-change">Calendar View</button>
+            {{else}}
+              <button class="ui button js-view-change">Calendar View</button>
+            {{/if}}
+          {{/if}}
+          <!-- <button class="ui button js-show-dict">Show Dict</button> -->
           {{#if hasClickedChange}}{{clickedChange}}{{/if}}
           {{#if currentUser}}
             <button class="ui primary button js-save-plan pull-right">Save My Plan</button>
@@ -31,7 +44,7 @@
 
 		<div class="four wide column">
   			<div class="ui container" id="courseList">
-				  {{#if hasCourseList}}
+				  {{#if hasCourseList AND predictionDataReady}}
             {{#if currentUser}}
               {{#if hasWishlist}}
                 <div class="ui slider checkbox js-add-wishlist">
@@ -48,11 +61,14 @@
 
             <div class="ui vertical accordion menu">
               {{#each course in getCourseList}}
-                {{> scheduleCourseList c=course dict=calendarDict masterDict=dict}}
+                {{> scheduleCourseList c=course dict=calendarDict masterDict=dict index=@index}}
               {{/each}}
             </div>
   				{{else}}
   					{{pullUserCourseList}}
+            {{#if hasFutureTerm}}
+              {{pullPredictionData dict}}
+            {{/if}}
   					<div class="ui active inline loader"></div>
   				{{/if}}
   			</div>
@@ -64,7 +80,11 @@
     <i class="remove icon pull-right js-close-popup"></i>
     <div class="ui top attached tabular menu" id="popup-tab">
       <a class="item" data-tab="second">Course Detail</a>
-      <a class="active item" data-tab="first">Section Detail</a>
+      {{#if isFutureTerm}}
+      {{else}}
+        <a class="active item" data-tab="first">Section Detail</a>
+        {{initializeTab}}
+      {{/if}}
       <a class="item" data-tab="third">Offering History</a>
     </div>
 
@@ -195,7 +215,11 @@
       <div class="ui link list">
         {{#if (hasSectionInfo c.continuity_id dict masterDict)}}
           {{#if (noResult c.continuity_id dict masterDict)}}
-            Not Available
+            {{#if isFutureTerm}}
+              <a class="item js-add-future-course" cont-id="{{c.continuity_id}}">Chance of offering - {{getPredictionData c.continuity_id masterDict}}</a>
+            {{else}}
+              Not Available
+            {{/if}}
           {{else}}
             {{#each section in (sectionInfo c.continuity_id dict masterDict)}}
               <a class="item js-add-section" id="{{section.id}}" course-code="{{c.code}}" course-name="{{c.name}}">Section{{section.section}}</a>
@@ -209,7 +233,7 @@
             {{/each}}
           {{/if}}
         {{else}}
-          {{getSections c.continuity_id dict masterDict}}
+          {{getSections c.continuity_id dict masterDict index}}
           <div class="ui active inline loader"></div>
         {{/if}}
       </div>
