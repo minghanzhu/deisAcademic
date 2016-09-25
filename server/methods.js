@@ -529,8 +529,7 @@ Meteor.methods({
                 term_id_list.push(term.id);
             }
         }
-        console.log(term_id_list)
-        console.log(section_id_list)
+        
         const courseContIdList = [];
         for(let section_id of section_id_list){
             const course_id = Section.findOne({id: section_id}).course;
@@ -539,7 +538,7 @@ Meteor.methods({
                 courseContIdList.push(cont_id)
             }
         }
-        console.log(courseContIdList)
+
         for(let term_id of term_id_list){
             for(let continuity_id of courseContIdList){
                 const courseId = term_id + "-" + continuity_id;
