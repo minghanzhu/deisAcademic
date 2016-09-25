@@ -1207,6 +1207,7 @@ Meteor.methods({
     },
 
     test: function(){
+        return;//prevent unauthorized call
         //this saves all the distinct cont id's
         const course_list = Course.find().fetch(); //array of all courses
         const cont_id_list = [];
@@ -1252,7 +1253,7 @@ Meteor.methods({
                 count++;
                 if (count == cont_list.length) {
                     console.log("done!");
-                    result();
+                    //result();
                 }
             }
         }
@@ -1476,6 +1477,9 @@ Meteor.methods({
             let end_index = 0;
             let if_continue = true;
             let i = 1;
+            const current_term_index = parseInt(his_array[his_array.length - 1].substring(his_array[his_array.length - 1].lastIndexOf(" ")));
+            //console.log(current_term_index)
+            const index_difference = latest_available_term_index - current_term_index + allowed_terms;
             while(if_continue){
                 const check_array = [];
                 if(i == 1){
@@ -1483,7 +1487,7 @@ Meteor.methods({
                     for(let dif in dif_p){
                         //compute percentage for the terms
                         term_p[dif] = dif_p[dif];
-                        if(dif < allowed_terms){
+                        if(dif < index_difference){
                             term_rec.push([dif]);
                             check_array.push("1");
                         } 
@@ -1514,7 +1518,7 @@ Meteor.methods({
                                 term_p[term_sum] += precentage_result;
                             }
 
-                            if(term_sum < allowed_terms){
+                            if(term_sum < index_difference){
                                 term_rec.push(new_addition_array);
                                 check_array.push("1");
                             }
@@ -1579,9 +1583,6 @@ Meteor.methods({
             termPath(0, 0);
             */
 
-            const current_term_index = parseInt(his_array[his_array.length - 1].substring(his_array[his_array.length - 1].lastIndexOf(" ")));
-            //console.log(current_term_index)
-            const index_difference = latest_available_term_index - current_term_index + allowed_terms;
             let result = [];
             for (let i = 1; i <= index_difference; i++) {
                 const term = i;

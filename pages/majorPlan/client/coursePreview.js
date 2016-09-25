@@ -187,14 +187,20 @@ Template.coursePreview.helpers({
         if(!prediction_obj){
             return "N/A";
         }
-        
+
         const percentage = prediction_obj.percentage;
         if(percentage == 1){
             return "99%"
         } else if(percentage == 0){
             return "1%"
         } else {
-            return percentage.toFixed(2) * 100 + "%";
+            if(percentage.toFixed(2) == 1){
+                return "99%"
+            } else if(percentage.toFixed(2) == 0){
+                return "1%"
+            } else {
+                return percentage.toFixed(2) * 100 + "%";
+            }
         }
     },
 
