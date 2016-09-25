@@ -77,6 +77,10 @@ Meteor.publish("new_plan_userProfile", function() {
     }) 
 });
 
+Meteor.publish("new_plan_prediction", function(){
+    return CoursePrediction.find();
+})
+
 Meteor.publish("view_plan_term", function() {
     return Term.find({},{
     	fields: {
@@ -116,11 +120,25 @@ Meteor.publish("modify_plan_majorPlans", function(plan_id) {
     if(!MajorPlansPnc.findOne(plan_id)){
         //console.log("Invalid plan id");
         return MajorPlansPnc.find(plan_id);
+    } else {
+        return MajorPlansPnc.find( 
+            plan_id, {
+            fields:{
+                scheduleList: 1,
+                chosenCourse: 1,
+                majorId: 1,
+                start_term: 1,
+                end_term: 1,
+                futureList: 1
+            }
+        })
     }
 
+    /*
     const plan_obj = MajorPlansPnc.findOne(plan_id);
     const plan_user = plan_obj.userId;
     if(!this.userId){
+        console.log("1")
         return MajorPlansPnc.find( 
             plan_id, {
             fields:{
@@ -128,10 +146,12 @@ Meteor.publish("modify_plan_majorPlans", function(plan_id) {
                 chosenCourse: 1,
                 majorId: 1,
                 start_term: 1,
-                end_term: 1
+                end_term: 1,
+                futureList: 1
             }
         })
     } else if(this.userId !== plan_user){
+        console.log("2")
         return MajorPlansPnc.find( 
             plan_id, {
             fields:{
@@ -139,10 +159,12 @@ Meteor.publish("modify_plan_majorPlans", function(plan_id) {
                 chosenCourse: 1,
                 majorId: 1,
                 start_term: 1,
-                end_term: 1
+                end_term: 1,
+                futureList: 1
             }
         })
     } else {
+        console.log("3")
         return MajorPlansPnc.find({ 
             userId: this.userId 
         },{
@@ -151,10 +173,12 @@ Meteor.publish("modify_plan_majorPlans", function(plan_id) {
                 chosenCourse: 1,
                 majorId: 1,
                 start_term: 1,
-                end_term: 1
+                end_term: 1,
+                futureList: 1
             }
         }) 
-    }    
+    } 
+    */   
 });
 
 Meteor.publish("modify_plan_userProfile", function() {

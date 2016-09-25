@@ -2,6 +2,41 @@ Template.majorSelect.onCreated(function() {
     this.majorSelectDict = new ReactiveDict();
     this.majorSelectDict.set("clickedGo", false);
     this.majorSelectDict.set("clickedHelp", false);
+    this.majorSelectDict.set("allowed_new_terms", 6);//3 years
+    this.majorSelectDict.set("newest_term", Term.find().fetch()[Term.find().count() - 1]);
+
+    const term_list = Term.find().fetch().sort(function(a, b){
+        return parseInt(a.id) - parseInt(b.id);
+    });
+
+    for(let i = 0; i < Template.instance().majorSelectDict.get("allowed_new_terms"); i++){
+        const lasted_term = parseInt(term_list[term_list.length - 1].id);
+        let new_term;
+        if(("" + lasted_term).charAt(3) == 1){
+            new_term = lasted_term + 2;//from spring to fall
+        } else if(("" + lasted_term).charAt(3) == 3){
+            new_term = lasted_term + 8;//from fall to spring
+        }
+        const year = 2000 + parseInt(("" + new_term).substring(0,3)) - 100;
+        let season;
+        if(("" + new_term).charAt(3) == 1){
+            season = "Spring";
+        } else if(("" + new_term).charAt(3) == 3) {
+            season = "Fall";
+        }
+        const name = season + " " + year;
+
+        const term_obj = {
+            id: "" + new_term,
+            name: name
+        }
+        term_list.push(term_obj);
+    }
+
+    const result = term_list.sort(function(a, b){
+        return parseInt(b.id) - parseInt(a.id);
+    });
+    this.majorSelectDict.set("term_list", result);
 })
 
 Template.majorSelect.onRendered(function() {
@@ -45,10 +80,7 @@ Template.majorSelect.helpers({
     },
 
     termList: function(){
-        const termList = Term.find().fetch();
-        return termList.sort(function(a, b){
-            return parseInt(b.id) - parseInt(a.id);
-        });
+        return Template.instance().majorSelectDict.get("term_list");
     },
 })
 
@@ -57,7 +89,7 @@ Template.majorSelect.events({
         event.preventDefault();
         //get the sorted term list
         let termList = [];
-        for(let term of Term.find().fetch()){
+        for(let term of Template.instance().majorSelectDict.get("term_list")){
             termList.push(term.id);
         };
         termList = termList.sort(function(a, b){

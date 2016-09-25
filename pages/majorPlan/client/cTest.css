@@ -30,3 +30,11 @@
 .ui.popup-calendar:before {
     opacity: 0;
 }
+
+#sectionList .item:hover .plus.icon {
+    display: block;
+}
+
+#sectionList .plus.icon {
+    display: none;
+}

@@ -1,0 +1,69 @@
+<template name="coursePreview">
+    <div class="ui four cards">
+        {{#each term in termList}}
+        <div class="ui raised link card" term="{{term.id}}">
+            <div class="content">
+                <div class="header">
+                    {{term.name}}
+                </div>
+            </div>
+            <div class="content">
+                {{#if hasCourse term.id}}
+                <div class="ui bulleted list">
+                    {{#each course in termCourseList term.id}}
+                        {{#if isFutureTerm term.id}}
+                            <div class="item js-view-future-detail" cont-id="{{course.continuity_id}}">
+                                <div class="header">
+                                    {{course.code}}
+                                    {{#if isNewPlan}}
+                                        <i class="remove icon pull-right js-remove-future-course" cont-id="{{course.continuity_id}}" term="{{term.id}}"></i>
+                                    {{else}}
+                                        {{#if currentUser AND sameUser}}
+                                            <i class="remove icon pull-right js-remove-future-course" cont-id="{{course.continuity_id}}" term="{{term.id}}"></i>
+                                        {{/if}}
+                                    {{/if}}   
+                                </div>
+                                Chance - {{getPercentage course.continuity_id term.id}}
+                            </div>
+                        {{else}}
+                            <div class="item js-view-detail">
+                                <div class="header" section-id="{{course.section_id}}">
+                                    {{course.code}}
+                                    {{#if isNewPlan}}
+                                        <i class="remove icon pull-right js-remove-course" section-id="{{course.section_id}}" term="{{term.id}}"></i>
+                                    {{else}}
+                                        {{#if currentUser AND sameUser}}
+                                            <i class="remove icon pull-right js-remove-course" section-id="{{course.section_id}}" term="{{term.id}}"></i>
+                                        {{/if}}
+                                    {{/if}}
+                                </div>
+                                Section {{course.section_obj.section}}
+                            </div>
+                        {{/if}}
+                    {{/each}}
+                </div>
+                {{else}}
+                <div class="description">
+                    No course added yet
+                </div>
+                {{/if}}
+                <div class="ui checkbox" id="{{term.id}}">
+                    <input type="checkbox">
+                </div>
+                {{#if currentUser AND sameUser}}
+                    <div class="ui dropdown pull-right">
+                        <i class="ellipsis horizontal icon js-termCard-menu"></i>
+                        <div class="menu">
+                            <a class="item js-clear-termCourse">Clear</a>
+                            {{#if isFutureTerm term.id}}
+                            {{else}}
+                                <a class="item js-view-termCourse">View in calendar</a>
+                            {{/if}}
+                        </div>
+                    </div>
+                {{/if}}
+            </div>
+        </div>
+        {{/each}}
+    </div>
+</template>

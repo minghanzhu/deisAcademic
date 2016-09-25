@@ -92,6 +92,7 @@ if (codes.length == 0) {
 }
 
 //this determines what are the current and future terms
+let now_term;
 if (Term.find().count() > 0) {
     const date_now = new Date();
     const current_year = date_now.getFullYear();
@@ -111,6 +112,7 @@ if (Term.find().count() > 0) {
     };
     const curren_semester = season + current_year;
     const current_term = Term.findOne({ name: curren_semester }).id;
+    now_term = current_term;
     const future_terms = Term.find({ id: { $gt: current_term } }).fetch();
     console.log("Current Term: " + curren_semester);
     let future_terms_string = "";
@@ -120,7 +122,12 @@ if (Term.find().count() > 0) {
     console.log("Future Term(s): " + future_terms_string);
 }
 
+//this sets the allowed number of terms to be predicted
+const server_allowed_terms = 6;
+
 console.log("If you don't see current and future terms, please restart the server");
+console.log("Prediction size: " + CoursePrediction.find().count());
+console.log("Allowed_terms: " + server_allowed_terms)
 
 Meteor.methods({
     searchPnc: function(keyword, term, req_array, dept, prof, time, if_indept, if_not_sure) {
@@ -484,15 +491,74 @@ Meteor.methods({
     },
 
     //takes a course object and returns all the sections of it
-    getSections: function(courseId) {
-        return Section.find({ course: courseId },{
-            fields: {
-                _id: 0,
-                type: 0,
-                comment: 0,
-                waiting: 0,
+    getSections: function(courseContIdList, term_range) {
+        const result = [];
+        const term_id_list = [];
+        for(let term of Term.find().fetch()){
+            if(term.id <= term_range.end && term.id >= term_range.start){
+                term_id_list.push(term.id);
             }
-        }).fetch();
+        }
+        
+        for(let term_id of term_id_list){
+            for(let continuity_id of courseContIdList){
+                const courseId = term_id + "-" + continuity_id;
+                const section_info_obj = {
+                    sections: Section.find({ course: courseId },{
+                        fields: {
+                            _id: 0,
+                            type: 0,
+                            comment: 0,
+                            waiting: 0,
+                        }
+                    }).fetch(),
+                    courseId: courseId
+                }
+                result.push(section_info_obj);
+            }
+        }
+
+        return result;
+    },
+
+    getSections_schedule: function(section_id_list, term_range) {
+        const result = [];
+        const term_id_list = [];
+        for(let term of Term.find().fetch()){
+            if(term.id <= term_range.end && term.id >= term_range.start){
+                term_id_list.push(term.id);
+            }
+        }
+        console.log(term_id_list)
+        console.log(section_id_list)
+        const courseContIdList = [];
+        for(let section_id of section_id_list){
+            const course_id = Section.findOne({id: section_id}).course;
+            const cont_id = Course.findOne({id: course_id}).continuity_id;
+            if(_.indexOf(courseContIdList, cont_id) == -1){
+                courseContIdList.push(cont_id)
+            }
+        }
+        console.log(courseContIdList)
+        for(let term_id of term_id_list){
+            for(let continuity_id of courseContIdList){
+                const courseId = term_id + "-" + continuity_id;
+                const section_info_obj = {
+                    sections: Section.find({ course: courseId },{
+                        fields: {
+                            _id: 0,
+                            type: 0,
+                            comment: 0,
+                            waiting: 0,
+                        }
+                    }).fetch(),
+                    courseId: courseId
+                }
+                result.push(section_info_obj);
+            }
+        }
+
+        return result;
     },
 
     //takes a section id and returns the section object
@@ -534,6 +600,10 @@ Meteor.methods({
                 independent_study: 0,
             }
         });
+    },
+
+    getCourseCode: function(courseContId){
+        return Course.findOne({continuity_id: courseContId}).code;
     },
 
 
@@ -698,7 +768,7 @@ Meteor.methods({
         return result_array;
     },
 
-    "saveMajorPlan": function(scheduleList, major_code, availableCourseList, term_range) {
+    "saveMajorPlan": function(scheduleList, major_code, availableCourseList, term_range, futureList) {
         if (!this.userId) {
             console.log("[saveMajorPlan] - Invalid insert: Not logged in");
             throw new Meteor.Error(201, "Invalid insert: Not logged in");
@@ -711,15 +781,29 @@ Meteor.methods({
 
         const code_regex = new RegExp("-" + major_code + "$", "i");
         const major_name = Subject.findOne({ id: code_regex }).name;
-        const final_major_plan = {
-            majorName: major_name,
-            majorId: major_code,
-            userId: this.userId,
-            chosenCourse: availableCourseList,
-            scheduleList: scheduleList,
-            start_term: term_range.start_term,
-            end_term: term_range.end_term
-        };
+        let final_major_plan;
+        if(futureList.length == 0){
+            final_major_plan = {
+                majorName: major_name,
+                majorId: major_code,
+                userId: this.userId,
+                chosenCourse: availableCourseList,
+                scheduleList: scheduleList,
+                start_term: term_range.start_term,
+                end_term: term_range.end_term
+            };
+        } else {
+            final_major_plan = {
+                majorName: major_name,
+                majorId: major_code,
+                userId: this.userId,
+                chosenCourse: availableCourseList,
+                scheduleList: scheduleList,
+                start_term: term_range.start_term,
+                end_term: term_range.end_term,
+                futureList: futureList
+            };
+        }
 
         const major_plan_id = MajorPlansPnc.insert(final_major_plan);
         UserProfilePnc.update({ userId: this.userId }, { $push: { majorPlanList: major_plan_id } });
@@ -768,7 +852,18 @@ Meteor.methods({
             throw new Meteor.Error(232, "Invalid insert: Incomplete term");
         };
 
-        if (!Term.findOne({ id: term_range.start_term }) || !Term.findOne({ id: term_range.end_term })) {
+
+        const latest_term = parseInt(Term.find().fetch()[Term.find().count() - 1].id);
+        let latest_allowed_term = latest_term;
+        for(let i = 0; i < server_allowed_terms; i++){
+            if(("" + latest_allowed_term).charAt(3) == 1){
+                latest_allowed_term += 2;
+            } else {
+                latest_allowed_term += 8;
+            }
+        }
+        if ((!Term.findOne({ id: term_range.start_term }) || !Term.findOne({ id: term_range.end_term }))
+            &&(term_range.start_term > latest_allowed_term || term_range.end_term > latest_allowed_term)) {
             console.log("[saveSchedule_MajorPlan] - Invalid insert: No such term: [start: " + term_range.start_term + "] " + "[end: " + term_range.end_term + "]");
             throw new Meteor.Error(206, "Invalid insert: No such term");
         };
@@ -779,18 +874,28 @@ Meteor.methods({
         };
 
         const schedule_id_list = [];
+        const futureList = [];
         for (let schedule of scheduleList) {
-            const schedule_obj = {
-                term: schedule.term,
-                courseList: schedule.chosenCourse,
-                userId: this.userId
-            }
+            if(Term.findOne({id: schedule.term})){
+                const schedule_obj = {
+                    term: schedule.term,
+                    courseList: schedule.chosenCourse,
+                    userId: this.userId
+                }
 
-            const schedule_id = SchedulesPnc.insert(schedule_obj);
-            schedule_id_list.push(schedule_id);
+                const schedule_id = SchedulesPnc.insert(schedule_obj);
+                schedule_id_list.push(schedule_id);
+            } else {
+                const future_obj = {
+                    term: schedule.term,
+                    courseList: schedule.chosenCourse
+                }
+
+                futureList.push(future_obj);
+            }
         };
 
-        Meteor.call("saveMajorPlan", schedule_id_list, major_code, availableCourseList, term_range, function(err, result) {
+        Meteor.call("saveMajorPlan", schedule_id_list, major_code, availableCourseList, term_range, futureList, function(err, result) {
             if (err) {
                 return err.message;
             }
@@ -853,7 +958,18 @@ Meteor.methods({
             throw new Meteor.Error(332, "Invalid update: Incomplete term");
         };
 
-        if (!Term.findOne({ id: term_range.start_term }) || !Term.findOne({ id: term_range.end_term })) {
+
+        const latest_term = parseInt(Term.find().fetch()[Term.find().count() - 1].id);
+        let latest_allowed_term = latest_term;
+        for(let i = 0; i < server_allowed_terms; i++){
+            if(("" + latest_allowed_term).charAt(3) == 1){
+                latest_allowed_term += 2;
+            } else {
+                latest_allowed_term += 8;
+            }
+        }
+        if ((!Term.findOne({ id: term_range.start_term }) || !Term.findOne({ id: term_range.end_term }))
+            &&(term_range.start_term > latest_allowed_term || term_range.end_term > latest_allowed_term)) {
             console.log("[updateSchedule_MajorPlan] - Invalid update: No such term: [start: " + term_range.start_term + "] " + "[end: " + term_range.end_term + "]");
             throw new Meteor.Error(306, "Invalid update: No such term");
         };
@@ -868,22 +984,37 @@ Meteor.methods({
             }
         }
 
+        const futureList = [];
         for (let schedule of scheduleList) {
-            const schedule_obj = {
-                term: schedule.term,
-                courseList: schedule.chosenCourse,
-                userId: this.userId,
-                plan: current_plan_id
-            }
-            if (SchedulesPnc.findOne({ plan: current_plan_id, term: schedule.term })) {
-                SchedulesPnc.update({ plan: current_plan_id, term: schedule.term }, { $set: { courseList: schedule.chosenCourse, plan: current_plan_id } });
+            if(Term.findOne({id: schedule.term})){
+                const schedule_obj = {
+                    term: schedule.term,
+                    courseList: schedule.chosenCourse,
+                    userId: this.userId,
+                    plan: current_plan_id
+                }
+                if (SchedulesPnc.findOne({ plan: current_plan_id, term: schedule.term })) {
+                    SchedulesPnc.update({ plan: current_plan_id, term: schedule.term }, { $set: { courseList: schedule.chosenCourse, plan: current_plan_id } });
+                } else {
+                    const new_schedule_id = SchedulesPnc.insert(schedule_obj);
+                    MajorPlansPnc.update(current_plan_id, { $push: { scheduleList: new_schedule_id } });
+                }
             } else {
-                const new_schedule_id = SchedulesPnc.insert(schedule_obj);
-                MajorPlansPnc.update(current_plan_id, { $push: { scheduleList: new_schedule_id } });
-            }
+                const future_obj = {
+                    term: schedule.term,
+                    courseList: schedule.chosenCourse
+                }
+
+                futureList.push(future_obj);
+            } 
         };
 
         MajorPlansPnc.update(current_plan_id, { $set: { start_term: term_range.start_term, end_term: term_range.end_term } });
+        if(futureList.length != 0){
+            MajorPlansPnc.update(current_plan_id, {$set: {futureList: futureList}})
+        } else {
+            MajorPlansPnc.update(current_plan_id, {$unset: {futureList: null}})
+        }
     },
 
     saveSchedule: function(scheduleList) {
@@ -940,6 +1071,16 @@ Meteor.methods({
     },
 
     checkValidPlan: function(term_range, major_id){
+        const latest_term = parseInt(Term.find().fetch()[Term.find().count() - 1].id);
+        let latest_allowed_term = latest_term;
+        for(let i = 0; i < server_allowed_terms; i++){
+            if(("" + latest_allowed_term).charAt(3) == 1){
+                latest_allowed_term += 2;
+            } else {
+                latest_allowed_term += 8;
+            }
+        }
+
         let regexCode = new RegExp("-" + major_id + "$", "i");
         if (!Subject.findOne({ id: regexCode })) {
             console.log("[checkValidPlan] - No such major: " + major_id);
@@ -951,7 +1092,8 @@ Meteor.methods({
             throw new Meteor.Error(132, "Incomplete term");
         };
 
-        if (!Term.findOne({ id: term_range.start_term }) || !Term.findOne({ id: term_range.end_term })) {
+        if ((!Term.findOne({ id: term_range.start_term }) || !Term.findOne({ id: term_range.end_term }))
+             &&(term_range.start_term > latest_allowed_term || term_range.end_term > latest_allowed_term)) {
             console.log("[checkValidPlan] - No such term: [start: " + term_range.start_term + "] " + "[end: " + term_range.end_term + "]");
             throw new Meteor.Error(106, "No such term");
         };
@@ -1062,6 +1204,495 @@ Meteor.methods({
 
         const userId = MajorPlansPnc.findOne(plan_id).userId;
         return UserProfilePnc.findOne({userId: userId}).userName;
+    },
+
+    test: function(){
+        return;//prevent unauthorized call
+        //this saves all the distinct cont id's
+        const course_list = Course.find().fetch(); //array of all courses
+        const cont_id_list = [];
+        for (let course of course_list) {
+            let isInside = false;
+            for (let id of cont_id_list) {
+                if (id === course.continuity_id) {
+                    isInside = true;
+                    break
+                }
+            }
+            if (!isInside) {
+                cont_id_list.push(course.continuity_id);
+            }
+        }
+
+        //this serves as a global dictionary for the algorithm
+        const homeDict = {};
+
+        function runAlgorithm() {
+            console.log("started")
+            const test_analysis = {};
+            homeDict["test_analysis"] = test_analysis;
+            const cont_list = cont_id_list;
+            CoursePrediction.remove({});
+            var count = 0;
+            for (let id of cont_list) {
+                const continuity_id = id;
+                const theHistory = Course.find({continuity_id: continuity_id,}).fetch();
+                var historyTermCodes = _.pluck(theHistory, "term");
+
+                historyTermCodes.sort().reverse();
+
+                //exclude summer
+                var historyTermNames = _.map(historyTermCodes, function(code_rec){
+                    const code = code_rec.replace(/3$/, 2);
+                    return code_rec + ": " + Term.findOne({id:code_rec}).name + " - " + (parseInt((2 * (code.substring(0, 3) - 104)) + parseInt((code.substring(3) - 1))));
+                })
+
+                homeDict[id + "courseOfferings"] = historyTermNames.reverse();
+                prediction(id);
+                
+                count++;
+                if (count == cont_list.length) {
+                    console.log("done!");
+                    //result();
+                }
+            }
+        }
+
+        function result() {
+            const result = homeDict["test_analysis"];
+            const rec = { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0, 10: 0 }
+
+            let size = 0;
+            let sum = 0;
+            for (let r in result) {
+                size++;
+                sum = sum + result[r];
+                if (result[r] == 1) {
+                    rec[10] = rec[10] + 1;
+                } else if (result[r] >= 0.9) {
+                    rec[9] = rec[9] + 1;
+                } else if (result[r] >= 0.8) {
+                    rec[8] = rec[8] + 1;
+                } else if (result[r] >= 0.7) {
+                    rec[7] = rec[7] + 1;
+                } else if (result[r] >= 0.6) {
+                    rec[6] = rec[6] + 1;
+                } else if (result[r] >= 0.5) {
+                    rec[5] = rec[5] + 1;
+                } else if (result[r] >= 0.4) {
+                    rec[4] = rec[4] + 1;
+                } else if (result[r] >= 0.3) {
+                    rec[3] = rec[3] + 1;
+                } else if (result[r] >= 0.2) {
+                    rec[2] = rec[2] + 1;
+                } else if (result[r] >= 0.1) {
+                    rec[1] = rec[1] + 1;
+                } else {
+                    rec[0] = rec[0] + 1;
+                }
+            }
+            const average = sum / size;
+
+            let d_sum = 0;
+            for (let r in result) {
+                d_sum = d_sum + (result[r] - average) * (result[r] - average);
+            }
+            const std = Math.sqrt(d_sum / size).toFixed(2);
+
+            console.log("Average accuracy: " + average.toFixed(2) * 100 + "%");
+            console.log("STD: " + std);
+            console.log("Distribution:")
+            for (let r in rec) {
+                console.log(">=" + r * 10 + "%: " + rec[r]);
+            }
+        }
+
+        function prediction(continuity_id) {
+            //These are the configurations for the prediction
+            const limit_line_u = 0.8;
+            const limit_line_d = 0.2;
+            const term_now = now_term; //1133;
+            const weight_percent = 0.75;
+            const mixed_percent = 0.9;
+            const allowed_terms = 6;
+            const latest_term_code = Term.find().fetch()[Term.find().count() - 1].id.replace(/3$/, 2);
+            const latest_available_term_index = (parseInt((2 * (latest_term_code.substring(0, 3) - 104)) + parseInt((latest_term_code.substring(3) - 1))));//20;
+
+
+            function weight(obj) {
+                //return Math.pow(2, obj);
+                //return obj * obj * obj;
+                return Math.pow(obj, 5);
+                //return obj;
+            }
+
+            const cont_list = cont_id_list
+            const result_array = [];
+            const result_obj = {};
+            const his_array = homeDict[continuity_id + "courseOfferings"];
+            const his_array_rec = homeDict[continuity_id + "courseOfferings"];
+            homeDict[continuity_id + "courseOfferings"] = null;
+            const course_obj = Course.findOne({ continuity_id: continuity_id });
+            const course_description = course_obj.description;
+
+            for (let i = 0; i < his_array.length; i++) {
+                const current_term_num = parseInt(his_array[i].substring(0, his_array[i].indexOf(":")));
+                if (his_array[i].includes("Summer") || current_term_num > term_now) {
+                    his_array.splice(i, 1);
+                    i--;
+                }
+            }
+
+            //build a record for checking
+            for (let i = 0; i < his_array_rec.length; i++) {
+                const current_term_num = parseInt(his_array_rec[i].substring(0, his_array_rec[i].indexOf(":")));
+                if (his_array_rec[i].includes("Summer")) {
+                    his_array_rec.splice(i, 1);
+                    i--;
+                }
+            }
+
+            const his_rec = {};
+            for (let term of his_array_rec) {
+                const term_num = term.substring(0, term.indexOf(":"));
+                his_rec[term_num] = 1;
+            }
+
+            if (his_array.length <= 1) {
+                //return [{text:"xxxxxxUnpredictable", color:"red"}];
+                //console.log("Not enough history");
+                return;
+            }
+
+            let total = 0;
+            for (let i = 1; i < his_array.length; i++) {
+                const current_index = his_array[i].substring(his_array[i].lastIndexOf(" "));
+                const previous_index = his_array[i - 1].substring(his_array[i - 1].lastIndexOf(" "));
+                const index_difference = current_index - previous_index;
+                if (!result_obj[index_difference]) {
+                    result_obj[index_difference] = 1;
+                } else {
+                    result_obj[index_difference] = result_obj[index_difference] + 1;
+                }
+                total = total + 1;
+            }
+
+            //generate weight: indexes that repeat the most will have much higher weight
+            let difference_number = 0;
+            let max_index_num = -1;
+            let if_need_check = false;
+            for (let dif in result_obj) {
+                const current_number = result_obj[dif];
+                if (current_number >= max_index_num) {
+                    max_index_num = current_number;
+                }
+                const weighted_number = weight(result_obj[dif]); //Math.pow(2, result_obj[dif]);
+                result_obj[dif] = weighted_number;
+                total = total - current_number + weighted_number;
+            }
+
+            //take into account the course description
+
+            if (course_description.includes("Usually offered every semester")) {
+                const current_number = result_obj["1"]
+                if (current_number) {
+                    const current_p = current_number / total;
+                    if (current_p >= (1 - weight_percent)) {
+                        result_obj["1"] = Math.round((mixed_percent / (1 - mixed_percent)) * total);
+                    } else {
+                        result_obj["1"] = Math.round((weight_percent / (1 - weight_percent)) * (total - current_number));
+                    }
+                    total = total - current_number + result_obj["1"];
+                } else {
+                    result_obj["1"] = Math.round((weight_percent / (1 - weight_percent)) * total);
+                    total += result_obj["1"];
+                }
+            } else if (course_description.includes("Usually offered every year")) {
+                const current_number = result_obj["2"]
+                if (current_number) {
+                    const current_p = current_number / total;
+                    if (current_p >= (1 - weight_percent)) {
+                        result_obj["2"] = Math.round((mixed_percent / (1 - mixed_percent)) * total);
+                    } else {
+                        result_obj["2"] = Math.round((weight_percent / (1 - weight_percent)) * (total - current_number));
+                    }
+                    total = total - current_number + result_obj["2"];
+                } else {
+                    result_obj["2"] = Math.round((weight_percent / (1 - weight_percent)) * total);
+                    total += result_obj["2"];
+                }
+            } else if (course_description.includes("Usually offered every second year")) {
+                const current_number = result_obj["4"]
+                if (current_number) {
+                    const current_p = current_number / total;
+                    if (current_p >= (1 - weight_percent)) {
+                        result_obj["4"] = Math.round((mixed_percent / (1 - mixed_percent)) * total);
+                    } else {
+                        result_obj["4"] = Math.round((weight_percent / (1 - weight_percent)) * (total - current_number));
+                    }
+                    total = total - current_number + result_obj["4"];
+                } else {
+                    result_obj["4"] = Math.round((weight_percent / (1 - weight_percent)) * total);
+                    total += result_obj["4"];
+                }
+            } else if (course_description.includes("Usually offered every third year")) {
+                const current_number = result_obj["6"]
+                if (current_number) {
+                    const current_p = current_number / total;
+                    if (current_p >= (1 - weight_percent)) {
+                        result_obj["6"] = Math.round((mixed_percent / (1 - mixed_percent)) * total);
+                    } else {
+                        result_obj["6"] = Math.round((weight_percent / (1 - weight_percent)) * (total - current_number));
+                    }
+                    total = total - current_number + result_obj["6"];
+                } else {
+                    result_obj["6"] = Math.round((weight_percent / (1 - weight_percent)) * total);
+                    total += result_obj["6"];
+                }
+            } else {
+                if_need_check = true;
+            }
+
+            const dif_p = {};
+            for (let indexD in result_obj) {
+                dif_p[indexD] = result_obj[indexD] / total;
+            }
+
+            //check the difference between the number of index differences and hitory array size
+            //if it's very unstable, return unpredictable
+            if (if_need_check && difference_number > his_array.length / 2 && max_index_num < Math.floor(his_array.length / 2)) {
+                console.log("Unstable");
+                return;
+            }
+
+            const term_p = {}
+            //console.log(dif_p);
+            let dif_p_size = 0;
+            for(let dif in dif_p){
+                dif_p_size++;
+            }
+            //console.log(dif_p_size)
+            const term_rec = [];
+            let start_index = 0;
+            let end_index = 0;
+            let if_continue = true;
+            let i = 1;
+            const current_term_index = parseInt(his_array[his_array.length - 1].substring(his_array[his_array.length - 1].lastIndexOf(" ")));
+            //console.log(current_term_index)
+            const index_difference = latest_available_term_index - current_term_index + allowed_terms;
+            while(if_continue){
+                const check_array = [];
+                if(i == 1){
+                    //save the term differences into the rec array
+                    for(let dif in dif_p){
+                        //compute percentage for the terms
+                        term_p[dif] = dif_p[dif];
+                        if(dif < index_difference){
+                            term_rec.push([dif]);
+                            check_array.push("1");
+                        } 
+                    }
+
+                    end_index = term_rec.length - 1;
+                } else {
+                    //save the term differences into the rec array
+                    for(let dif in dif_p){
+                        for(let j = start_index; j <= end_index; j++){
+                            const current_addition_array = term_rec[j];
+                            const new_addition_array = [];
+                            for(let term_dif of current_addition_array){
+                                new_addition_array.push(parseInt(term_dif));
+                            }
+                            new_addition_array.push(parseInt(dif));
+                            
+                            let term_sum = 0;
+                            let precentage_result = 1;
+                            for(let term_dif of new_addition_array){
+                                term_sum += parseInt(term_dif); 
+                                precentage_result *= dif_p[term_dif];
+                            }
+
+                            if(!term_p[term_sum]){
+                                term_p[term_sum] = precentage_result;
+                            } else {
+                                term_p[term_sum] += precentage_result;
+                            }
+
+                            if(term_sum < index_difference){
+                                term_rec.push(new_addition_array);
+                                check_array.push("1");
+                            }
+                        }
+                    }
+
+                    start_index = end_index + 1;
+                    end_index = term_rec.length - 1;
+                }
+
+                if(check_array.length == 0){
+                    if_continue = false;
+                    break;
+                } else {
+                    i++;
+                }
+                //console.log(term_rec);
+                
+            }
+            //console.log(dif_p)
+            //console.log(term_p);
+            //console.log("term: " + parseInt(his_array[his_array.length - 1].substring(his_array[his_array.length - 1].lastIndexOf(" "))))
+            //console.log("-----")
+            /*
+            function termPath(n, current_percentage) {
+                comp_times++;
+                if (n >= allowed_terms) { //if the current semester is larger than 5 years (10 semesters) ahead of the real current term
+                    //it'll stop here
+                    //save the term and percentage first
+                    if (!term_p[n]) {
+                        term_p[n] = current_percentage;
+                    } else {
+                        term_p[n] = term_p[n] + current_percentage;
+                    }
+                } else { //if the current semester is included in the 5 years (10 semesters)
+                    if (n == 0) { //for the first time
+                        for (let dif in dif_p) {
+                            const new_term = parseInt(dif) + n; //0 + dif, which is the next term
+                            const new_percentage = dif_p[dif]; //get the initial percentage of the term
+                            termPath(new_term, new_percentage);
+                        }
+                    } else {
+                        //save the term and percentage first
+                        if (!term_p[n]) {
+                            term_p[n] = current_percentage;
+                        } else {
+                            term_p[n] = term_p[n] + current_percentage;
+                        }
+
+                        //then go to new ones
+                        const current_term = n;
+                        for (let dif in dif_p) {
+                            const next_term = parseInt(dif) + n;
+                            const next_percentage = dif_p[dif] * current_percentage;
+                            termPath(next_term, next_percentage);
+                        }
+                    }
+
+                }
+            };
+
+            termPath(0, 0);
+            */
+
+            let result = [];
+            for (let i = 1; i <= index_difference; i++) {
+                const term = i;
+                if (!term_p[term]) {
+                    term_p[term] = 0;
+                }
+
+                const f_term_index = current_term_index + parseInt(term);
+                let f_term_id;
+                if (f_term_index % 2 == 0) { //if the index is even
+                    f_term_id = ((f_term_index / 2) + 104) * 10 + 1;
+                } else { //if the index is odd
+                    f_term_id = (((f_term_index - 1) / 2) + 104) * 10 + 3;
+                }
+
+                let termName;
+                if ((f_term_id + "").charAt(3) == 1) { //for spring semester
+                    termName = "Spring " + ((parseInt((f_term_id + "").substring(0, 3)) - 104) + 2004) + " - ";
+                } else { //for fall semester
+                    termName = "Fall " + ((parseInt((f_term_id + "").substring(0, 3)) - 104) + 2004) + " - ";
+                }
+
+                let possibility_text = "";
+                let color;
+                if (term_p[term] >= 0.9) {
+                    possibility_text = "Highly possible";
+                    color = "blue";
+                } else if (term_p[term] >= 0.75) {
+                    possibility_text = "Possible";
+                } else if (term_p[term] >= 0.5) {
+                    possibility_text = "Netural";
+                } else if (term_p[term] >= 0.3) {
+                    possibility_text = "Not likely";
+                } else if (term_p[term] >= 0.1) {
+                    possibility_text = "Slight chance";
+                } else {
+                    possibility_text = "Almost no chance";
+                    color = "red";
+                }
+
+                if (i > index_difference - allowed_terms) { //predict 10 semesters from the latest one we have
+                    result.push({
+                        text: f_term_id + ": " + termName + possibility_text,
+                        color: color,
+                        percentage: term_p[term],
+                        p_text: possibility_text
+                    });
+                }
+            }
+
+            //insert into the collection
+            const prediction_obj = {
+                course: continuity_id
+            }
+            for (let p of result) {
+                const term = p.text.substring(0, p.text.indexOf(":"));
+                prediction_obj[term] = {
+                    txet: p.p_text,
+                    percentage: p.percentage
+                }
+            }
+            CoursePrediction.insert(prediction_obj);
+
+            const pdct_list = result.sort(function(a, b) {
+                return parseInt(b.text.substring(0, 4)) - parseInt(a.text.substring(0, 4));
+            });
+
+            const result_analysis = { good: 0, bad: 0 }
+            for (let term of pdct_list) {
+                const f_term_num = term.text.substring(0, term.text.indexOf(":"));
+                if (his_rec[f_term_num]) { //if the course is offered in this semester
+                    if (term.percentage > limit_line_u) { //if the prediction possibility is higher than the limit
+                        result_analysis.good = result_analysis.good + 1;
+                    } else {
+                        result_analysis.bad = result_analysis.bad + 1;
+                    }
+                } else {
+                    if (term.percentage < limit_line_d) { //if the prediction possibility is lower than the limit
+                        result_analysis.good = result_analysis.good + 1;
+                    } else {
+                        result_analysis.bad = result_analysis.bad + 1;
+                    }
+                }
+            };
+
+            const result_p = result_analysis.good / (result_analysis.good + result_analysis.bad);
+            const test_analysis = homeDict["test_analysis"];
+            test_analysis[continuity_id] = result_p;
+            homeDict["test_analysis"] = test_analysis;
+        }
+
+        runAlgorithm();
+    },
+
+    getCoursePrediction: function(continuity_id_list){
+        const result = {};
+
+        for(let continuity_id of continuity_id_list){
+            //check if the id is valid
+            const prediction_obj = CoursePrediction.findOne({course: continuity_id});
+
+            if(!prediction_obj){
+                result[continuity_id] = {};
+            } else {
+                delete prediction_obj["course"]
+                result[continuity_id] = prediction_obj;
+            } 
+        }
+        
+        return result;
     },
 });
 
