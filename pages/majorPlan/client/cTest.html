@@ -87,7 +87,7 @@
 
                 {{> calendar dict=dict calendarDict=calendarDict}}
               {{else}}
-                {{#if predictionDataReady}}
+                {{#if predictionDataReady AND hasCourseList}}
                   {{> coursePreview dict=dict calendarDict=calendarDict}} <br>
                 {{else}}
                   <div class="ui active inline loader"></div>
@@ -345,21 +345,41 @@
   <div class="item">
     <a class="title js-title">
       <i class="dropdown icon"></i>
-      {{c.code}}
+      {{#if (noResult c.continuity_id dict masterDict)}}
+        {{#if isFutureTerm}}
+          {{#if na c.continuity_id}}
+            <p style="color:grey">{{c.code}}{{#if inList c.continuity_id}}<i class="checkmark icon pull-right"></i>{{/if}}</p>
+          {{else}}
+            {{#if high c.continuity_id}}
+              <p style="color:blue">{{c.code}}{{#if inList c.continuity_id}}<i class="checkmark icon pull-right"></i>{{/if}}</p>
+            {{else}}
+              {{#if mid c.continuity_id}}
+                {{c.code}}{{#if inList c.continuity_id}}<i class="checkmark icon pull-right"></i>{{/if}}
+              {{else}}
+                <p style="color:orange">{{c.code}}{{#if inList c.continuity_id}}<i class="checkmark icon pull-right"></i>{{/if}}</p>
+              {{/if}}
+            {{/if}}
+          {{/if}}
+        {{else}}
+          <p style="color:grey">{{c.code}}{{#if inList c.continuity_id}}<i class="checkmark icon pull-right"></i>{{/if}}</p>
+        {{/if}}
+      {{else}}
+        <p>{{c.code}}{{#if inList c.continuity_id}}<i class="checkmark icon pull-right"></i>{{/if}}</p>
+      {{/if}}
     </a>
 
     <div class="content">
-      <div class="ui link list">
+      <div class="ui link list" id="sectionList">
         {{#if (hasSectionInfo c.continuity_id dict masterDict)}}
           {{#if (noResult c.continuity_id dict masterDict)}}
             {{#if isFutureTerm}}
-              <a class="item js-add-future-course" cont-id="{{c.continuity_id}}">Chance of offering - {{getPredictionData c.continuity_id masterDict}}</a>
+              <a class="item js-add-future-course" cont-id="{{c.continuity_id}}">Offer chance - {{getPredictionData c.continuity_id masterDict}}<i class="plus icon pull-right"></i></a>
             {{else}}
               Not Available
             {{/if}}
           {{else}}
             {{#each section in (sectionInfo c.continuity_id dict masterDict)}}
-              <a class="item js-add-section" id="{{section.id}}" course-code="{{c.code}}" course-name="{{c.name}}">Section{{section.section}}</a>
+              <a class="item js-add-section" id="{{section.id}}" course-code="{{c.code}}" course-name="{{c.name}}">Section{{section.section}}<i class="plus icon pull-right"></i></a>
               {{#if hasTimes section.times}}
                 {{#each time in section.times}}
                       <p>{{getSectionDays time.days}}: {{convertTime time.start}} {{convertTime time.end}}</p>

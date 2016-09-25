@@ -120,21 +120,41 @@ Template.coursePreview.helpers({
 
     termCourseList: function(term){
     	const masterDict = Template.instance().masterDict;
+        const calendarDict = Template.instance().calendarDict;
     	const courseList = masterDict.get("scheduleList")[term].courseList;
     	const result = [];
         if(!Term.findOne({id: term})){
             const availableCourseList = masterDict.get("fetched_courseList");
             for(let course of courseList){
+                if(calendarDict.get("courseFetchInfo")){
+                    const course_info_obj = calendarDict.get("courseFetchInfo")[course];
+                    if(course_info_obj){
+                        result.push(course_info_obj);
+                        continue;
+                    }
+                }
+
                 for(let course_data_obj of availableCourseList){
                     if(course_data_obj.continuity_id === course){
                         const course_continuity_id = course_data_obj.continuity_id;
                         const course_code = course_data_obj.code;
+                        const course_id = course_data_obj.id;
                         const course_obj = {
                             code: course_code,
                             continuity_id: course,
-                            percentage: masterDict.get("predictionData")[course][term].percentage
+                            course_id: course_id
                         }
                         result.push(course_obj);
+
+                        if(!calendarDict.get("courseFetchInfo")){
+                            const courseFetch_obj = {}
+                            courseFetch_obj[course] = course_obj;
+                            calendarDict.set("courseFetchInfo", courseFetch_obj);
+                        } else {
+                            const currentFetch_obj = calendarDict.get("courseFetchInfo");
+                            currentFetch_obj[course] = course_obj;
+                            calendarDict.set("courseFetchInfo", currentFetch_obj);
+                        }
                         break;
                     }
                 }
@@ -162,8 +182,20 @@ Template.coursePreview.helpers({
         return !Term.findOne({id: term});
     },
 
-    getPercentage:function(percentage){
-        return percentage.toFixed(2) * 100 + "%";
+    getPercentage:function(continuity_id, term){
+        const prediction_obj = CoursePrediction.findOne({course: continuity_id})[term];
+        if(!prediction_obj){
+            return "N/A";
+        }
+        
+        const percentage = prediction_obj.percentage;
+        if(percentage == 1){
+            return "99%"
+        } else if(percentage == 0){
+            return "1%"
+        } else {
+            return percentage.toFixed(2) * 100 + "%";
+        }
     },
 
     sameUser: function(){
@@ -235,7 +267,7 @@ Template.coursePreview.events({
 		//make sure it's not the remove icon gets clicked
 		if(event.target.nodeName === "DIV"){
 			const dict = Template.instance().calendarDict;
-            dict.set("isFutureTerm", false)
+            dict.set("isFutureTerm", false);
 			const term = event.currentTarget.parentElement.parentElement.parentElement.attributes[1].nodeValue;
 			const section_id = event.currentTarget.children[0].attributes[1].nodeValue;
 			const term_schedule = Template.instance().masterDict.get("scheduleList")[term];
@@ -294,10 +326,14 @@ Template.coursePreview.events({
                 }
             }
 
+            if(!courseId){//it's a course in wishlist
+                courseId = calendarDict.get("courseFetchInfo")[course].course_id;
+            }
+
             $('#popup-tab .item').tab(); //this initialize the tabs for the popup
             dict.set("courseId"); //this holds the course id of the current chosen event
             dict.set("courseObj"); //this holds the actual course object for the current chosen event
-            dict.set("sectionObj"); //this holds the actual section object for the current chosen event
+            dict.set("sectionObj"); //this holds the actuazl section object for the current chosen event
             dict.set("majorDetail"); //this holds the major names and notes for the current chosen event
             dict.set("instructorsName"); //this hold the instructor names and emails for the current chosen event
             dict.set("sectionChosen") //this hold the boolean value if this section is decided to take by the user

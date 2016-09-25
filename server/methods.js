@@ -602,6 +602,10 @@ Meteor.methods({
         });
     },
 
+    getCourseCode: function(courseContId){
+        return Course.findOne({continuity_id: courseContId}).code;
+    },
+
 
     //this creates our profile for the current user
     "addUserProfile_Google": function() {
@@ -1312,7 +1316,7 @@ Meteor.methods({
             const allowed_terms = 6;
             const latest_term_code = Term.find().fetch()[Term.find().count() - 1].id.replace(/3$/, 2);
             const latest_available_term_index = (parseInt((2 * (latest_term_code.substring(0, 3) - 104)) + parseInt((latest_term_code.substring(3) - 1))));//20;
-            
+
 
             function weight(obj) {
                 //return Math.pow(2, obj);
@@ -1461,78 +1465,79 @@ Meteor.methods({
             }
 
             const term_p = {}
-
+            //console.log(dif_p);
             let dif_p_size = 0;
             for(let dif in dif_p){
                 dif_p_size++;
             }
+            //console.log(dif_p_size)
             const term_rec = [];
-
-            for(let i = 1; i <= allowed_terms; i++){
+            let start_index = 0;
+            let end_index = 0;
+            let if_continue = true;
+            let i = 1;
+            while(if_continue){
+                const check_array = [];
                 if(i == 1){
                     //save the term differences into the rec array
                     for(let dif in dif_p){
-                        term_rec.push([dif]);
+                        //compute percentage for the terms
+                        term_p[dif] = dif_p[dif];
+                        if(dif < allowed_terms){
+                            term_rec.push([dif]);
+                            check_array.push("1");
+                        } 
                     }
 
-                    //compute the percentage for the terms
-                    for(let addition of term_rec){
-                        if(addition[0] <= allowed_terms){
-                            term_p[i] = dif_p[addition[0]];
-                        }
-                    }
+                    end_index = term_rec.length - 1;
                 } else {
-                    let ending_index;
-                    if(dif_p_size != 1){
-                        ending_index = (Math.pow(dif_p_size, i) - (2 * dif_p_size) + 1) / (dif_p_size - 1);
-                    } else {
-                        ending_index = i - 1;
-                    }
-
-                    let starting_index;
-                    if(i == 2){
-                        starting_index = 0;
-                    } else {
-                        if(dif_p_size != 1){
-                            starting_index = ending_index - Math.pow(dif_p_size, i - 1) + 1;
-                        } else{
-                            starting_index = i - 1;
-                        }   
-                    }
-
                     //save the term differences into the rec array
                     for(let dif in dif_p){
-                        for(let j = starting_index; j <= ending_index; j++){
+                        for(let j = start_index; j <= end_index; j++){
                             const current_addition_array = term_rec[j];
                             const new_addition_array = [];
                             for(let term_dif of current_addition_array){
                                 new_addition_array.push(parseInt(term_dif));
                             }
-
                             new_addition_array.push(parseInt(dif));
-                            term_rec.push(new_addition_array);
-                        }
-                    }
+                            
+                            let term_sum = 0;
+                            let precentage_result = 1;
+                            for(let term_dif of new_addition_array){
+                                term_sum += parseInt(term_dif); 
+                                precentage_result *= dif_p[term_dif];
+                            }
 
-                    //compute the percentage for the terms
-                    for(let j = ending_index + 1; j < term_rec.length; j++){
-                        let current_term = 0;
-                        let precentage_result = 1;
-                        for(let term_dif of term_rec[j]){
-                            current_term += parseInt(term_dif);
-                            precentage_result *= dif_p[term_dif];
-                        }
-
-                        if(current_term <= allowed_terms){
-                            if(!term_p[current_term]){
-                                term_p[current_term] = precentage_result;
+                            if(!term_p[term_sum]){
+                                term_p[term_sum] = precentage_result;
                             } else {
-                                term_p[current_term] += precentage_result;
+                                term_p[term_sum] += precentage_result;
+                            }
+
+                            if(term_sum < allowed_terms){
+                                term_rec.push(new_addition_array);
+                                check_array.push("1");
                             }
                         }
                     }
+
+                    start_index = end_index + 1;
+                    end_index = term_rec.length - 1;
                 }
+
+                if(check_array.length == 0){
+                    if_continue = false;
+                    break;
+                } else {
+                    i++;
+                }
+                //console.log(term_rec);
+                
             }
+            //console.log(dif_p)
+            //console.log(term_p);
+            //console.log("term: " + parseInt(his_array[his_array.length - 1].substring(his_array[his_array.length - 1].lastIndexOf(" "))))
+            //console.log("-----")
             /*
             function termPath(n, current_percentage) {
                 comp_times++;
@@ -1575,6 +1580,7 @@ Meteor.methods({
             */
 
             const current_term_index = parseInt(his_array[his_array.length - 1].substring(his_array[his_array.length - 1].lastIndexOf(" ")));
+            //console.log(current_term_index)
             const index_difference = latest_available_term_index - current_term_index + allowed_terms;
             let result = [];
             for (let i = 1; i <= index_difference; i++) {

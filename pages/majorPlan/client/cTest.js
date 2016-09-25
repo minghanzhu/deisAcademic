@@ -186,9 +186,7 @@ Template.calendarTest.helpers({
                                             return comp_string_a.localeCompare(comp_string_b);
                                         }
                                     });
-
                                     
-
                                     dict.set("fetched_courseList", sorted_result);
                                     dict.set("hasCourseList", true);
                                 }
@@ -838,6 +836,8 @@ Template.calendarTest.events({
     "click .js-add-wishlist": function() {
         const current_status = Template.instance().masterDict.get("includeWishlist");
         Template.instance().masterDict.set("includeWishlist", !current_status);
+        Template.instance().calendarDict.set("sectionInfo");
+        Template.instance().calendarDict.set("courseFetchInfo");
         Template.instance().masterDict.set("hasCourseList", false);
     },
 
@@ -985,11 +985,50 @@ Template.scheduleCourseList.helpers({
 
         //check if the info is already there
         const courseId = masterDict.get("chosenTerm") + "-" + courseContId;
-        if(dict.get("sectionInfo" + courseId)){
-            return;
+        if(dict.get("sectionInfo")){
+            if(dict.get("sectionInfo")[courseId]){
+                return;
+            }
+        }
+        
+
+        let courseList = [];
+        const availableCourseList = Template.instance().masterDict.get("fetched_courseList");
+        const is_calendarView = dict.get("viewCalendar");
+        courseList = [];
+        if(is_calendarView){
+            for (let course of availableCourseList) {
+                let current_term;
+                if (Template.instance().masterDict.get("chosenTerm")) {
+                    current_term = Template.instance().masterDict.get("chosenTerm");
+                } else {
+                    current_term = $(".js-term").val();
+                }
+
+                if (course.id.substring(0, course.id.indexOf("-")) === current_term) {
+                    courseList.push(course);
+                }
+            }
+        } else {
+            //get all distinct courses and make sure they are the newest within the term range
+            //if the terms are all future terms, get only the follwing info using a new meteor call
+            //1. course name
+            //2. course offering prediction
+            //
+            //at the same time, if the user wants to see detailed information, make only course tag 
+            //available using the course data of the newest one in the dict.
+            //and also hide "decide to take button"
+            //
+            //create a new field in major plan object that saves chosen cont_id's for different semesters
+            let currentCourse = "";
+            for (let course of availableCourseList) {
+                if (course.continuity_id !== currentCourse) {
+                    courseList.push(course.continuity_id);
+                    currentCourse = course.continuity_id;
+                }
+            }
         }
 
-        const courseList = masterDict.get("courseList");
         const term_range = {
             start: masterDict.get("planStartSemester"),
             end: masterDict.get("planEndSemester")
@@ -1009,11 +1048,30 @@ Template.scheduleCourseList.helpers({
 
             for(let section_info_obj of result){
                 if(section_info_obj.sections.length == 0){
-                    dict.set("sectionInfo" + section_info_obj.courseId, "NR");
+                    if(!dict.get("sectionInfo")){
+                        const sectionInfo_obj = {};
+                        sectionInfo_obj[section_info_obj.courseId] = "NR";
+                        dict.set("sectionInfo", sectionInfo_obj);
+                    } else {
+                        const current_info_obj = dict.get("sectionInfo");
+                        current_info_obj[section_info_obj.courseId] = "NR";
+                        dict.set("sectionInfo", current_info_obj);
+                    }
                 } else {
-                    dict.set("sectionInfo" + section_info_obj.courseId, section_info_obj.sections.sort(function(a, b){
-                        return a.section - b.section;
-                    }));
+                    dict.set("sectionInfo" + section_info_obj.courseId);
+                    if(!dict.get("sectionInfo")){
+                        const sectionInfo_obj = {};
+                        sectionInfo_obj[section_info_obj.courseId] = section_info_obj.sections.sort(function(a, b){
+                            return a.section - b.section;
+                        });
+                        dict.set("sectionInfo", sectionInfo_obj);
+                    } else {
+                        const current_info_obj = dict.get("sectionInfo");
+                        current_info_obj[section_info_obj.courseId] = section_info_obj.sections.sort(function(a, b){
+                            return a.section - b.section;
+                        });
+                        dict.set("sectionInfo", current_info_obj);
+                    }
                 }
             }
         });
@@ -1022,21 +1080,36 @@ Template.scheduleCourseList.helpers({
     hasSectionInfo: function(courseContId, dict, masterDict) {
         const courseId = masterDict.get("chosenTerm") + "-" + courseContId;
         if(!Term.findOne({id: masterDict.get("chosenTerm")})){
-            dict.set("sectionInfo" + courseId, "NR");
+            if(!dict.get("sectionInfo")){
+                const sectionInfo_obj = {};
+                sectionInfo_obj[courseId] = "NR";
+                dict.set("sectionInfo", sectionInfo_obj);
+            } else {
+                const current_info_obj = dict.get("sectionInfo");
+                current_info_obj[courseId] = "NR";
+                dict.set("sectionInfo", current_info_obj);
+            }
             return true;
         } else {
-            return !!dict.get("sectionInfo" + courseId);
+            if(!dict.get("sectionInfo")){
+                return false;
+            } else {
+                return !!dict.get("sectionInfo")[courseId];
+            }
         }
     },
 
     sectionInfo: function(courseContId, dict, masterDict) {
         const courseId = masterDict.get("chosenTerm") + "-" + courseContId;
-        return dict.get("sectionInfo" + courseId);
+        return dict.get("sectionInfo")[courseId];
     },
 
     noResult: function(courseContId, dict, masterDict) {
         const courseId = masterDict.get("chosenTerm") + "-" + courseContId;
-        return dict.get("sectionInfo" + courseId) === "NR";
+        if(!dict.get("sectionInfo")){
+            return true;
+        }
+        return dict.get("sectionInfo")[courseId] === "NR";
     },
 
     hasTimes: function(times) {
@@ -1080,11 +1153,17 @@ Template.scheduleCourseList.helpers({
 
     getPredictionData: function(continuity_id, masterDict){
         const term = masterDict.get("chosenTerm");
-        const prediction_obj = masterDict.get("predictionData")[continuity_id][term];
+        const prediction_obj = CoursePrediction.findOne({course: continuity_id})[term];
         if(!prediction_obj){
             return "N/A";
         } else {
-            return prediction_obj.percentage * 100 + "%";
+            if(prediction_obj.percentage == 1){
+                return "99%"
+            } else if(prediction_obj.percentage == 0){
+                return "1%"
+            } else {
+                return prediction_obj.percentage.toFixed(2) * 100 + "%";
+            }
         }       
     },
 
@@ -1094,6 +1173,35 @@ Template.scheduleCourseList.helpers({
         const end_term = Template.instance().masterDict.get("chosenTerm");
 
         return end_term > latest_term && end_term <= (latest_term + 30);
+    },
+
+    high: function(continuity_id){
+        const term = Template.instance().masterDict.get("chosenTerm");
+        const percentage = CoursePrediction.findOne({course: continuity_id})[term].percentage;
+        return percentage >= 0.85;
+    },
+
+    mid: function(continuity_id){
+        const term = Template.instance().masterDict.get("chosenTerm");
+        const percentage = CoursePrediction.findOne({course: continuity_id})[term].percentage;
+        return percentage < 0.85 && percentage > 0.2;
+    },
+
+    na: function(continuity_id){
+        return !CoursePrediction.findOne({course: continuity_id});
+    },
+
+    inList: function(continuity_id){
+        const scheduleList = Template.instance().masterDict.get("scheduleList");
+        for(let term in scheduleList){
+            for(let course of scheduleList[term].courseList){
+                if(course === continuity_id){
+                    return true;
+                }
+            }
+        }
+        
+        return false;
     },
 })
 
