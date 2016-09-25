@@ -521,6 +521,46 @@ Meteor.methods({
         return result;
     },
 
+    getSections_schedule: function(section_id_list, term_range) {
+        const result = [];
+        const term_id_list = [];
+        for(let term of Term.find().fetch()){
+            if(term.id <= term_range.end && term.id >= term_range.start){
+                term_id_list.push(term.id);
+            }
+        }
+        console.log(term_id_list)
+        console.log(section_id_list)
+        const courseContIdList = [];
+        for(let section_id of section_id_list){
+            const course_id = Section.findOne({id: section_id}).course;
+            const cont_id = Course.findOne({id: course_id}).continuity_id;
+            if(_.indexOf(courseContIdList, cont_id) == -1){
+                courseContIdList.push(cont_id)
+            }
+        }
+        console.log(courseContIdList)
+        for(let term_id of term_id_list){
+            for(let continuity_id of courseContIdList){
+                const courseId = term_id + "-" + continuity_id;
+                const section_info_obj = {
+                    sections: Section.find({ course: courseId },{
+                        fields: {
+                            _id: 0,
+                            type: 0,
+                            comment: 0,
+                            waiting: 0,
+                        }
+                    }).fetch(),
+                    courseId: courseId
+                }
+                result.push(section_info_obj);
+            }
+        }
+
+        return result;
+    },
+
     //takes a section id and returns the section object
     getSection: function(sectionId) {
         return Section.findOne({ id: sectionId }, {
@@ -940,22 +980,37 @@ Meteor.methods({
             }
         }
 
+        const futureList = [];
         for (let schedule of scheduleList) {
-            const schedule_obj = {
-                term: schedule.term,
-                courseList: schedule.chosenCourse,
-                userId: this.userId,
-                plan: current_plan_id
-            }
-            if (SchedulesPnc.findOne({ plan: current_plan_id, term: schedule.term })) {
-                SchedulesPnc.update({ plan: current_plan_id, term: schedule.term }, { $set: { courseList: schedule.chosenCourse, plan: current_plan_id } });
+            if(Term.findOne({id: schedule.term})){
+                const schedule_obj = {
+                    term: schedule.term,
+                    courseList: schedule.chosenCourse,
+                    userId: this.userId,
+                    plan: current_plan_id
+                }
+                if (SchedulesPnc.findOne({ plan: current_plan_id, term: schedule.term })) {
+                    SchedulesPnc.update({ plan: current_plan_id, term: schedule.term }, { $set: { courseList: schedule.chosenCourse, plan: current_plan_id } });
+                } else {
+                    const new_schedule_id = SchedulesPnc.insert(schedule_obj);
+                    MajorPlansPnc.update(current_plan_id, { $push: { scheduleList: new_schedule_id } });
+                }
             } else {
-                const new_schedule_id = SchedulesPnc.insert(schedule_obj);
-                MajorPlansPnc.update(current_plan_id, { $push: { scheduleList: new_schedule_id } });
-            }
+                const future_obj = {
+                    term: schedule.term,
+                    courseList: schedule.chosenCourse
+                }
+
+                futureList.push(future_obj);
+            } 
         };
 
         MajorPlansPnc.update(current_plan_id, { $set: { start_term: term_range.start_term, end_term: term_range.end_term } });
+        if(futureList.length != 0){
+            MajorPlansPnc.update(current_plan_id, {$set: {futureList: futureList}})
+        } else {
+            MajorPlansPnc.update(current_plan_id, {$unset: {futureList: null}})
+        }
     },
 
     saveSchedule: function(scheduleList) {

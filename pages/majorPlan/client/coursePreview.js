@@ -165,6 +165,18 @@ Template.coursePreview.helpers({
     getPercentage:function(percentage){
         return percentage.toFixed(2) * 100 + "%";
     },
+
+    sameUser: function(){
+        if(!MajorPlansPnc.findOne()){
+            return false;
+        }
+        
+        return MajorPlansPnc.findOne().userId === Meteor.userId();
+    },
+
+    isNewPlan: function(){
+        return !Template.instance().masterDict.get("isModify");
+    },
 })
 
 Template.coursePreview.events({

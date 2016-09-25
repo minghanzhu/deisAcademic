@@ -15,7 +15,13 @@
                             <div class="item js-view-future-detail" cont-id="{{course.continuity_id}}">
                                 <div class="header">
                                     {{course.code}}
-                                    <i class="remove icon pull-right js-remove-future-course" cont-id="{{course.continuity_id}}" term="{{term.id}}"></i>
+                                    {{#if isNewPlan}}
+                                        <i class="remove icon pull-right js-remove-future-course" cont-id="{{course.continuity_id}}" term="{{term.id}}"></i>
+                                    {{else}}
+                                        {{#if currentUser AND sameUser}}
+                                            <i class="remove icon pull-right js-remove-future-course" cont-id="{{course.continuity_id}}" term="{{term.id}}"></i>
+                                        {{/if}}
+                                    {{/if}}   
                                 </div>
                                 Chance - {{getPercentage course.percentage}}
                             </div>
@@ -23,7 +29,13 @@
                             <div class="item js-view-detail">
                                 <div class="header" section-id="{{course.section_id}}">
                                     {{course.code}}
-                                    <i class="remove icon pull-right js-remove-course" section-id="{{course.section_id}}" term="{{term.id}}"></i>
+                                    {{#if isNewPlan}}
+                                        <i class="remove icon pull-right js-remove-course" section-id="{{course.section_id}}" term="{{term.id}}"></i>
+                                    {{else}}
+                                        {{#if currentUser AND sameUser}}
+                                            <i class="remove icon pull-right js-remove-course" section-id="{{course.section_id}}" term="{{term.id}}"></i>
+                                        {{/if}}
+                                    {{/if}}
                                 </div>
                                 Section {{course.section_obj.section}}
                             </div>
@@ -38,16 +50,18 @@
                 <div class="ui checkbox" id="{{term.id}}">
                     <input type="checkbox">
                 </div>
-                <div class="ui dropdown pull-right">
-                    <i class="ellipsis horizontal icon js-termCard-menu"></i>
-                    <div class="menu">
-                        <a class="item js-clear-termCourse">Clear</a>
-                        {{#if isFutureTerm term.id}}
-                        {{else}}
-                            <a class="item js-view-termCourse">View in calendar</a>
-                        {{/if}}
+                {{#if currentUser AND sameUser}}
+                    <div class="ui dropdown pull-right">
+                        <i class="ellipsis horizontal icon js-termCard-menu"></i>
+                        <div class="menu">
+                            <a class="item js-clear-termCourse">Clear</a>
+                            {{#if isFutureTerm term.id}}
+                            {{else}}
+                                <a class="item js-view-termCourse">View in calendar</a>
+                            {{/if}}
+                        </div>
                     </div>
-                </div>
+                {{/if}}
             </div>
         </div>
         {{/each}}

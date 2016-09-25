@@ -7,6 +7,7 @@ Template.calendarTest.onCreated(function() {
     if (!this.data["dict"].get("scheduleList")) {
         this.data["dict"].set("scheduleList", {});
     } 
+
 })
 
 Template.calendarTest.onRendered(function() {
@@ -460,6 +461,31 @@ Template.calendarTest.helpers({
             $('#popup-tab .item').tab();
         }, 400);
     },
+
+    sameUser: function(){
+        if(!MajorPlansPnc.findOne()){
+            return false;
+        }
+        return MajorPlansPnc.findOne().userId === Meteor.userId();
+    },
+
+    isNewPlan: function(){
+        return !Template.instance().masterDict.get("isModify");
+    },
+
+    getUsername: function(){
+        const plan_id = MajorPlansPnc.findOne()._id;
+        const dict = Template.instance().masterDict;
+        Meteor.call("getUsername", plan_id, function(err, result){
+            if(err){
+                return "Unknown user"
+            }
+
+            dict.set("username", result);
+        })
+
+        return dict.get("username");
+    },
 })
 
 Template.calendarTest.events({
@@ -685,29 +711,126 @@ Template.calendarTest.events({
         })
     },
 
+    "click .js-update-plan": function() {
+        $(".js-save-plan").attr("class", "ui loading disabled button js-save-plan");
+        $(".js-delete-plan").attr("class", "ui disabled red button js-delete-plan pull-right");
+        $(".js-change-course").attr("class", "ui disabled button js-change-course");
+        const is_calendarView = Template.instance().data["dict"].get("viewCalendar");
+        const current_plan_id = Router.current().params._id;
+        if(is_calendarView){
+            //save the current term's schedule to the dict
+            const current_term = $(".js-term").val() || Template.instance().masterDict.get("chosenTerm");
+            Template.instance().masterDict.set("chosenTerm", current_term);
+            const current_schedule_sources = $("#calendar").fullCalendar("getEventSources");
+            //this removes all the additional properties created by fullCalendar
+            const current_cleaned_sources = [];
+            for (let source of current_schedule_sources) {
+                const cleaned_source = {
+                    events: source.origArray,
+                    id: source.id,
+                    chosen: source.chosen
+                };
+
+                current_cleaned_sources.push(cleaned_source);
+            }
+            const current_schedule_list = Template.instance().masterDict.get("scheduleList");
+            current_schedule_list[current_term] = {
+                term: current_term,
+                courseList: current_cleaned_sources
+            };
+            Template.instance().masterDict.set("scheduleList", current_schedule_list);
+        }
+        
+        ////////////////////////////////////////////
+
+        //turn the dict data into user data to save
+        const masterDict = Template.instance().masterDict;
+        const major_code = masterDict.get("chosenMajor");
+        const availableCourseList = masterDict.get("courseList");
+        const major_plan_object = {
+            majorId: major_code,
+            chosenCourse: availableCourseList,
+        }
+
+        //this gets the current saved schedule list
+        //{"<term>":{term:"<term>",courseList:[<courses>]}}
+        const final_schedule_list = Template.instance().masterDict.get("scheduleList");
+        const schedule_list = [];
+        for (let term in final_schedule_list) { //access each {term="<term>", courseList:[<courses>]}
+            const chosenCourse = final_schedule_list[term].courseList;
+
+            if(!Term.findOne({id: term})){
+                const schedule_obj = {
+                    term: term,
+                    chosenCourse: chosenCourse
+                }
+                schedule_list.push(schedule_obj);
+            } else {
+                const user_schedule_array = [];
+                
+                for (let source of chosenCourse) {
+                    const section_obj = {
+                        section_id: source.id,
+                        chosen: source.chosen
+                    }
+                    user_schedule_array.push(section_obj); //only save sections id's for each chosen course
+                }
+                const schedule_obj = {
+                    term: term,
+                    chosenCourse: user_schedule_array
+                }
+                schedule_list.push(schedule_obj);
+            }   
+        }
+        //[{term:<term>, courseList:[{}]}]
+        const start_semester = Template.instance().masterDict.get("planStartSemester");
+        const end_semester = Template.instance().masterDict.get("planEndSemester");
+        const term_range = {
+            start_term: start_semester,
+            end_term: end_semester
+        };
+
+        Meteor.call("updateSchedule_MajorPlan", schedule_list, major_code, availableCourseList, current_plan_id, term_range, function(err) {
+            if (err) {
+                window.alert(err.message);
+                $(".js-save-plan").attr("class", "ui primary button js-save-plan");
+                $(".js-delete-plan").attr("class", "ui red button js-delete-plan pull-right");
+                $(".js-change-course").attr("class", "ui button js-change-course");
+                return;
+            }
+
+            Router.go('/myMajorPlan');
+        });
+    },
+
     "click .js-change-course": function(event) {
         event.preventDefault();
-        //save the current term's schedule to the dict
-        const current_term = $(".js-term").val();
-        Template.instance().masterDict.set("chosenTerm", $(".js-term").val());
-        const current_schedule_sources = $("#calendar").fullCalendar("getEventSources");
-        //this removes all the additional properties created by fullCalendar
-        const current_cleaned_sources = [];
-        for (let source of current_schedule_sources) {
-            const cleaned_source = {
-                events: source.origArray,
-                id: source.id,
-                chosen: source.chosen
-            };
+        const is_calendarView = Template.instance().data["dict"].get("viewCalendar");
 
-            current_cleaned_sources.push(cleaned_source);
+        if(is_calendarView){
+            //save the current term's schedule to the dict
+            const current_term = $(".js-term").val();
+            Template.instance().masterDict.set("chosenTerm", $(".js-term").val());
+            const current_schedule_sources = $("#calendar").fullCalendar("getEventSources");
+            //this removes all the additional properties created by fullCalendar
+            const current_cleaned_sources = [];
+            for (let source of current_schedule_sources) {
+                const cleaned_source = {
+                    events: source.origArray,
+                    id: source.id,
+                    chosen: source.chosen
+                };
+
+                current_cleaned_sources.push(cleaned_source);
+            }
+            const current_schedule_list = Template.instance().masterDict.get("scheduleList");
+            current_schedule_list[current_term] = {
+                term: current_term,
+                courseList: current_cleaned_sources
+            };
+            Template.instance().masterDict.set("scheduleList", current_schedule_list);
         }
-        const current_schedule_list = Template.instance().masterDict.get("scheduleList");
-        current_schedule_list[current_term] = {
-            term: current_term,
-            courseList: current_cleaned_sources
-        };
-        Template.instance().masterDict.set("scheduleList", current_schedule_list);
+        
         //then go back to the previous page
         Template.instance().masterDict.set("clickedChange", true);
     },
@@ -799,7 +922,39 @@ Template.calendarTest.events({
     "click .js-show-dict": function(event){
         event.preventDefault();
         console.log(Template.instance().masterDict);
-    }
+        console.log(Template.instance().calendarDict)
+    },
+
+    "click .js-delete-plan": function(){
+        const dict = Template.instance().calendarDict;
+        //this is the first click
+        if(!Template.instance().calendarDict.get("deleteClicked")){
+            Template.instance().calendarDict.set("deleteClicked", true);
+            $('.js-delete-plan').popup({
+                content: "Click again to delete this plan",
+                position: 'right center',
+            });
+            $('.js-delete-plan').popup('show');
+        } else {//this is the second click
+            $(".js-delete-plan").attr("class", "ui loading disabled red button js-delete-plan pull-right");
+            $(".js-save-plan").attr("class", "ui disabled button js-save-plan");
+            $(".js-change-course").attr("class", "ui disabled button js-change-course");
+            const current_plan_id = Router.current().params._id;
+            
+            Meteor.call("deletePlan", current_plan_id, function(err, result){
+                if(err){
+                    window.alert(err.message);
+                    $(".js-delete-plan").attr("class", "ui red button js-delete-plan pull-right");
+                    $(".js-save-plan").attr("class", "ui primary button js-save-plan");
+                    $(".js-change-course").attr("class", "ui button js-change-course");
+                    return;
+                }
+                
+                dict.set("deleteClicked", false);
+                Router.go("/myMajorPlan");
+            })   
+        }
+    },
 })
 
 Template.scheduleCourseList.onRendered(function() {

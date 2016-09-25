@@ -28,7 +28,7 @@
 				  {{#if hasCourseList}}
             <div class="ui vertical accordion menu">
               {{#each course in getCourseList}}
-                  {{> semesterScheduleCourseList c=course dict=calendarDict masterDict=dict}}
+                  {{> semesterScheduleCourseList c=course dict=calendarDict masterDict=dict index=@index}}
               {{/each}}
             </div>
   				{{else}}
@@ -191,7 +191,7 @@
             {{/each}}
           {{/if}}
         {{else}}
-          {{getSections c.continuity_id dict masterDict}}
+          {{getSections c.continuity_id dict masterDict index}}
           <div class="ui active inline loader"></div>
         {{/if}}
       </div>

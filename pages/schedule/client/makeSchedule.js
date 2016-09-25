@@ -693,24 +693,41 @@ Template.semesterScheduleCourseList.helpers({
         Template.instance().masterDict = masterDict;
     },
 
-    getSections: function(courseContId, dict, masterDict) {
+    getSections: function(courseContId, dict, masterDict, index) {
         if (!masterDict.get("chosenTerm") || !courseContId) { //continue only if the data is ready
             return;
         };
 
-        const courseId = masterDict.get("chosenTerm") + "-" + courseContId;
-        //check if the info is already there
-        if(dict.get("sectionInfo" + courseId)){
-            return dict.get("sectionInfo" + courseId);
+        if(index != 0){
+            return;
         }
 
-        Meteor.call("getSections", courseId, function(err, result) {
+        //check if the info is already there
+        const courseId = masterDict.get("chosenTerm") + "-" + courseContId;
+        if(dict.get("sectionInfo" + courseId)){
+            return;
+        }
+
+        const wishlist = UserProfilePnc.findOne().wishlist;
+        const term_array = [];
+        for(let section_id of wishlist){
+            const term = section_id.substring(0, section_id.indexOf("-"));
+            if($.inArray(term, term_array) == -1){
+                term_array.push(term);
+            }
+        }
+        
+        const term_range = {
+            start: term_array.sort()[0],
+            end: term_array.sort()[term_array.length - 1]
+        }
+
+        Meteor.call("getSections_schedule", wishlist, term_range, function(err, result) {
             if (err) {
                 window.alert(err.message);
                 return;
             }
             if (result.length == 0) {
-                dict.set("sectionInfo" + courseId, "NR");
                 return;
             }
 
@@ -718,7 +735,15 @@ Template.semesterScheduleCourseList.helpers({
                 return a.section - b.section;
             });
 
-            dict.set("sectionInfo" + courseId, sorted_result);
+            for(let section_info_obj of result){
+                if(section_info_obj.sections.length == 0){
+                    dict.set("sectionInfo" + section_info_obj.courseId, "NR");
+                } else {
+                    dict.set("sectionInfo" + section_info_obj.courseId, section_info_obj.sections.sort(function(a, b){
+                        return a.section - b.section;
+                    }));
+                }
+            }
         });
     },
 

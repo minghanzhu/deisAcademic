@@ -1,48 +1,48 @@
 <template name="calendarTest">
   {{#if masterDictSet}}
   <div class="ui stackable grid">
-		<div class="twelve wide column">
-			<div class="ui sticky">
-        <div class="ui container calendar">
-          {{#if viewCalendar}}
-            <select name="term" class="js-term form-control">
-              {{#each term in termList}}
-                <option value="{{term.id}}">{{term.name}}</option>
-              {{/each}}
-            </select>
+    {{#if isNewPlan}}
+  		<div class="twelve wide column">
+  			<div class="ui sticky">
+          <div class="ui container calendar">
+            {{#if viewCalendar}}
+              <select name="term" class="js-term form-control">
+                {{#each term in termList}}
+                  <option value="{{term.id}}">{{term.name}}</option>
+                {{/each}}
+              </select>
 
-            {{> calendar dict=dict calendarDict=calendarDict}}
-          {{else}}
-            {{#if predictionDataReady}}
-              {{> coursePreview dict=dict calendarDict=calendarDict}} <br>
+              {{> calendar dict=dict calendarDict=calendarDict}}
             {{else}}
-              <div class="ui active inline loader"></div>
+              {{#if predictionDataReady}}
+                {{> coursePreview dict=dict calendarDict=calendarDict}} <br>
+              {{else}}
+                <div class="ui active inline loader"></div>
+              {{/if}}
             {{/if}}
-          {{/if}}
-          <button class="ui button js-change-course">Change Chosen Courses</button>
-          {{#if viewCalendar}}
-            <button class="ui button js-view-change">Overview</button>
-          {{else}}
-            {{#if isFuture}}
-              <button class="ui disabled button js-view-change">Calendar View</button>
+            <button class="ui button js-change-course">Change Chosen Courses</button>
+            {{#if viewCalendar}}
+              <button class="ui button js-view-change">Overview</button>
             {{else}}
-              <button class="ui button js-view-change">Calendar View</button>
+              {{#if isFuture}}
+                <button class="ui disabled button js-view-change">Calendar View</button>
+              {{else}}
+                <button class="ui button js-view-change">Calendar View</button>
+              {{/if}}
             {{/if}}
-          {{/if}}
-          <!-- <button class="ui button js-show-dict">Show Dict</button> -->
-          {{#if hasClickedChange}}{{clickedChange}}{{/if}}
-          {{#if currentUser}}
-            <button class="ui primary button js-save-plan pull-right">Save My Plan</button>
-          {{else}}
-            <div class="js-not-save-plan pull-right">
-              <button class="ui disabled primary button">Save the plan</button>
-            </div>
-          {{/if}}
-        </div>
-			</div>
-		</div>
+            {{#if hasClickedChange}}{{clickedChange}}{{/if}}
+            {{#if currentUser}}
+              <button class="ui primary button js-save-plan pull-right">Save My Plan</button>
+            {{else}}
+              <div class="js-not-save-plan pull-right">
+                <button class="ui disabled primary button">Save the plan</button>
+              </div>
+            {{/if}}
+          </div>
+  			</div>
+  		</div>
 
-		<div class="four wide column">
+  		<div class="four wide column">
   			<div class="ui container" id="courseList">
 				  {{#if hasCourseList AND predictionDataReady}}
             {{#if currentUser}}
@@ -72,7 +72,117 @@
   					<div class="ui active inline loader"></div>
   				{{/if}}
   			</div>
-		</div>
+  		</div>
+    {{else}}
+      {{#if currentUser AND sameUser}}
+        <div class="twelve wide column">
+          <div class="ui sticky">
+            <div class="ui container calendar">
+              {{#if viewCalendar}}
+                <select name="term" class="js-term form-control">
+                  {{#each term in termList}}
+                    <option value="{{term.id}}">{{term.name}}</option>
+                  {{/each}}
+                </select>
+
+                {{> calendar dict=dict calendarDict=calendarDict}}
+              {{else}}
+                {{#if predictionDataReady}}
+                  {{> coursePreview dict=dict calendarDict=calendarDict}} <br>
+                {{else}}
+                  <div class="ui active inline loader"></div>
+                {{/if}}
+              {{/if}}
+              <button class="ui button js-change-course">Change Chosen Courses</button>
+              {{#if viewCalendar}}
+                <button class="ui button js-view-change">Overview</button>
+              {{else}}
+                {{#if isFuture}}
+                  <button class="ui disabled button js-view-change">Calendar View</button>
+                {{else}}
+                  <button class="ui button js-view-change">Calendar View</button>
+                {{/if}}
+              {{/if}}
+              {{#if hasClickedChange}}{{clickedChange}}{{/if}}
+              <button class="ui primary button js-update-plan">Save the plan</button>
+              <button class="ui red button js-delete-plan pull-right">Delete the plan</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="four wide column">
+          <div class="ui container" id="courseList">
+            {{#if hasCourseList AND predictionDataReady}}
+              {{#if currentUser}}
+                {{#if hasWishlist}}
+                  <div class="ui slider checkbox js-add-wishlist">
+                    <input type="checkbox" name="wishlist" checked="checked">
+                    <label>Include courses in my wishlist</label>
+                  </div>
+                {{else}}
+                  <div class="ui slider checkbox js-add-wishlist">
+                    <input type="checkbox" name="wishlist">
+                    <label>Include courses in my wishlist</label>
+                  </div>
+                {{/if}}
+              {{/if}}
+
+              <div class="ui vertical accordion menu">
+                {{#each course in getCourseList}}
+                  {{> scheduleCourseList c=course dict=calendarDict masterDict=dict index=@index}}
+                {{/each}}
+              </div>
+            {{else}}
+              {{pullUserCourseList}}
+              {{#if hasFutureTerm}}
+                {{pullPredictionData dict}}
+              {{/if}}
+              <div class="ui active inline loader"></div>
+            {{/if}}
+          </div>
+        </div>
+      {{else}}
+        <div class="sixteen wide column">
+          <div class="ui sticky">
+            <div class="ui container calendar">
+              {{#if currentUser AND sameUser}}{{else}}
+                <h2>Plan made by {{getUsername}}</h2>
+              {{/if}}
+              {{#if viewCalendar}}
+                <select name="term" class="js-term form-control">
+                  {{#each term in termList}}
+                    <option value="{{term.id}}">{{term.name}}</option>
+                  {{/each}}
+                </select>
+
+                {{> calendar dict=dict calendarDict=calendarDict}}
+              {{else}}
+                {{#if predictionDataReady AND hasCourseList}}
+                  {{> coursePreview dict=dict calendarDict=calendarDict}} <br>
+                {{else}}
+                  {{pullUserCourseList}}
+                  {{#if hasFutureTerm}}
+                    {{pullPredictionData dict}}
+                  {{/if}}
+                  <div class="ui active inline loader"></div>
+                {{/if}}
+              {{/if}}
+              {{#if hasCourseList AND predictionDataReady}}
+                {{#if viewCalendar}}
+                  <button class="ui button js-view-change">Overview</button>
+                {{else}}
+                  {{#if isFuture}}
+                    <button class="ui disabled button js-view-change">Calendar View</button>
+                  {{else}}
+                    <button class="ui button js-view-change">Calendar View</button>
+                  {{/if}}
+                {{/if}}
+              {{/if}}
+            </div>
+          </div>
+        </div>
+      {{/if}}
+    {{/if}}
 	</div>
 
   <div class="overlay-calendar"></div>
@@ -116,70 +226,97 @@
 
     <div class="ui bottom attached tab segment" data-tab="first" tab-num="1">
       <div class="ui stackable divided grid">
-        <div class="eleven wide column">
-          {{#if sectionReady}}
-            <h3>Section {{sectionObj.section}}</h3>
-            <h3>Professor</h3>
-            {{#if profNameLoading sectionObj.id}}<div class="ui active inline loader"></div>{{/if}}{{{getProfInfo sectionObj.instructors}}}<br>
-            <h3>Time and Place</h3>
-            {{#if sectionObj.times}}
-              {{#each time in sectionObj.times}}
-                {{#if notFirstTime @index}}<div class="ui horizontal divider"></div>{{/if}}
-                {{#if time.start}}<b>{{getSectionDays time.days}}:</b> {{convertTime time.start}} to {{convertTime time.end}}<br>{{else}}TBD<br>{{/if}}
-                {{#if time.building}}{{time.building}} - {{time.room}}<br>{{else}}Please wait until Brandeis posts place information for this section<br>{{/if}}
-                {{#if time.type}}<b>Type: </b>{{time.type}}{{/if}}
-              {{/each}}
-            {{else}}
-              <p>Please wait until Brandeis posts time and day information for this section</p>
+        {{#if currentUser AND sameUser}}
+          <div class="eleven wide column">
+            {{#if sectionReady}}
+              <h3>Section {{sectionObj.section}}</h3>
+              <h3>Professor</h3>
+              {{#if profNameLoading sectionObj.id}}<div class="ui active inline loader"></div>{{/if}}{{{getProfInfo sectionObj.instructors}}}<br>
+              <h3>Time and Place</h3>
+              {{#if sectionObj.times}}
+                {{#each time in sectionObj.times}}
+                  {{#if notFirstTime @index}}<div class="ui horizontal divider"></div>{{/if}}
+                  {{#if time.start}}<b>{{getSectionDays time.days}}:</b> {{convertTime time.start}} to {{convertTime time.end}}<br>{{else}}TBD<br>{{/if}}
+                  {{#if time.building}}{{time.building}} - {{time.room}}<br>{{else}}Please wait until Brandeis posts place information for this section<br>{{/if}}
+                  {{#if time.type}}<b>Type: </b>{{time.type}}{{/if}}
+                {{/each}}
+              {{else}}
+                <p>Please wait until Brandeis posts time and day information for this section</p>
+              {{/if}}
+              <h3>Enrollment</h3>
+              {{sectionObj.enrolled}}/{{limitNum sectionObj.limit}} - {{sectionObj.status_text}}
+              <h3>Detailed Description</h3>
+              <p>{{#if sectionObj.details}}{{sectionObj.details}}{{else}}Currently no additional information for this section{{/if}}</p>
+              <h3>Textbook Information</h3>
+              <button class="ui basic button js-textbook" course-code="{{courseInfo.code}}" course-id="{{sectionObj.course}}" section-num="{{sectionObj.section}}"><i class="book icon"></i>Click to view</button>
             {{/if}}
-            <h3>Enrollment</h3>
-            {{sectionObj.enrolled}}/{{limitNum sectionObj.limit}} - {{sectionObj.status_text}}
-            <h3>Detailed Description</h3>
-            <p>{{#if sectionObj.details}}{{sectionObj.details}}{{else}}Currently no additional information for this section{{/if}}</p>
-            <h3>Textbook Information</h3>
-            <button class="ui basic button js-textbook" course-code="{{courseInfo.code}}" course-id="{{sectionObj.course}}" section-num="{{sectionObj.section}}"><i class="book icon"></i>Click to view</button>
-          {{/if}}
-        </div>
-
-        <div class="five wide column">
-          <div class="ui vertical labeled icon buttons">
-            <!--<button class="ui basic button js-add-to-list">
-              <i class="plus icon"></i>
-              Add to my wishlist
-            </button>-->
-
-            <!--<button class="ui basic button">
-              <i class="alarm icon"></i>
-              Watch this section for any change
-            </button>-->
-
-            <!--<button class="ui basic button">
-              <i class="angle double up icon"></i>
-              Previous section
-            </button>
-
-            <button class="ui basic button">
-              <i class="angle double down icon"></i>
-              Next section
-            </button>-->
-
-            {{#if isSectionChosen}}
-              <button class="ui blue button js-take" section-id="{{sectionObj.id}}">
-                Sage Code: {{getSageCode sectionObj.id}}
-              </button>
-            {{else}}
-              <button class="ui basic blue button js-take" section-id="{{sectionObj.id}}">
-                <i class="checkmark icon"></i>
-                Decided to take
-              </button>
-            {{/if}}
-
-            <button class="ui basic orange button js-delete-section" section-id="{{sectionObj.id}}">
-              <i class="remove icon"></i>
-              Delete this section on calendar
-            </button>
           </div>
-        </div>
+
+          <div class="five wide column">
+            <div class="ui vertical labeled icon buttons">
+              <!--<button class="ui basic button js-add-to-list">
+                <i class="plus icon"></i>
+                Add to my wishlist
+              </button>-->
+
+              <!--<button class="ui basic button">
+                <i class="alarm icon"></i>
+                Watch this section for any change
+              </button>-->
+
+              <!--<button class="ui basic button">
+                <i class="angle double up icon"></i>
+                Previous section
+              </button>
+
+              <button class="ui basic button">
+                <i class="angle double down icon"></i>
+                Next section
+              </button>-->
+
+              {{#if isSectionChosen}}
+                <button class="ui blue button js-take" section-id="{{sectionObj.id}}">
+                  Sage Code: {{getSageCode sectionObj.id}}
+                </button>
+              {{else}}
+                <button class="ui basic blue button js-take" section-id="{{sectionObj.id}}">
+                  <i class="checkmark icon"></i>
+                  Decided to take
+                </button>
+              {{/if}}
+
+              <button class="ui basic orange button js-delete-section" section-id="{{sectionObj.id}}">
+                <i class="remove icon"></i>
+                Delete this section on calendar
+              </button>
+            </div>
+          </div>
+        {{else}}  
+          <div class="sixteen wide column">
+            {{#if sectionReady}}
+              <h3>Section {{sectionObj.section}}</h3>
+              <h3>Professor</h3>
+              {{#if profNameLoading sectionObj.id}}<div class="ui active inline loader"></div>{{/if}}{{{getProfInfo sectionObj.instructors}}}<br>
+              <h3>Time and Place</h3>
+              {{#if sectionObj.times}}
+                {{#each time in sectionObj.times}}
+                  {{#if notFirstTime @index}}<div class="ui horizontal divider"></div>{{/if}}
+                  {{#if time.start}}<b>{{getSectionDays time.days}}:</b> {{convertTime time.start}} to {{convertTime time.end}}<br>{{else}}TBD<br>{{/if}}
+                  {{#if time.building}}{{time.building}} - {{time.room}}<br>{{else}}Please wait until Brandeis posts place information for this section<br>{{/if}}
+                  {{#if time.type}}<b>Type: </b>{{time.type}}{{/if}}
+                {{/each}}
+              {{else}}
+                <p>Please wait until Brandeis posts time and day information for this section</p>
+              {{/if}}
+              <h3>Enrollment</h3>
+              {{sectionObj.enrolled}}/{{limitNum sectionObj.limit}} - {{sectionObj.status_text}}
+              <h3>Detailed Description</h3>
+              <p>{{#if sectionObj.details}}{{sectionObj.details}}{{else}}Currently no additional information for this section{{/if}}</p>
+              <h3>Textbook Information</h3>
+              <button class="ui basic button js-textbook" course-code="{{courseInfo.code}}" course-id="{{sectionObj.course}}" section-num="{{sectionObj.section}}"><i class="book icon"></i>Click to view</button>
+            {{/if}}
+          </div>
+        {{/if}}
       </div>
     </div>
 
