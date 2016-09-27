@@ -8,8 +8,10 @@ Template.calendarTest.onCreated(function() {
         this.data["dict"].set("scheduleList", {});
     } 
 
-    if(this.data["dict"].get("courseFetchInfo")){
+    if(this.data["dict"].get("courseFetchInfo")){//it's plan view/modify
         this.calendarDict.set("courseFetchInfo", this.data["dict"].get("courseFetchInfo"));
+    } else {//it's a new plan
+        this.calendarDict.set("courseFetchInfo", {});
     }
 })
 
@@ -1155,6 +1157,10 @@ Template.scheduleCourseList.helpers({
     },
 
     getPredictionData: function(continuity_id, masterDict){
+        if(!CoursePrediction.findOne({course: continuity_id})){
+            return "N/A"
+        }
+
         const term = masterDict.get("chosenTerm");
         const prediction_obj = CoursePrediction.findOne({course: continuity_id})[term];
         if(!prediction_obj){
