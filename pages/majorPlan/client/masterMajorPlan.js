@@ -24,7 +24,7 @@ Template.masterMajorPlan.onCreated(function(){
 	    const current_plan_id = Router.current().params._id;
         const scheduleList = MajorPlansPnc.findOne(current_plan_id).scheduleList;
         const masterDict = this.masterPageDict;
-
+        
         Meteor.call("fetchScheduleList", scheduleList, function(err, result) {
             if (err) {
                 window.alert(err.message);
@@ -102,15 +102,38 @@ Template.masterMajorPlan.onCreated(function(){
 
             
             const futureList = MajorPlansPnc.findOne(current_plan_id).futureList;
+            const wishlist_course = [];
             for(let future_schedule of futureList){
-            	fetched_scheduleList[future_schedule.term] = {
+            	const course_cont_list = future_schedule.courseList;
+
+                fetched_scheduleList[future_schedule.term] = {
             		term: future_schedule.term,
-            		courseList: future_schedule.courseList
+            		courseList: course_cont_list
             	}
+
+                for(let continuity_id of course_cont_list){
+                    if($.inArray(continuity_id, chosenCourse) == -1){
+                        if($.inArray(continuity_id, wishlist_course) == -1){
+                            wishlist_course.push(continuity_id);
+                        }
+                    }
+                }
             }
 
-            masterDict.set("scheduleList", fetched_scheduleList);
-            masterDict.set("pageName", "makeSchedule");
+            Meteor.call("fetchContList", wishlist_course, function(err, result){
+                if(err){
+                    window.alert(err.message);
+                    return;
+                }
+
+                const fetch_wishlist_course = {};
+                for(let info_obj of result){
+                    fetch_wishlist_course[info_obj.continuity_id] = info_obj;
+                }
+                masterDict.set("scheduleList", fetched_scheduleList);
+                masterDict.set("courseFetchInfo", fetch_wishlist_course);
+                masterDict.set("pageName", "makeSchedule");
+            })
         });
 	} else {
 		this.masterPageDict.set("pageName", "typeMajor");

@@ -126,36 +126,35 @@ Template.coursePreview.helpers({
         if(!Term.findOne({id: term})){
             const availableCourseList = masterDict.get("fetched_courseList");
             for(let course of courseList){
-                if(calendarDict.get("courseFetchInfo")){
+                if(calendarDict.get("courseFetchInfo")[course]){
                     const course_info_obj = calendarDict.get("courseFetchInfo")[course];
                     if(course_info_obj){
                         result.push(course_info_obj);
-                        continue;
                     }
-                }
+                } else {
+                    for(let course_data_obj of availableCourseList){
+                        if(course_data_obj.continuity_id === course){
+                            const course_continuity_id = course_data_obj.continuity_id;
+                            const course_code = course_data_obj.code;
+                            const course_id = course_data_obj.id;
+                            const course_obj = {
+                                code: course_code,
+                                continuity_id: course,
+                                course_id: course_id
+                            }
+                            result.push(course_obj);
 
-                for(let course_data_obj of availableCourseList){
-                    if(course_data_obj.continuity_id === course){
-                        const course_continuity_id = course_data_obj.continuity_id;
-                        const course_code = course_data_obj.code;
-                        const course_id = course_data_obj.id;
-                        const course_obj = {
-                            code: course_code,
-                            continuity_id: course,
-                            course_id: course_id
+                            if(!calendarDict.get("courseFetchInfo")){
+                                const courseFetch_obj = {}
+                                courseFetch_obj[course] = course_obj;
+                                calendarDict.set("courseFetchInfo", courseFetch_obj);
+                            } else {
+                                const currentFetch_obj = calendarDict.get("courseFetchInfo");
+                                currentFetch_obj[course] = course_obj;
+                                calendarDict.set("courseFetchInfo", currentFetch_obj);
+                            }
+                            break;
                         }
-                        result.push(course_obj);
-
-                        if(!calendarDict.get("courseFetchInfo")){
-                            const courseFetch_obj = {}
-                            courseFetch_obj[course] = course_obj;
-                            calendarDict.set("courseFetchInfo", courseFetch_obj);
-                        } else {
-                            const currentFetch_obj = calendarDict.get("courseFetchInfo");
-                            currentFetch_obj[course] = course_obj;
-                            calendarDict.set("courseFetchInfo", currentFetch_obj);
-                        }
-                        break;
                     }
                 }
             }
@@ -323,17 +322,18 @@ Template.coursePreview.events({
             const dict = Template.instance().calendarDict;
             dict.set("isFutureTerm", true);
             const continuity_id = event.currentTarget.attributes[1].nodeValue; 
-            let courseId;
-            const availableCourseList = Template.instance().masterDict.get("fetched_courseList");
-            for(let course of availableCourseList){
-                if(course.continuity_id === continuity_id){
-                    courseId = course.id;
-                    break;
-                }
-            }
 
-            if(!courseId){//it's a course in wishlist
-                courseId = calendarDict.get("courseFetchInfo")[course].course_id;
+            let courseId;
+            if(dict.get("courseFetchInfo")[continuity_id]){
+                courseId = dict.get("courseFetchInfo")[continuity_id].course_id;
+            } else {
+                const availableCourseList = Template.instance().masterDict.get("fetched_courseList");
+                for(let course of availableCourseList){
+                    if(course.continuity_id === continuity_id){
+                        courseId = course.id;
+                        break;
+                    }
+                }
             }
 
             $('#popup-tab .item').tab(); //this initialize the tabs for the popup

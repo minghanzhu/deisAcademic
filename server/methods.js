@@ -767,6 +767,21 @@ Meteor.methods({
         return result_array;
     },
 
+    fetchContList: function(courseContIdList){
+        const result = [];
+        for(let continuity_id of courseContIdList){
+            const course_data = Course.find({continuity_id: continuity_id}).fetch().sort(function(a, b){return b.term - a.term})[0];
+            const course_info_obj = {
+                code: course_data.code,
+                continuity_id: course_data.continuity_id,
+                course_id: course_data.id
+            }
+            result.push(course_info_obj);
+        }
+
+        return result;
+    },
+
     "saveMajorPlan": function(scheduleList, major_code, availableCourseList, term_range, futureList) {
         if (!this.userId) {
             console.log("[saveMajorPlan] - Invalid insert: Not logged in");

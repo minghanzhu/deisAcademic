@@ -8,6 +8,9 @@ Template.calendarTest.onCreated(function() {
         this.data["dict"].set("scheduleList", {});
     } 
 
+    if(this.data["dict"].get("courseFetchInfo")){
+        this.calendarDict.set("courseFetchInfo", this.data["dict"].get("courseFetchInfo"));
+    }
 })
 
 Template.calendarTest.onRendered(function() {
@@ -837,7 +840,7 @@ Template.calendarTest.events({
         const current_status = Template.instance().masterDict.get("includeWishlist");
         Template.instance().masterDict.set("includeWishlist", !current_status);
         Template.instance().calendarDict.set("sectionInfo");
-        Template.instance().calendarDict.set("courseFetchInfo");
+        //Template.instance().calendarDict.set("courseFetchInfo");
         Template.instance().masterDict.set("hasCourseList", false);
     },
 
