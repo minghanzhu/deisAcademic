@@ -208,6 +208,7 @@ Template.semesterSchedule.helpers({
     getCourseList: function() {
         const availableCourseList = Template.instance().masterDict.get("fetched_courseList");
         const courseList = [];
+        const cont_id_rec = {};
         for(let course of availableCourseList){
             let current_term;
             if(Template.instance().masterDict.get("chosenTerm")){
@@ -217,7 +218,10 @@ Template.semesterSchedule.helpers({
             }
 
             if(course.id.substring(0, course.id.indexOf("-")) === current_term){
-                courseList.push(course);
+                if(!cont_id_rec[course.continuity_id]){
+                    courseList.push(course);
+                    cont_id_rec[course.continuity_id] = "1";
+                }
             }
         }
 

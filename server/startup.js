@@ -384,7 +384,7 @@ Meteor.startup(function() {
     Requirement.remove({});
     Subject.remove({});
     */
-    if(CoursePrediction.find().count() == 0) Meteor.call("test");
+    if(CoursePrediction.find().count() == 0) Meteor.call("predictionAlgorithm", Meteor.settings.predictionKey);
     if(SearchPnc.find().count() != 0) return;
     SearchPnc.remove({});
         const data1 = Course.find().fetch();

@@ -1220,8 +1220,18 @@ Meteor.methods({
         return UserProfilePnc.findOne({userId: userId}).userName;
     },
 
-    test: function(){
-        return;//prevent unauthorized call
+    predictionAlgorithm: function(key){
+        //prevent unauthorized call
+        if(!key){
+            console.log("[predictionAlgorithm]: Empty key");
+            return;
+        } else if(!Meteor.settings.predictionKey){
+            console.log("[predictionAlgorithm]: No server key");
+            return;
+        } else if(key !== Meteor.settings.predictionKey){
+            console.log("[predictionAlgorithm]: Invalid key - " + key);
+            return;
+        } 
         //this saves all the distinct cont id's
         const course_list = Course.find().fetch(); //array of all courses
         const cont_id_list = [];
