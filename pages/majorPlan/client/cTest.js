@@ -833,8 +833,9 @@ Template.calendarTest.events({
             };
             Template.instance().masterDict.set("scheduleList", current_schedule_list);
         }
-        
+
         //then go back to the previous page
+        Template.instance().data["dict"].set("courseFetchInfo", Template.instance().calendarDict.get("courseFetchInfo"));
         Template.instance().masterDict.set("clickedChange", true);
     },
 
