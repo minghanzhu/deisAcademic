@@ -1232,6 +1232,7 @@ Meteor.methods({
             console.log("[predictionAlgorithm]: Invalid key - " + key);
             return;
         } 
+
         //this saves all the distinct cont id's
         const course_list = Course.find().fetch(); //array of all courses
         const cont_id_list = [];
@@ -1404,7 +1405,6 @@ Meteor.methods({
             //generate weight: indexes that repeat the most will have much higher weight
             let difference_number = 0;
             let max_index_num = -1;
-            let if_need_check = false;
             for (let dif in result_obj) {
                 const current_number = result_obj[dif];
                 if (current_number >= max_index_num) {
@@ -1415,68 +1415,6 @@ Meteor.methods({
                 total = total - current_number + weighted_number;
             }
 
-            //take into account the course description
-
-            if (course_description.includes("Usually offered every semester")) {
-                const current_number = result_obj["1"]
-                if (current_number) {
-                    const current_p = current_number / total;
-                    if (current_p >= (1 - weight_percent)) {
-                        result_obj["1"] = Math.round((mixed_percent / (1 - mixed_percent)) * total);
-                    } else {
-                        result_obj["1"] = Math.round((weight_percent / (1 - weight_percent)) * (total - current_number));
-                    }
-                    total = total - current_number + result_obj["1"];
-                } else {
-                    result_obj["1"] = Math.round((weight_percent / (1 - weight_percent)) * total);
-                    total += result_obj["1"];
-                }
-            } else if (course_description.includes("Usually offered every year")) {
-                const current_number = result_obj["2"]
-                if (current_number) {
-                    const current_p = current_number / total;
-                    if (current_p >= (1 - weight_percent)) {
-                        result_obj["2"] = Math.round((mixed_percent / (1 - mixed_percent)) * total);
-                    } else {
-                        result_obj["2"] = Math.round((weight_percent / (1 - weight_percent)) * (total - current_number));
-                    }
-                    total = total - current_number + result_obj["2"];
-                } else {
-                    result_obj["2"] = Math.round((weight_percent / (1 - weight_percent)) * total);
-                    total += result_obj["2"];
-                }
-            } else if (course_description.includes("Usually offered every second year")) {
-                const current_number = result_obj["4"]
-                if (current_number) {
-                    const current_p = current_number / total;
-                    if (current_p >= (1 - weight_percent)) {
-                        result_obj["4"] = Math.round((mixed_percent / (1 - mixed_percent)) * total);
-                    } else {
-                        result_obj["4"] = Math.round((weight_percent / (1 - weight_percent)) * (total - current_number));
-                    }
-                    total = total - current_number + result_obj["4"];
-                } else {
-                    result_obj["4"] = Math.round((weight_percent / (1 - weight_percent)) * total);
-                    total += result_obj["4"];
-                }
-            } else if (course_description.includes("Usually offered every third year")) {
-                const current_number = result_obj["6"]
-                if (current_number) {
-                    const current_p = current_number / total;
-                    if (current_p >= (1 - weight_percent)) {
-                        result_obj["6"] = Math.round((mixed_percent / (1 - mixed_percent)) * total);
-                    } else {
-                        result_obj["6"] = Math.round((weight_percent / (1 - weight_percent)) * (total - current_number));
-                    }
-                    total = total - current_number + result_obj["6"];
-                } else {
-                    result_obj["6"] = Math.round((weight_percent / (1 - weight_percent)) * total);
-                    total += result_obj["6"];
-                }
-            } else {
-                if_need_check = true;
-            }
-
             const dif_p = {};
             for (let indexD in result_obj) {
                 dif_p[indexD] = result_obj[indexD] / total;
@@ -1484,128 +1422,32 @@ Meteor.methods({
 
             //check the difference between the number of index differences and hitory array size
             //if it's very unstable, return unpredictable
-            if (if_need_check && difference_number > his_array.length / 2 && max_index_num < Math.floor(his_array.length / 2)) {
+            if (difference_number > his_array.length / 2 && max_index_num < Math.floor(his_array.length / 2)) {
                 console.log("Unstable");
                 return;
             }
 
             const term_p = {}
-            //console.log(dif_p);
-            let dif_p_size = 0;
-            for(let dif in dif_p){
-                dif_p_size++;
-            }
-            //console.log(dif_p_size)
-            const term_rec = [];
-            let start_index = 0;
-            let end_index = 0;
-            let if_continue = true;
-            let i = 1;
+            const prediction_stack = [];
             const current_term_index = parseInt(his_array[his_array.length - 1].substring(his_array[his_array.length - 1].lastIndexOf(" ")));
-            //console.log(current_term_index)
             const index_difference = latest_available_term_index - current_term_index + allowed_terms;
-            while(if_continue){
-                const check_array = [];
-                if(i == 1){
-                    //save the term differences into the rec array
-                    for(let dif in dif_p){
-                        //compute percentage for the terms
-                        term_p[dif] = dif_p[dif];
-                        if(dif < index_difference){
-                            term_rec.push([dif]);
-                            check_array.push("1");
-                        } 
-                    }
-
-                    end_index = term_rec.length - 1;
+            for(let i = 0; i < index_difference; i++){
+                //add the prediction for the current term to the stack
+                if(!dif_p[i + 1]){
+                    prediction_stack[i] = 0;
                 } else {
-                    //save the term differences into the rec array
-                    for(let dif in dif_p){
-                        for(let j = start_index; j <= end_index; j++){
-                            const current_addition_array = term_rec[j];
-                            const new_addition_array = [];
-                            for(let term_dif of current_addition_array){
-                                new_addition_array.push(parseInt(term_dif));
-                            }
-                            new_addition_array.push(parseInt(dif));
-                            
-                            let term_sum = 0;
-                            let precentage_result = 1;
-                            for(let term_dif of new_addition_array){
-                                term_sum += parseInt(term_dif); 
-                                precentage_result *= dif_p[term_dif];
-                            }
-
-                            if(!term_p[term_sum]){
-                                term_p[term_sum] = precentage_result;
-                            } else {
-                                term_p[term_sum] += precentage_result;
-                            }
-
-                            if(term_sum < index_difference){
-                                term_rec.push(new_addition_array);
-                                check_array.push("1");
-                            }
-                        }
-                    }
-
-                    start_index = end_index + 1;
-                    end_index = term_rec.length - 1;
+                    prediction_stack[i] = dif_p[i + 1];
                 }
 
-                if(check_array.length == 0){
-                    if_continue = false;
-                    break;
-                } else {
-                    i++;
+                //compute other possibilities using previous results
+                for(let j = 0; j < i; j++){
+                    if(dif_p[i - j]){
+                        prediction_stack[i] += dif_p[i - j] * prediction_stack[j]; 
+                    }
                 }
-                //console.log(term_rec);
-                
+
+                term_p[i + 1] = prediction_stack[i];
             }
-            //console.log(dif_p)
-            //console.log(term_p);
-            //console.log("term: " + parseInt(his_array[his_array.length - 1].substring(his_array[his_array.length - 1].lastIndexOf(" "))))
-            //console.log("-----")
-            /*
-            function termPath(n, current_percentage) {
-                comp_times++;
-                if (n >= allowed_terms) { //if the current semester is larger than 5 years (10 semesters) ahead of the real current term
-                    //it'll stop here
-                    //save the term and percentage first
-                    if (!term_p[n]) {
-                        term_p[n] = current_percentage;
-                    } else {
-                        term_p[n] = term_p[n] + current_percentage;
-                    }
-                } else { //if the current semester is included in the 5 years (10 semesters)
-                    if (n == 0) { //for the first time
-                        for (let dif in dif_p) {
-                            const new_term = parseInt(dif) + n; //0 + dif, which is the next term
-                            const new_percentage = dif_p[dif]; //get the initial percentage of the term
-                            termPath(new_term, new_percentage);
-                        }
-                    } else {
-                        //save the term and percentage first
-                        if (!term_p[n]) {
-                            term_p[n] = current_percentage;
-                        } else {
-                            term_p[n] = term_p[n] + current_percentage;
-                        }
-
-                        //then go to new ones
-                        const current_term = n;
-                        for (let dif in dif_p) {
-                            const next_term = parseInt(dif) + n;
-                            const next_percentage = dif_p[dif] * current_percentage;
-                            termPath(next_term, next_percentage);
-                        }
-                    }
-
-                }
-            };
-
-            termPath(0, 0);
-            */
 
             let result = [];
             for (let i = 1; i <= index_difference; i++) {

@@ -1172,12 +1172,12 @@ Template.scheduleCourseList.helpers({
             } else if(prediction_obj.percentage == 0){
                 return "1%"
             } else {
-                if(prediction_obj.percentage.toFixed(2) == 1){
+                if(Math.round(prediction_obj.percentage * 100) == 100){
                     return "99%"
-                } else if(prediction_obj.percentage.toFixed(2) == 0){
+                } else if(Math.round(prediction_obj.percentage * 100) == 0){
                     return "1%"
                 } else {
-                    return prediction_obj.percentage.toFixed(2) * 100 + "%";
+                    return Math.round(prediction_obj.percentage * 100) + "%";
                 }
             }
         }       

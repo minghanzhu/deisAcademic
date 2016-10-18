@@ -197,12 +197,12 @@ Template.coursePreview.helpers({
         } else if(percentage == 0){
             return "1%"
         } else {
-            if(percentage.toFixed(2) == 1){
+            if(Math.round(prediction_obj.percentage * 100) == 100){
                 return "99%"
-            } else if(percentage.toFixed(2) == 0){
+            } else if(Math.round(prediction_obj.percentage * 100) == 0){
                 return "1%"
             } else {
-                return percentage.toFixed(2) * 100 + "%";
+                return Math.round(prediction_obj.percentage * 100) + "%";
             }
         }
     },
