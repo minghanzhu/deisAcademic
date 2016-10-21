@@ -1,31 +1,4 @@
 Meteor.startup(function() {
-    /*
-    Keyword.remove({});
-    Dept.remove({});
-    Major.remove({});
-    */
-
-    if (Wishlist.find().count() == 0) {
-        Wishlist.insert({
-            number: "Cosi 11a",
-            title: "Programming in Java and C",
-            professor: "DiLillo, Antonella",
-            time: "M,W,Th 1:00 PM–1:50 PM"
-        });
-        Wishlist.insert({
-            number: "Cosi 12b",
-            title: "Advanced Programming Techniques",
-            professor: "Papaemmanouil, Olga",
-            time: "M,W,Th 11:00 AM–11:50 AM"
-        });
-        Wishlist.insert({
-            number: "Cosi 21a",
-            title: "Data Structures and the Fundamentals of Computing",
-            professor: "Storer, James A",
-            time: "M,W 2:00 PM–3:20 PM"
-        });
-    };
-
     // TODO: JSON file of University Bulletin
     // TODO: Major collection waiting to be finished
     if (Major.find().count() == 0) {
@@ -351,20 +324,7 @@ Meteor.startup(function() {
         //     doctor: "",
         // });
     }
-    /*
-    Section._ensureIndex({ "course": 1}, {background: true});
-    Section._ensureIndex({ "instructors": 1}, {background: true});
-    Section._ensureIndex({ "times": 1}, {background: true});
-    Section._ensureIndex({ "id": 1}, {background: true});
-    Major._ensureIndex({ "school": 1}, {background: true});
-    Course._ensureIndex({ "continuity_id": 1}, {background: true});
-    Course._ensureIndex({ "term": 1}, {background: true});
-    Course._ensureIndex({ "code": 1}, {background: true});
-    Course._ensureIndex({ "name": 1}, {background: true});
-    Course._ensureIndex({ "term": 1, "code": 1, "name": 1}, {background: true});
-    Course._ensureIndex({ "id": 1}, {background: true});
-    Instructor._ensureIndex({ "id": 1}, {background: true});
-    console.log("index added!");*/
+
     if(SearchPnc.find().count() != 0){
         SearchPnc._ensureIndex({ "instructors": 1}, {background: true});
         SearchPnc._ensureIndex({ "times": 1}, {background: true});
@@ -375,16 +335,6 @@ Meteor.startup(function() {
         console.log("search index added!")
     }
 
-    //if (Instructor.find().count() > 0) return;
-    /*
-    Instructor.remove({});
-    Term.remove({});
-    Course.remove({});
-    Section.remove({});
-    Requirement.remove({});
-    Subject.remove({});
-    */
-
     if(CoursePrediction.find().count() == 0) Meteor.call("predictionAlgorithm", Meteor.settings.predictionKey);
     setInterval(function(){
         Meteor.call("updateJSON", Meteor.settings.updateKey);
@@ -392,172 +342,88 @@ Meteor.startup(function() {
     
     if(SearchPnc.find().count() != 0) return;
     SearchPnc.remove({});
-        const data1 = Course.find().fetch();
-        const data2 = Section.find().fetch();
-        console.log("reading...")
+    const data1 = Course.find().fetch();
+    const data2 = Section.find().fetch();
+    console.log("Creating search collection...")
 
-        //first insert course
-        let count1 = 0;
-        for (let item of data1) {
-            if (1 == 1) {
-                count1++;
-                SearchPnc.insert(item);
-                if(count1 % 500 == 0){
-                    console.log(count1 + "courses inserted");
-                }
-            }
+    //first insert course
+    for (let item of data1) {
+        if (1 == 1) {
+            count1++;
+            SearchPnc.insert(item);
         }
+    }
 
-        //then insert section field
-        let count2 = 0;
-        for (let item of data2){
-            if (1 == 1) {
-                count2++;
-                const course_obj = SearchPnc.findOne({id: item.course});
-                if(course_obj){
-                    const course_id = course_obj._id;
-                    const section_times = item.times;
-                    const section_ins = item.instructors;
+    //then insert section field
+    for (let item of data2){
+        if (1 == 1) {
+            const course_obj = SearchPnc.findOne({id: item.course});
+            if(course_obj){
+                const course_id = course_obj._id;
+                const section_times = item.times;
+                const section_ins = item.instructors;
 
-                    //first check if this course has a times field
-                    const hasTime = !!course_obj.times;
+                //first check if this course has a times field
+                const hasTime = !!course_obj.times;
 
-                    if(hasTime){//if so
-                        //check if this section has times
-                        if(section_times.length != 0){//if so, add the objects to the times array
-                            for(let time of section_times){
-                                SearchPnc.update(course_id, {
-                                    $push: {
-                                        times: time
-                                    }
-                                })
-                            }
-                        }
-                    } else {//if not, create such field and put the current times into it, if there's any
-                        if(section_times.length != 0){
+                if(hasTime){//if so
+                    //check if this section has times
+                    if(section_times.length != 0){//if so, add the objects to the times array
+                        for(let time of section_times){
                             SearchPnc.update(course_id, {
-                                $set: {
-                                    times: section_times
+                                $push: {
+                                    times: time
                                 }
                             })
                         }
                     }
-
-                    //same for instructor
-                    const hasIns = !!course_obj.instructors;
-
-                    if(hasIns){//if so
-                        //check if this section has times
-                        if(section_ins.length != 0){//if so, add the objects to the times array
-                            for(let ins of section_ins){
-                                const ins_obj = Instructor.findOne({id: ins});
-                                if(ins.first !== "Staff" && ins.last !== "Staff"){
-                                    SearchPnc.update(course_id, {
-                                        $push: {
-                                            instructors: ins
-                                        }
-                                    })
-                                }
+                } else {//if not, create such field and put the current times into it, if there's any
+                    if(section_times.length != 0){
+                        SearchPnc.update(course_id, {
+                            $set: {
+                                times: section_times
                             }
-                        }
-                    } else {//if not, create such field and put the current times into it, if there's any
-                        if(section_ins.length != 0){
-                            for(let ins of section_ins){
-                                const ins_obj = Instructor.findOne({id: ins});
-                                if(ins.first !== "Staff" && ins.last !== "Staff"){
-                                    SearchPnc.update(course_id, {$set:{instructors:[]}});
-                                    SearchPnc.update(course_id, {
-                                        $push: {
-                                            instructors: ins
-                                        }
-                                    })
-                                }
+                        })
+                    }
+                }
+
+                //same for instructor
+                const hasIns = !!course_obj.instructors;
+
+                if(hasIns){//if so
+                    //check if this section has times
+                    if(section_ins.length != 0){//if so, add the objects to the times array
+                        for(let ins of section_ins){
+                            const ins_obj = Instructor.findOne({id: ins});
+                            if(ins.first !== "Staff" && ins.last !== "Staff"){
+                                SearchPnc.update(course_id, {
+                                    $push: {
+                                        instructors: ins
+                                    }
+                                })
                             }
                         }
                     }
-                } else {
-                    console.log(item + "has a course id not in database");
+                } else {//if not, create such field and put the current times into it, if there's any
+                    if(section_ins.length != 0){
+                        for(let ins of section_ins){
+                            const ins_obj = Instructor.findOne({id: ins});
+                            if(ins.first !== "Staff" && ins.last !== "Staff"){
+                                SearchPnc.update(course_id, {$set:{instructors:[]}});
+                                SearchPnc.update(course_id, {
+                                    $push: {
+                                        instructors: ins
+                                    }
+                                })
+                            }
+                        }
+                    }
                 }
-
-                if(count2 % 500 == 0){
-                    console.log(count2 + "sections processed")
-                }
+            } else {
+                console.log(item + "has a course id not in database");
             }
         }
+    }
 
-        console.log("Done!");
-    /*
-    const fs = Npm.require('fs');
-    fs.readFile(
-        //"D:\\Luyi's\\JBS2016\\JSON\\export-2004-2016.json", 'utf8',
-        //"D:\\Luyi's\\JBS2016\\deisAcademic\\public\\data\\classes.json", 'utf8',
-        //"/Users/mhzhu/Desktop/deisAcademic/public/data/classes.json", 'utf8',
-        //Meteor.settings.filePath, 'utf8',
-        //"/home/pnc/deisAcademic/public/data/classes.json", 'utf8',
-        "/home/pnc/JSON/export-2004-2016.json", 'utf8',
-        Meteor.bindEnvironment(function(err, data) {
-            if (err) {
-                console.log('Error: ' + err);
-                return;
-            }
-            data = JSON.parse(data);
-            console.log("reading...")
-            let i = 0;
-            for (i = 0; i < data.length; i++) {
-                const d = data[i];
-                if (d.type == "instructor") {
-                    const isInData = Instructor.findOne({id: d.id});
-                    if(isInData){
-                        Instructor.remove(isInData._id);
-                        Instructor.insert(d);
-                    } else {
-                        Instructor.insert(d);
-                    }
-                } else if (d.type == "requirement") {
-                    const isInData = Requirement.findOne({id: d.id});
-                    if(isInData){
-                        Requirement.remove(isInData._id);
-                        Requirement.insert(d);
-                    } else {
-                        Requirement.insert(d);
-                    }
-                } else if (d.type == "term") {
-                    const isInData = Term.findOne({id: d.id});
-                    if(isInData){
-                        Term.remove(isInData._id);
-                        Term.insert(d);
-                    } else {
-                        Term.insert(d);
-                    }
-                } else if (d.type == "subject") {
-                    const isInData = Subject.findOne({id: d.id});
-                    if(isInData){
-                        Subject.remove(isInData._id);
-                        Subject.insert(d);
-                    } else {
-                        Subject.insert(d);
-                    }
-                } else if (d.type == "course") {
-                    const isInData = Course.findOne({id: d.id});
-                    if(isInData){
-                        Course.remove(isInData._id);
-                        Course.insert(d);
-                    } else {
-                        Course.insert(d);
-                    }
-                } else if (d.type == "section") {
-                    const isInData = Section.findOne({id: d.id});
-                    if(isInData){
-                        Section.remove(isInData._id);
-                        Section.insert(d);
-                    } else {
-                        Section.insert(d);
-                    }
-                } else {
-                    console.log("don't recognize data ");
-                    console.log(d.type);
-                }
-            }
-            console.log("Done!")
-        }));*/
+    console.log("Done!");
 })

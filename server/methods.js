@@ -1579,7 +1579,7 @@ Meteor.methods({
             if (err) {
                 console.log(err.message);
                 return;
-            }
+            };
 
             const fs = Npm.require('fs');
             fs.writeFile("/home/pnc/JSON/export.json", "[\n" + response.content.replace(/}\n{/ig, "},\n{") + "]", "utf-8", 
@@ -1590,7 +1590,7 @@ Meteor.methods({
                     }
                 }
             );
-
+            
             fs.readFile(
             //"D:\\Luyi's\\JBS2016\\JSON\\export-2004-2016.json", 'utf8',
             //"D:\\Luyi's\\JBS2016\\deisAcademic\\public\\data\\classes.json", 'utf8',
@@ -1668,7 +1668,104 @@ Meteor.methods({
                     }
                 }
 
-                console.log("Done!")
+                console.log("Done!");
+
+                //update search collection using new course data
+                console.log("Updating search collection...");
+                let remove_rec = {};//keep track of the courses that are updated
+
+                for (let item of Section.find().fetch()){
+                    if(item.id.substring(0, 4) < currentTerm) continue;
+
+                    const course_obj = SearchPnc.findOne({id: item.course});
+                    if(course_obj){
+                        const course_id = course_obj._id;
+                        const section_times = item.times;
+                        const section_ins = item.instructors;
+
+                        //first check if this course has a times field
+                        const hasTime = !!course_obj.times;
+
+                        if(hasTime){//if so
+                            //removes the current time array
+                            if(!remove_rec["time-" + course_id]){//make sure it only gets removed once
+                                SearchPnc.update(course_id, {
+                                    $set: {
+                                        times: []
+                                    }
+                                })
+                                remove_rec["time-" + course_id] = 1;
+                            }
+
+                            //check if this section has times
+                            if(section_times.length != 0){//if so, add the objects to the times array
+                                for(let time of section_times){
+                                    SearchPnc.update(course_id, {
+                                        $push: {
+                                            times: time
+                                        }
+                                    })
+                                }
+                            }
+                        } else {//if not, create such field and put the current times into it, if there's any
+                            if(section_times.length != 0){
+                                SearchPnc.update(course_id, {
+                                    $set: {
+                                        times: section_times
+                                    }
+                                })
+                            }
+                        }
+
+                        //same for instructor
+                        const hasIns = !!course_obj.instructors;
+
+                        if(hasIns){//if so
+                            //removes the current instructor array
+                            if(!remove_rec["ins-" + course_id]){//make sure it only gets removed once
+                                SearchPnc.update(course_id, {
+                                    $set: {
+                                        instructors: []
+                                    }
+                                })
+                                remove_rec["ins-" + course_id] = 1;
+                            }
+
+                            //check if this section has times
+                            if(section_ins.length != 0){//if so, add the objects to the times array
+                                for(let ins of section_ins){
+                                    const ins_obj = Instructor.findOne({id: ins});
+                                    if(ins.first !== "Staff" && ins.last !== "Staff"){
+                                        SearchPnc.update(course_id, {
+                                            $push: {
+                                                instructors: ins
+                                            }
+                                        })
+                                    }
+                                }
+                            }
+                        } else {//if not, create such field and put the current times into it, if there's any
+                            if(section_ins.length != 0){
+                                for(let ins of section_ins){
+                                    const ins_obj = Instructor.findOne({id: ins});
+                                    if(ins.first !== "Staff" && ins.last !== "Staff"){
+                                        SearchPnc.update(course_id, {$set:{instructors:[]}});
+                                        SearchPnc.update(course_id, {
+                                            $push: {
+                                                instructors: ins
+                                            }
+                                        })
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        console.log(item.id + " has a course id not in database");
+                    }
+                }
+
+                remove_rec = {};
+                console.log("Done!");
             }));
         });
     },
