@@ -336,9 +336,9 @@ Meteor.startup(function() {
     }
 
     if(CoursePrediction.find().count() == 0) Meteor.call("predictionAlgorithm", Meteor.settings.predictionKey);
-    setInterval(function(){
+    Meteor.setInterval(function(){
         Meteor.call("updateJSON", Meteor.settings.updateKey);
-    }, 600000)
+    }, 600000);
     
     if(SearchPnc.find().count() != 0) return;
     SearchPnc.remove({});

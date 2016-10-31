@@ -416,7 +416,7 @@ Meteor.methods({
                 instructors = instructors + "<br>" + instru_name;
             }
         }
-
+        
         return instructors;
     },
 
@@ -867,7 +867,7 @@ Meteor.methods({
         };
 
 
-        const latest_term = parseInt(Term.find().fetch()[Term.find().count() - 1].id);
+        const latest_term = parseInt(Term.find().fetch().sort(function(a, b){return a.id - b.id;})[Term.find().count() - 1].id);
         let latest_allowed_term = latest_term;
         for(let i = 0; i < server_allowed_terms; i++){
             if(("" + latest_allowed_term).charAt(3) == 1){
@@ -973,7 +973,7 @@ Meteor.methods({
         };
 
 
-        const latest_term = parseInt(Term.find().fetch()[Term.find().count() - 1].id);
+        const latest_term = parseInt(Term.find().fetch().sort(function(a, b){return a.id - b.id;})[Term.find().count() - 1].id);
         let latest_allowed_term = latest_term;
         for(let i = 0; i < server_allowed_terms; i++){
             if(("" + latest_allowed_term).charAt(3) == 1){
@@ -1085,7 +1085,7 @@ Meteor.methods({
     },
 
     checkValidPlan: function(term_range, major_id){
-        const latest_term = parseInt(Term.find().fetch()[Term.find().count() - 1].id);
+        const latest_term = parseInt(Term.find().fetch().sort(function(a, b){return a.id - b.id;})[Term.find().count() - 1].id);
         let latest_allowed_term = latest_term;
         for(let i = 0; i < server_allowed_terms; i++){
             if(("" + latest_allowed_term).charAt(3) == 1){
@@ -1340,7 +1340,7 @@ Meteor.methods({
             const weight_percent = 0.75;
             const mixed_percent = 0.9;
             const allowed_terms = 6;
-            const latest_term_code = Term.find().fetch()[Term.find().count() - 1].id.replace(/3$/, 2);
+            const latest_term_code = Term.find().fetch().sort(function(a, b){return a.id - b.id;})[Term.find().count() - 1].id.replace(/3$/, 2);
             const latest_available_term_index = (parseInt((2 * (latest_term_code.substring(0, 3) - 104)) + parseInt((latest_term_code.substring(3) - 1))));//20;
 
 

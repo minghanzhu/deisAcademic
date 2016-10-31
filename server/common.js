@@ -71,8 +71,12 @@ Schemas.Services = new SimpleSchema({
     },
     google: {
         type: Schemas.Google,
+    },
+    password: {
+        type: Object,
+        blackbox: true,
+        optional: true
     }
-
 })
 
 Schemas.Resume = new SimpleSchema({
