@@ -222,6 +222,10 @@ Template.coursePreview.helpers({
     unavailableSection: function(section_id){
         return $.inArray(section_id, Template.instance().masterDict.get("unavailableSections")) == -1;
     },
+
+    getSageCode: function(section_id){
+        return section_id.substring(section_id.indexOf("-") + 1, section_id.lastIndexOf("-"));
+    },
 })
 
 Template.coursePreview.events({

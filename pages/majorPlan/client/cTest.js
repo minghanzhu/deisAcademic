@@ -425,8 +425,7 @@ Template.calendarTest.helpers({
 
     pullPredictionData: function(masterDict){
         const chosen_course_list = masterDict.get("courseList");
-        const wishlist_course = UserProfilePnc.findOne().wishlist;
-        Meteor.call("getCoursePrediction", chosen_course_list, wishlist_course, function(err, result){
+        Meteor.call("getCoursePrediction", chosen_course_list, Router.current().params._id, function(err, result){
             if(err){
                 window.alert(err.message);
                 return;

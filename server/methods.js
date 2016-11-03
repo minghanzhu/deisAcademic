@@ -1633,8 +1633,48 @@ Meteor.methods({
         runAlgorithm();
     },
 
-    getCoursePrediction: function(continuity_id_list, wishlist_section_id_list){
+    getCoursePrediction: function(continuity_id_list, plan_id){
         const result = {};
+
+        let wishlist_section_id_list;
+        if(plan_id){//modifying
+            const plan_obj = MajorPlansPnc.findOne(plan_id);
+            const scheduleList = plan_obj.scheduleList;
+            const futureList = plan_obj.futureList;
+
+            //search courses in schedule list
+            for(let schedule of scheduleList){
+                const schedule_obj = SchedulesPnc.findOne(schedule);
+                const courseList = schedule_obj.courseList;
+                for(let course of courseList){
+                    const section_id = course.section_id;
+                    const section_obj = Section.findOne({id: section_id});
+                    const course_obj = Course.findOne({id: section_obj.course});
+                    const course_cont_id = course_obj.continuity_id;
+                    if(_.indexOf(continuity_id_list, course_cont_id) == -1){
+                        continuity_id_list.push(course_cont_id);
+                    }
+                }
+            }
+
+            //search courses in future list
+            for(let futureSchedule of futureList){
+                const courseList = futureSchedule.courseList;
+                for(let cont_id of courseList){
+                    if(_.indexOf(continuity_id_list, cont_id) == -1){
+                        continuity_id_list.push(cont_id);
+                    }
+                }
+            }
+
+            wishlist_section_id_list = [];
+        } else {//new plan
+            if(this.userId){
+                wishlist_section_id_list = UserProfilePnc.findOne({userId: this.userId}).wishlist;
+            } else {
+                wishlist_section_id_list = [];
+            }
+        }
 
         for(let continuity_id of continuity_id_list){
             //check if the id is valid

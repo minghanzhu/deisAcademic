@@ -30,9 +30,9 @@
                                 <div class="header" section-id="{{course.section_id}}">
                                     
                                     {{#if unavailableSection course.section_id}}
-                                        {{course.code}}
+                                        {{course.code}} - {{course.section_obj.section}}
                                     {{else}}
-                                        <p style="color:orange">{{course.code}}</p>
+                                        <p style="color:orange">{{course.code}} - {{course.section_obj.section}}</p>
                                     {{/if}}
                                     {{#if isNewPlan}}
                                         <i class="remove icon pull-right js-remove-course" section-id="{{course.section_id}}" term="{{term.id}}"></i>
@@ -42,7 +42,7 @@
                                         {{/if}}
                                     {{/if}}
                                 </div>
-                                Section {{course.section_obj.section}}
+                                Sage code: {{getSageCode course.section_id}} 
                             </div>
                         {{/if}}
                     {{/each}}
