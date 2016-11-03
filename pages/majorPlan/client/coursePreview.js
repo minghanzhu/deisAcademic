@@ -182,11 +182,11 @@ Template.coursePreview.helpers({
     },
 
     getPercentage:function(continuity_id, term){
-        if(!CoursePrediction.findOne({course: continuity_id})){
+        if(!Template.instance().masterDict.get("predictionData")[continuity_id]){
             return "N/A"
         }
 
-        const prediction_obj = CoursePrediction.findOne({course: continuity_id})[term];
+        const prediction_obj = Template.instance().masterDict.get("predictionData")[continuity_id][term];
         if(!prediction_obj){
             return "N/A";
         }
@@ -197,12 +197,12 @@ Template.coursePreview.helpers({
         } else if(percentage == 0){
             return "1%"
         } else {
-            if(percentage.toFixed(2) == 1){
+            if(Math.round(prediction_obj.percentage * 100) == 100){
                 return "99%"
-            } else if(percentage.toFixed(2) == 0){
+            } else if(Math.round(prediction_obj.percentage * 100) == 0){
                 return "1%"
             } else {
-                return percentage.toFixed(2) * 100 + "%";
+                return Math.round(prediction_obj.percentage * 100) + "%";
             }
         }
     },
@@ -217,6 +217,14 @@ Template.coursePreview.helpers({
 
     isNewPlan: function(){
         return !Template.instance().masterDict.get("isModify");
+    },
+
+    unavailableSection: function(section_id){
+        return $.inArray(section_id, Template.instance().masterDict.get("unavailableSections")) == -1;
+    },
+
+    getSageCode: function(section_id){
+        return section_id.substring(section_id.indexOf("-") + 1, section_id.lastIndexOf("-"));
     },
 })
 

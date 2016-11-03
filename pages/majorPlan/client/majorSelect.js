@@ -3,7 +3,7 @@ Template.majorSelect.onCreated(function() {
     this.majorSelectDict.set("clickedGo", false);
     this.majorSelectDict.set("clickedHelp", false);
     this.majorSelectDict.set("allowed_new_terms", 6);//3 years
-    this.majorSelectDict.set("newest_term", Term.find().fetch()[Term.find().count() - 1]);
+    this.majorSelectDict.set("newest_term", Term.find().fetch().sort(function(a, b){return a.id - b.id;})[Term.find().count() - 1]);
 
     const term_list = Term.find().fetch().sort(function(a, b){
         return parseInt(a.id) - parseInt(b.id);

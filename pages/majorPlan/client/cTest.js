@@ -91,26 +91,16 @@ Template.calendarTest.helpers({
                 }
             }
         } else {
-            //get all distinct courses and make sure they are the newest within the term range
-            //if the terms are all future terms, get only the follwing info using a new meteor call
-            //1. course name
-            //2. course offering prediction
-            //
-            //at the same time, if the user wants to see detailed information, make only course tag 
-            //available using the course data of the newest one in the dict.
-            //and also hide "decide to take button"
-            //
-            //create a new field in major plan object that saves chosen cont_id's for different semesters
-            let currentCourse = "";
-            for (let course of availableCourseList) {
-                if (course.continuity_id !== currentCourse) {
+            const chosenCourse = [];
+            for (let course of availableCourseList.reverse()) {
+                if ($.inArray(course.continuity_id, chosenCourse) == -1) {
                     courseList.push(course);
-                    currentCourse = course.continuity_id;
+                    chosenCourse.push(course.continuity_id);
                 }
             }
         }
         
-        return courseList;
+        return courseList.reverse();
     },
 
     pullUserCourseList: function() {
@@ -134,12 +124,12 @@ Template.calendarTest.helpers({
 
                     if (result.length != 0) {
                         if (dict.get("includeWishlist") && sectionList.length != 0) {
-                            Meteor.call("fetchSectionList", sectionList, function(err, section_result) {
+                            Meteor.call("fetchSectionList", sectionList, function(err, response) {
                                 if (err) {
                                     window.alert(err.message);
                                     return;
                                 }
-
+                                const section_result = response.data;
                                 if (section_result.length != 0) {
                                     const wishlist_course = section_result;
                                     const new_course = [];
@@ -365,7 +355,15 @@ Template.calendarTest.helpers({
     },
 
     sectionReady: function() {
-        return !!Template.instance().calendarDict.get('sectionObj');
+        const unavailableSections = Template.instance().masterDict.get("unavailableSections");
+        const section_obj = Template.instance().calendarDict.get('sectionObj');
+        if(!section_obj) return false;
+        
+        if($.inArray(section_obj.id, unavailableSections) != -1){
+            return false;
+        } else {
+            return true;
+        }
     },
 
     isSectionChosen: function() {
@@ -418,8 +416,8 @@ Template.calendarTest.helpers({
     },
 
     hasFutureTerm: function(){
-        const latest_term = parseInt(Term.find().fetch()[Term.find().count() - 1].id);
-        const allowed_term = 6;//global parameter, to be changed to a method call
+        const latest_term = parseInt(Term.find().fetch().sort(function(a, b){return a.id - b.id;})[Term.find().count() - 1].id);
+        const allowed_term = GlobalParameters.findOne().allowed_terms;//global parameter, to be changed to a method call
         const end_term = Template.instance().masterDict.get("planEndSemester");
 
         return end_term > latest_term && end_term <= (latest_term + 30);
@@ -427,8 +425,7 @@ Template.calendarTest.helpers({
 
     pullPredictionData: function(masterDict){
         const chosen_course_list = masterDict.get("courseList");
-
-        Meteor.call("getCoursePrediction", chosen_course_list, function(err, result){
+        Meteor.call("getCoursePrediction", chosen_course_list, Router.current().params._id, function(err, result){
             if(err){
                 window.alert(err.message);
                 return;
@@ -440,8 +437,8 @@ Template.calendarTest.helpers({
     },
 
     predictionDataReady: function(){
-        const latest_term = parseInt(Term.find().fetch()[Term.find().count() - 1].id);
-        const allowed_term = 6;//global parameter, to be changed to a method call
+        const latest_term = parseInt(Term.find().fetch().sort(function(a, b){return a.id - b.id;})[Term.find().count() - 1].id);
+        const allowed_term = GlobalParameters.findOne().allowed_terms;//global parameter, to be changed to a method call
         const end_term = Template.instance().masterDict.get("planEndSemester");
 
         if(end_term > latest_term && end_term <= (latest_term + 30)){
@@ -833,8 +830,9 @@ Template.calendarTest.events({
             };
             Template.instance().masterDict.set("scheduleList", current_schedule_list);
         }
-        
+
         //then go back to the previous page
+        Template.instance().data["dict"].set("courseFetchInfo", Template.instance().calendarDict.get("courseFetchInfo"));
         Template.instance().masterDict.set("clickedChange", true);
     },
 
@@ -1157,12 +1155,12 @@ Template.scheduleCourseList.helpers({
     },
 
     getPredictionData: function(continuity_id, masterDict){
-        if(!CoursePrediction.findOne({course: continuity_id})){
+        if(!Template.instance().masterDict.get("predictionData")[continuity_id]){
             return "N/A"
         }
 
         const term = masterDict.get("chosenTerm");
-        const prediction_obj = CoursePrediction.findOne({course: continuity_id})[term];
+        const prediction_obj = Template.instance().masterDict.get("predictionData")[continuity_id][term];
         if(!prediction_obj){
             return "N/A";
         } else {
@@ -1171,20 +1169,20 @@ Template.scheduleCourseList.helpers({
             } else if(prediction_obj.percentage == 0){
                 return "1%"
             } else {
-                if(prediction_obj.percentage.toFixed(2) == 1){
+                if(Math.round(prediction_obj.percentage * 100) == 100){
                     return "99%"
-                } else if(prediction_obj.percentage.toFixed(2) == 0){
+                } else if(Math.round(prediction_obj.percentage * 100) == 0){
                     return "1%"
                 } else {
-                    return prediction_obj.percentage.toFixed(2) * 100 + "%";
+                    return Math.round(prediction_obj.percentage * 100) + "%";
                 }
             }
         }       
     },
 
     isFutureTerm: function(){
-        const latest_term = parseInt(Term.find().fetch()[Term.find().count() - 1].id);
-        const allowed_term = 6;//global parameter, to be changed to a method call
+        const latest_term = parseInt(Term.find().fetch().sort(function(a, b){return a.id - b.id;})[Term.find().count() - 1].id);
+        const allowed_term = GlobalParameters.findOne().allowed_terms;//global parameter, to be changed to a method call
         const end_term = Template.instance().masterDict.get("chosenTerm");
 
         return end_term > latest_term && end_term <= (latest_term + 30);
@@ -1192,26 +1190,36 @@ Template.scheduleCourseList.helpers({
 
     high: function(continuity_id){
         const term = Template.instance().masterDict.get("chosenTerm");
-        const percentage = CoursePrediction.findOne({course: continuity_id})[term].percentage;
+        if(!Template.instance().masterDict.get("predictionData")[continuity_id]) return;
+        const percentage = Template.instance().masterDict.get("predictionData")[continuity_id][term].percentage;
         return percentage >= 0.85;
     },
 
     mid: function(continuity_id){
         const term = Template.instance().masterDict.get("chosenTerm");
-        const percentage = CoursePrediction.findOne({course: continuity_id})[term].percentage;
+        if(!Template.instance().masterDict.get("predictionData")[continuity_id]) return;
+        const percentage = Template.instance().masterDict.get("predictionData")[continuity_id][term].percentage;
         return percentage < 0.85 && percentage > 0.2;
     },
 
     na: function(continuity_id){
-        return !CoursePrediction.findOne({course: continuity_id});
+        return !Template.instance().masterDict.get("predictionData")[continuity_id];
     },
 
     inList: function(continuity_id){
         const scheduleList = Template.instance().masterDict.get("scheduleList");
         for(let term in scheduleList){
             for(let course of scheduleList[term].courseList){
-                if(course === continuity_id){
-                    return true;
+                if(typeof course === "string"){
+                    if(course === continuity_id){
+                        return true;
+                    }
+                } else if(typeof course === "object"){
+                    const course_id = course.events[0].section_obj.course;
+                    const cont_id_of_course = course_id.substring(course_id.indexOf("-") + 1);
+                    if(cont_id_of_course === continuity_id){
+                        return true;
+                    }
                 }
             }
         }

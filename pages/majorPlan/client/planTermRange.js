@@ -1,7 +1,7 @@
 Template.planTermRange.onCreated(function(){
 	this.termRangeDict = new ReactiveDict();
     this.termRangeDict.set("clickedOK", false);
-    this.termRangeDict.set("allowed_new_terms", 6);//global parameter
+    this.termRangeDict.set("allowed_new_terms", GlobalParameters.findOne().allowed_terms);//global parameter
 
     const term_list = Term.find().fetch().sort(function(a, b){
         return parseInt(a.id) - parseInt(b.id);

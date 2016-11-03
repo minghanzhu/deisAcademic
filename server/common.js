@@ -71,8 +71,12 @@ Schemas.Services = new SimpleSchema({
     },
     google: {
         type: Schemas.Google,
+    },
+    password: {
+        type: Object,
+        blackbox: true,
+        optional: true
     }
-
 })
 
 Schemas.Resume = new SimpleSchema({
@@ -517,3 +521,13 @@ Schemas.SchedulesPnc = new SimpleSchema({
 })
 
 SchedulesPnc.attachSchema(Schemas.SchedulesPnc);
+
+Schemas.GlobalParameters = new SimpleSchema({
+    allowed_terms: {
+        type: Number,
+        min: 3,
+        max: 10
+    }
+})
+
+GlobalParameters.attachSchema(Schemas.GlobalParameters);

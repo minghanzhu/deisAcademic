@@ -48,7 +48,7 @@ Template.home.onRendered(function() {
 
             //these get all the keywords for search
             const keyword = $(".js-submit-search").val();
-            const term = $(".js-term").val();
+            const term = $(".js-term input").val();
             const req_array = $(".js-req .ui.label.transition.visible").toArray();
             const req_names_array = [];
             for (let item of req_array) {
@@ -156,6 +156,7 @@ Template.home.onRendered(function() {
     $('#search-select-start-time').dropdown();
     $('#search-select-end-time').dropdown();
     $('#multi-select-days').dropdown();
+    $('.js-term').dropdown();
     $('.ui.checkbox').checkbox();
 
     //this gets all the professors names and initialize the search selection
@@ -182,6 +183,12 @@ Template.home.helpers({
     notTalking: function(){
     	return Template.instance().homeDict.get("notTalking");
     },
+
+    termList: function(){
+        return Term.find().fetch().sort(function(a, b){
+            return b.id - a.id;
+        })
+    },
 })
 
 Template.home.events({
@@ -203,7 +210,7 @@ Template.home.events({
 
         if (if_clear_params) {
             $(".js-submit-search").val("");
-            $(".js-term").val("");
+            $('.js-term').dropdown('restore defaults');
             $('#search-select').dropdown("clear");
             $('#search-select-start-time').dropdown("clear");
             $('#search-select-end-time').dropdown("clear");
@@ -286,9 +293,10 @@ Template.home.events({
                                             term = 1162;
                                             break;
                                     }
-                                    $(".js-term").val(term);
+                                    $('.js-term').dropdown('set selected', term);
+
                                 } else {
-                                    term = $(".js-term").val();
+                                    term = $(".js-term input").val();
                                 }
 
                                 if (apiRes.data.result.parameters.Instructor) {
@@ -448,6 +456,10 @@ Template.search_result.helpers({
     sectionData: function() {
         const homeDict = Template.instance().homeDict;
         return homeDict.get('sectionDetail');
+    },
+
+    notAvailable: function(){
+        return Template.instance().homeDict.get("notAvailable");
     },
 
     noResult: function() {
@@ -643,6 +655,7 @@ Template.search_result.events({
         const homeDict = Template.instance().homeDict;
         homeDict.set('courseInfo');
         homeDict.set('sectionDetail', []);
+        homeDict.set('notAvailable', false);
         homeDict.set('majorDetail', []);
         homeDict.set('instructors');
         homeDict.set('courseInfo', this);
@@ -693,6 +706,8 @@ Template.search_result.events({
                         return parseInt(section.section);
                     }
                 ));
+
+                if(result.length == 0) homeDict.set("notAvailable", true);
             }
         );
     },

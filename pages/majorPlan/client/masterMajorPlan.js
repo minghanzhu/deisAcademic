@@ -24,13 +24,21 @@ Template.masterMajorPlan.onCreated(function(){
 	    const current_plan_id = Router.current().params._id;
         const scheduleList = MajorPlansPnc.findOne(current_plan_id).scheduleList;
         const masterDict = this.masterPageDict;
+        let hasUnavailable = false;
         
-        Meteor.call("fetchScheduleList", scheduleList, function(err, result) {
+        Meteor.call("fetchScheduleList", scheduleList, function(err, response) {
             if (err) {
                 window.alert(err.message);
                 return;
             };
+
+            const result = response.data;
             const fetched_scheduleList = {};
+            if(response.msg["unavailable"].length != 0) {
+                hasUnavailable = true;
+                masterDict.set("unavailableSections", response.msg["unavailable"]);
+            }
+
             for (let term in result) { //go through each term in the result
                 const courseList = [];
                 const term = term;
@@ -72,14 +80,25 @@ Template.masterMajorPlan.onCreated(function(){
                                     return "07";
                                 }
                             };
-
-                            const event_obj = {
-                                id: section, //this holds the section id so events at different tiems are associated
-                                title: course_code,
-                                start: "2000-01-" + dayNum(day) + "T" + convertTime(time.start) + "-05:00",
-                                end: "2000-01-" + dayNum(day) + "T" + convertTime(time.end) + "-05:00",
-                                section_obj: section_obj //this hold the actual section object for later use
-                            };
+                            let event_obj;
+                            if($.inArray(section, response.msg["unavailable"]) != -1){
+                                event_obj = {
+                                    id: section, //this holds the section id so events at different tiems are associated
+                                    title: course_code,
+                                    color:"#FF4500",//orange
+                                    start: "2000-01-" + dayNum(day) + "T" + convertTime(time.start) + "-05:00",
+                                    end: "2000-01-" + dayNum(day) + "T" + convertTime(time.end) + "-05:00",
+                                    section_obj: section_obj //this hold the actual section object for later use
+                                };
+                            } else {
+                                event_obj = {
+                                    id: section, //this holds the section id so events at different tiems are associated
+                                    title: course_code,
+                                    start: "2000-01-" + dayNum(day) + "T" + convertTime(time.start) + "-05:00",
+                                    end: "2000-01-" + dayNum(day) + "T" + convertTime(time.end) + "-05:00",
+                                    section_obj: section_obj //this hold the actual section object for later use
+                                };
+                            }
 
                             events_array.push(event_obj);
                         }
@@ -133,6 +152,9 @@ Template.masterMajorPlan.onCreated(function(){
                 masterDict.set("scheduleList", fetched_scheduleList);
                 masterDict.set("courseFetchInfo", fetch_wishlist_course);
                 masterDict.set("pageName", "makeSchedule");
+                if(hasUnavailable){
+                    window.alert("Unfortunately, some of your sections are no longer available");
+                }
             })
         });
 	} else {
