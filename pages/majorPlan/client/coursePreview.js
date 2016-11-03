@@ -182,11 +182,11 @@ Template.coursePreview.helpers({
     },
 
     getPercentage:function(continuity_id, term){
-        if(!CoursePrediction.findOne({course: continuity_id})){
+        if(!Template.instance().masterDict.get("predictionData")[continuity_id]){
             return "N/A"
         }
 
-        const prediction_obj = CoursePrediction.findOne({course: continuity_id})[term];
+        const prediction_obj = Template.instance().masterDict.get("predictionData")[continuity_id][term];
         if(!prediction_obj){
             return "N/A";
         }

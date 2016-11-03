@@ -425,8 +425,8 @@ Template.calendarTest.helpers({
 
     pullPredictionData: function(masterDict){
         const chosen_course_list = masterDict.get("courseList");
-
-        Meteor.call("getCoursePrediction", chosen_course_list, function(err, result){
+        const wishlist_course = UserProfilePnc.findOne().wishlist;
+        Meteor.call("getCoursePrediction", chosen_course_list, wishlist_course, function(err, result){
             if(err){
                 window.alert(err.message);
                 return;
@@ -1156,12 +1156,12 @@ Template.scheduleCourseList.helpers({
     },
 
     getPredictionData: function(continuity_id, masterDict){
-        if(!CoursePrediction.findOne({course: continuity_id})){
+        if(!Template.instance().masterDict.get("predictionData")[continuity_id]){
             return "N/A"
         }
 
         const term = masterDict.get("chosenTerm");
-        const prediction_obj = CoursePrediction.findOne({course: continuity_id})[term];
+        const prediction_obj = Template.instance().masterDict.get("predictionData")[continuity_id][term];
         if(!prediction_obj){
             return "N/A";
         } else {
@@ -1191,18 +1191,18 @@ Template.scheduleCourseList.helpers({
 
     high: function(continuity_id){
         const term = Template.instance().masterDict.get("chosenTerm");
-        const percentage = CoursePrediction.findOne({course: continuity_id})[term].percentage;
+        const percentage = Template.instance().masterDict.get("predictionData")[continuity_id][term].percentage;
         return percentage >= 0.85;
     },
 
     mid: function(continuity_id){
         const term = Template.instance().masterDict.get("chosenTerm");
-        const percentage = CoursePrediction.findOne({course: continuity_id})[term].percentage;
+        const percentage = Template.instance().masterDict.get("predictionData")[continuity_id][term].percentage;
         return percentage < 0.85 && percentage > 0.2;
     },
 
     na: function(continuity_id){
-        return !CoursePrediction.findOne({course: continuity_id});
+        return !Template.instance().masterDict.get("predictionData")[continuity_id];
     },
 
     inList: function(continuity_id){

@@ -1627,10 +1627,26 @@ Meteor.methods({
         runAlgorithm();
     },
 
-    getCoursePrediction: function(continuity_id_list){
+    getCoursePrediction: function(continuity_id_list, wishlist_section_id_list){
         const result = {};
 
         for(let continuity_id of continuity_id_list){
+            //check if the id is valid
+            const prediction_obj = CoursePrediction.findOne({course: continuity_id});
+
+            if(!prediction_obj){
+                result[continuity_id] = {};
+            } else {
+                delete prediction_obj["course"]
+                result[continuity_id] = prediction_obj;
+            } 
+        }
+
+        for(let section_id of wishlist_section_id_list){
+            const section_obj = Section.findOne({id: section_id});
+            const course_obj = Course.findOne({id: section_obj.course});
+            const continuity_id = course_obj.continuity_id;
+
             //check if the id is valid
             const prediction_obj = CoursePrediction.findOne({course: continuity_id});
 
