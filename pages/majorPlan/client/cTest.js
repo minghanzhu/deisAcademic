@@ -1191,12 +1191,14 @@ Template.scheduleCourseList.helpers({
 
     high: function(continuity_id){
         const term = Template.instance().masterDict.get("chosenTerm");
+        if(!Template.instance().masterDict.get("predictionData")[continuity_id]) return;
         const percentage = Template.instance().masterDict.get("predictionData")[continuity_id][term].percentage;
         return percentage >= 0.85;
     },
 
     mid: function(continuity_id){
         const term = Template.instance().masterDict.get("chosenTerm");
+        if(!Template.instance().masterDict.get("predictionData")[continuity_id]) return;
         const percentage = Template.instance().masterDict.get("predictionData")[continuity_id][term].percentage;
         return percentage < 0.85 && percentage > 0.2;
     },
