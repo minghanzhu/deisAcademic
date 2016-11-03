@@ -91,26 +91,16 @@ Template.calendarTest.helpers({
                 }
             }
         } else {
-            //get all distinct courses and make sure they are the newest within the term range
-            //if the terms are all future terms, get only the follwing info using a new meteor call
-            //1. course name
-            //2. course offering prediction
-            //
-            //at the same time, if the user wants to see detailed information, make only course tag 
-            //available using the course data of the newest one in the dict.
-            //and also hide "decide to take button"
-            //
-            //create a new field in major plan object that saves chosen cont_id's for different semesters
-            let currentCourse = "";
-            for (let course of availableCourseList) {
-                if (course.continuity_id !== currentCourse) {
+            const chosenCourse = [];
+            for (let course of availableCourseList.reverse()) {
+                if ($.inArray(course.continuity_id, chosenCourse) == -1) {
                     courseList.push(course);
-                    currentCourse = course.continuity_id;
+                    chosenCourse.push(course.continuity_id);
                 }
             }
         }
         
-        return courseList;
+        return courseList.reverse();
     },
 
     pullUserCourseList: function() {
@@ -134,12 +124,12 @@ Template.calendarTest.helpers({
 
                     if (result.length != 0) {
                         if (dict.get("includeWishlist") && sectionList.length != 0) {
-                            Meteor.call("fetchSectionList", sectionList, function(err, section_result) {
+                            Meteor.call("fetchSectionList", sectionList, function(err, response) {
                                 if (err) {
                                     window.alert(err.message);
                                     return;
                                 }
-
+                                const section_result = response.data;
                                 if (section_result.length != 0) {
                                     const wishlist_course = section_result;
                                     const new_course = [];
@@ -365,7 +355,15 @@ Template.calendarTest.helpers({
     },
 
     sectionReady: function() {
-        return !!Template.instance().calendarDict.get('sectionObj');
+        const unavailableSections = Template.instance().masterDict.get("unavailableSections");
+        const section_obj = Template.instance().calendarDict.get('sectionObj');
+        if(!section_obj) return false;
+        
+        if($.inArray(section_obj.id, unavailableSections) != -1){
+            return false;
+        } else {
+            return true;
+        }
     },
 
     isSectionChosen: function() {
@@ -1211,8 +1209,16 @@ Template.scheduleCourseList.helpers({
         const scheduleList = Template.instance().masterDict.get("scheduleList");
         for(let term in scheduleList){
             for(let course of scheduleList[term].courseList){
-                if(course === continuity_id){
-                    return true;
+                if(typeof course === "string"){
+                    if(course === continuity_id){
+                        return true;
+                    }
+                } else if(typeof course === "object"){
+                    const course_id = course.events[0].section_obj.course;
+                    const cont_id_of_course = course_id.substring(course_id.indexOf("-") + 1);
+                    if(cont_id_of_course === continuity_id){
+                        return true;
+                    }
                 }
             }
         }

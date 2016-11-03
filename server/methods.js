@@ -57,6 +57,13 @@ insert: [2] , update: [3], remove: [4]
 43. "Malformed plan id"
 */
 
+//this decides which collection to be updated.
+//if it's 1, it means new data will go to collection 1
+//and collection 2 will hold all new data from the previous update, 
+//until the current update is done and it'll be cleaned
+let updateCollection = 1;
+if(CourseUpdate1.find().count() != 0) updateCollection = 2;
+
 //Create an array of professor names and id's
 const prof_name_and_id = [];
 if (prof_name_and_id.length == 0) {
@@ -492,6 +499,13 @@ Meteor.methods({
 
     //takes a course object and returns all the sections of it
     getSections: function(courseContIdList, term_range) {
+        let section_data;
+        if(updateCollection == 1){
+            section_data = SectionUpdate2;
+        } else {
+            section_data = SectionUpdate1;
+        }
+
         const result = [];
         const term_id_list = [];
         for(let term of Term.find().fetch()){
@@ -503,17 +517,32 @@ Meteor.methods({
         for(let term_id of term_id_list){
             for(let continuity_id of courseContIdList){
                 const courseId = term_id + "-" + continuity_id;
-                const section_info_obj = {
-                    sections: Section.find({ course: courseId },{
-                        fields: {
-                            _id: 0,
-                            type: 0,
-                            comment: 0,
-                            waiting: 0,
-                        }
-                    }).fetch(),
-                    courseId: courseId
+                if(term_id >= now_term){
+                    section_info_obj = {
+                        sections: section_data.find({ course: courseId },{
+                            fields: {
+                                _id: 0,
+                                type: 0,
+                                comment: 0,
+                                waiting: 0,
+                            }
+                        }).fetch(),
+                        courseId: courseId
+                    }
+                } else {
+                    section_info_obj = {
+                        sections: Section.find({ course: courseId },{
+                            fields: {
+                                _id: 0,
+                                type: 0,
+                                comment: 0,
+                                waiting: 0,
+                            }
+                        }).fetch(),
+                        courseId: courseId
+                    }
                 }
+                
                 result.push(section_info_obj);
             }
         }
@@ -522,6 +551,13 @@ Meteor.methods({
     },
 
     getSections_schedule: function(section_id_list, term_range) {
+        let section_data;
+        if(updateCollection == 1){
+            section_data = SectionUpdate2;
+        } else {
+            section_data = SectionUpdate1;
+        }
+
         const result = [];
         const term_id_list = [];
         for(let term of Term.find().fetch()){
@@ -542,17 +578,34 @@ Meteor.methods({
         for(let term_id of term_id_list){
             for(let continuity_id of courseContIdList){
                 const courseId = term_id + "-" + continuity_id;
-                const section_info_obj = {
-                    sections: Section.find({ course: courseId },{
-                        fields: {
-                            _id: 0,
-                            type: 0,
-                            comment: 0,
-                            waiting: 0,
-                        }
-                    }).fetch(),
-                    courseId: courseId
+
+                let section_info_obj;
+                if(term_id >= now_term){
+                    section_info_obj = {
+                        sections: section_data.find({ course: courseId },{
+                            fields: {
+                                _id: 0,
+                                type: 0,
+                                comment: 0,
+                                waiting: 0,
+                            }
+                        }).fetch(),
+                        courseId: courseId
+                    }
+                } else {
+                    section_info_obj = {
+                        sections: Section.find({ course: courseId },{
+                            fields: {
+                                _id: 0,
+                                type: 0,
+                                comment: 0,
+                                waiting: 0,
+                            }
+                        }).fetch(),
+                        courseId: courseId
+                    }
                 }
+                
                 result.push(section_info_obj);
             }
         }
@@ -713,8 +766,24 @@ Meteor.methods({
     },
 
     "fetchSectionList": function(sectionList) {
+        let section_data;
+        if(updateCollection == 1){
+            section_data = SectionUpdate2;
+        } else {
+            section_data = SectionUpdate1;
+        }
+
         const result_array = [];
+        const msg = {};
+        msg["unavailable"] = [];
         for (let section of sectionList) {
+            const term = section.substring(0, section.indexOf("-"));
+            if(term >= now_term){
+                if(!section_data.findOne({id: section})){
+                    msg["unavailable"].push(section);
+                }
+            }
+            
             const course_id = Section.findOne({ id: section }).course;
             result_array.push(Course.findOne({ id: course_id }, {
                 fields: {
@@ -726,7 +795,7 @@ Meteor.methods({
                 }
             }));
         }
-        return result_array;
+        return {data: result_array, msg: msg};
     },
 
     "fetchSections": function(wishlist) {
@@ -919,7 +988,16 @@ Meteor.methods({
     },
 
     "fetchScheduleList": function(scheduleList) {
+        let section_data;
+        if(updateCollection == 1){
+            section_data = SectionUpdate2;
+        } else {
+            section_data = SectionUpdate1;
+        }
+
         const result = {};
+        const msg = {};
+        msg["unavailable"] = [];
         for (let schedule of scheduleList) {
             const schedule_obj = SchedulesPnc.findOne(schedule);
             const schedule_term = schedule_obj.term;
@@ -927,6 +1005,12 @@ Meteor.methods({
 
             result[schedule_term] = {};
             for (let section of schedule_course) {
+                if(schedule_term >= now_term){
+                    if(!section_data.findOne({id: section.section_id})) {
+                        msg["unavailable"].push(section.section_id);
+                    }
+                }
+
                 const section_obj = Section.findOne({ id: section.section_id });
                 const courseCode = Course.findOne({ id: section_obj.course }).code;
                 result[schedule_term][section.section_id] = {
@@ -937,7 +1021,7 @@ Meteor.methods({
             }
 
         }
-        return result;
+        return {data: result, msg: msg};
     },
 
     "updateSchedule_MajorPlan": function(scheduleList, major_code, availableCourseList, current_plan_id, term_range) {
@@ -1597,14 +1681,14 @@ Meteor.methods({
             //"/Users/mhzhu/Desktop/deisAcademic/public/data/classes.json", 'utf8',
             //Meteor.settings.filePath, 'utf8',
             "/home/pnc/JSON/export.json", 'utf8',
-            //"C:/Users/pnctsrc/Desktop/export.json", 'utf8',
+            //"C:/Users/pnc/Desktop/export.json", 'utf8',
             Meteor.bindEnvironment(function(err, data) {
                 if (err) {
                     console.log(err.message);
                     return;
                 }
                 data = JSON.parse(data);
-                console.log("Updating course data...")
+                console.log("Updating course data...");
 
                 for (let i = 0; i < data.length; i++) {
                     const d = data[i];
@@ -1627,8 +1711,10 @@ Meteor.methods({
                     } else if (d.type == "term") {
                         const isInData = Term.findOne({id: d.id});
                         if(isInData){
+                            /*
                             Term.remove(isInData._id);
                             Term.insert(d);
+                            */
                         } else {
                             Term.insert(d);
                         }
@@ -1642,6 +1728,11 @@ Meteor.methods({
                         }
                     } else if (d.type == "course") {
                         if(d.term < currentTerm) continue;
+                        if(updateCollection == 1){
+                            CourseUpdate1.insert(d);
+                        } else {
+                            CourseUpdate2.insert(d);
+                        }
 
                         const isInData = Course.findOne({id: d.id});
                         if(isInData){
@@ -1652,6 +1743,11 @@ Meteor.methods({
                         }
                     } else if (d.type == "section") {
                         if(d.id.substring(0, 4) < currentTerm) continue;
+                        if(updateCollection == 1){
+                            SectionUpdate1.insert(d);
+                        } else {
+                            SectionUpdate2.insert(d);
+                        }
 
                         const isInData = Section.findOne({id: d.id});
                         if(isInData){
@@ -1674,10 +1770,30 @@ Meteor.methods({
                 console.log("Updating search collection...");
                 let remove_rec = {};//keep track of the courses that are updated
 
-                for (let item of Section.find().fetch()){
-                    if(item.id.substring(0, 4) < currentTerm) continue;
+                let new_section_data;
+                let new_course_data;
+                let new_sections;
+                let new_courses;
+                if(updateCollection == 1){
+                    new_section_data = SectionUpdate1.find().fetch();
+                    //new_course_data = CourseUpdate1.find().fetch();
+                    new_sections = SectionUpdate1;
+                    new_courses = CourseUpdate1;
+                } else {
+                    new_section_data = SectionUpdate2.find().fetch();
+                    //new_course_data = CourseUpdate2.find().fetch();
+                    new_sections = SectionUpdate2;
+                    new_courses = CourseUpdate2;
+                }
 
-                    const course_obj = SearchPnc.findOne({id: item.course});
+                for (let item of new_section_data){
+                    let course_obj = SearchPnc.findOne({id: item.course});
+                    if(!course_obj){
+                        const new_course_obj = new_courses.findOne({id: item.course});
+                        SearchPnc.insert(new_course_obj);
+                        console.log(new_course_obj.term + " - " + new_course_obj.code + " added to course collection");
+                    }
+
                     if(course_obj){
                         const course_id = course_obj._id;
                         const section_times = item.times;
@@ -1765,6 +1881,48 @@ Meteor.methods({
                 }
 
                 remove_rec = {};
+                console.log("Done!");
+
+                //delete courses that are unavailable
+                const current_term = now_term;
+                const current_available_courses = SearchPnc.find({term:{$gte: now_term}}).fetch();
+                console.log("Started checking unavailable courses...");
+                for(let course_data of current_available_courses){
+                    if(updateCollection == 1){
+                        if(!CourseUpdate1.findOne({id: course_data.id})){
+                            SearchPnc.remove({id: course_data.id});
+                            console.log("Removed course: " + course_data.code + " - " + course_data.term);
+                            continue;
+                        }
+
+                        if(!SectionUpdate1.findOne({course: course_data.id})){
+                            SearchPnc.remove({id: course_data.id});
+                            console.log("Removed course: " + course_data.code + " - " + course_data.term);
+                        }
+                    } else {
+                        if(!CourseUpdate2.findOne({id: course_data.id})){
+                            SearchPnc.remove({id: course_data.id});
+                            console.log("Removed course: " + course_data.code + " - " + course_data.term);
+                            continue;
+                        }
+
+                        if(!SectionUpdate2.findOne({course: course_data.id})){
+                            SearchPnc.remove({id: course_data.id});
+                            console.log("Removed course: " + course_data.code + " - " + course_data.term);
+                        }
+                    }                    
+                }
+
+                if(updateCollection == 1){
+                    SectionUpdate2.remove({});
+                    CourseUpdate2.remove({});
+                    updateCollection = 2;
+                } else {
+                    SectionUpdate1.remove({});
+                    CourseUpdate1.remove({});
+                    updateCollection = 1;
+                }
+
                 console.log("Done!");
             }));
         });

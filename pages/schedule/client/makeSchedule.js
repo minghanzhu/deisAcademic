@@ -94,13 +94,21 @@ Template.semesterSchedule.helpers({
             Template.instance().masterDict.set("clickedChange", false);
             const scheduleList = UserProfilePnc.findOne().scheduleList;
             const masterDict = Template.instance().masterDict;
+            let hasUnavailable = false;
 
-            Meteor.call("fetchScheduleList", scheduleList, function(err, result) {
+            Meteor.call("fetchScheduleList", scheduleList, function(err, response) {
                 if (err) {
                     window.alert(err.message);
                     return;
                 };
+
+                const result = response.data;
                 const fetched_scheduleList = {};
+                if(response.msg["unavailable"].length != 0) {
+                    hasUnavailable = true;
+                    masterDict.set("unavailableSections", response.msg["unavailable"]);
+                }
+
                 for (let term in result) { //go through each term in the result
                     const courseList = [];
                     const term = term;
@@ -143,13 +151,25 @@ Template.semesterSchedule.helpers({
                                     }
                                 };
 
-                                const event_obj = {
-                                    id: section, //this holds the section id so events at different tiems are associated
-                                    title: course_code,
-                                    start: "2000-01-" + dayNum(day) + "T" + convertTime(time.start) + "-05:00",
-                                    end: "2000-01-" + dayNum(day) + "T" + convertTime(time.end) + "-05:00",
-                                    section_obj: section_obj //this hold the actual section object for later use
-                                };
+                                let event_obj;
+                                if($.inArray(section, response.msg["unavailable"]) != -1){//the section is no longer available
+                                    event_obj = {
+                                        id: section, //this holds the section id so events at different tiems are associated
+                                        title: course_code,
+                                        color:"#FF4500",//orange
+                                        start: "2000-01-" + dayNum(day) + "T" + convertTime(time.start) + "-05:00",
+                                        end: "2000-01-" + dayNum(day) + "T" + convertTime(time.end) + "-05:00",
+                                        section_obj: section_obj //this hold the actual section object for later use
+                                    };
+                                } else {
+                                    event_obj = {
+                                        id: section, //this holds the section id so events at different tiems are associated
+                                        title: course_code,
+                                        start: "2000-01-" + dayNum(day) + "T" + convertTime(time.start) + "-05:00",
+                                        end: "2000-01-" + dayNum(day) + "T" + convertTime(time.end) + "-05:00",
+                                        section_obj: section_obj //this hold the actual section object for later use
+                                    };
+                                }
 
                                 events_array.push(event_obj);
                             }
@@ -183,6 +203,10 @@ Template.semesterSchedule.helpers({
                 }
                 masterDict.set("scheduleReady", true);
                 $(".ui.active.dimmer").attr("class", ".ui.dimmer");
+
+                if(hasUnavailable){
+                    window.alert("Unfortunately, some of the sections are no longer available.");
+                }
             });
         } else {
             Template.instance().masterDict = dict;
@@ -238,12 +262,13 @@ Template.semesterSchedule.helpers({
 
         if (typeof sectionList[0] === "string") { //prevent unexpected request
             Meteor.call("fetchSectionList", sectionList,
-                function(err, result) {
+                function(err, response) {
                     if(err){
                         window.alert(err.message);
                         return;
-                    }
+                    }   
 
+                    const result = response.data;
                     if (result.length != 0) {
                         const sorted_result = result.sort(function(a, b) {
                             //for a
@@ -285,6 +310,9 @@ Template.semesterSchedule.helpers({
                         };
                         dict.set("fetched_courseList", sorted_result);
                         dict.set("hasCourseList", true);
+                    } else {
+                        dict.set("fetched_courseList", []);
+                        dict.set("hasCourseList", true);
                     }
                 }
             );
@@ -294,6 +322,7 @@ Template.semesterSchedule.helpers({
     getCourseInfo: function() {
         const dict = Template.instance().calendarDict;
         const courseId = dict.get("courseId");
+        //get the course object using course.
         Meteor.call("getCourse", courseId, function(err, result) {
             if (err) {
                 window.alert(err.message);
@@ -415,7 +444,15 @@ Template.semesterSchedule.helpers({
     },
 
     sectionReady: function() {
-        return !!Template.instance().calendarDict.get('sectionObj');
+        const unavailableSections = Template.instance().masterDict.get("unavailableSections");
+        const section_obj = Template.instance().calendarDict.get('sectionObj');
+        if(!section_obj) return false;
+        
+        if($.inArray(section_obj.id, unavailableSections) != -1){
+            return false;
+        } else {
+            return true;
+        }
     },
 
     isSectionChosen: function() {

@@ -450,6 +450,10 @@ Template.search_result.helpers({
         return homeDict.get('sectionDetail');
     },
 
+    notAvailable: function(){
+        return Template.instance().homeDict.get("notAvailable");
+    },
+
     noResult: function() {
         const homeDict = Template.instance().homeDict;
         return homeDict.get('noResult');
@@ -643,6 +647,7 @@ Template.search_result.events({
         const homeDict = Template.instance().homeDict;
         homeDict.set('courseInfo');
         homeDict.set('sectionDetail', []);
+        homeDict.set('notAvailable', false);
         homeDict.set('majorDetail', []);
         homeDict.set('instructors');
         homeDict.set('courseInfo', this);
@@ -693,6 +698,8 @@ Template.search_result.events({
                         return parseInt(section.section);
                     }
                 ));
+
+                if(result.length == 0) homeDict.set("notAvailable", true);
             }
         );
     },

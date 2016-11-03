@@ -126,7 +126,11 @@ Template.planSearch.helpers({
                 planDict.set('showTable', true);
             }
         );
-    }
+    },
+
+    isNewPlan: function(){
+        return !Template.instance().masterDict.get("isModify");
+    },
 })
 
 Template.planSearch.events({

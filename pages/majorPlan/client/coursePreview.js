@@ -218,6 +218,10 @@ Template.coursePreview.helpers({
     isNewPlan: function(){
         return !Template.instance().masterDict.get("isModify");
     },
+
+    unavailableSection: function(section_id){
+        return $.inArray(section_id, Template.instance().masterDict.get("unavailableSections")) == -1;
+    },
 })
 
 Template.coursePreview.events({

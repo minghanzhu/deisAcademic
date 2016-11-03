@@ -249,6 +249,8 @@
               <p>{{#if sectionObj.details}}{{sectionObj.details}}{{else}}Currently no additional information for this section{{/if}}</p>
               <h3>Textbook Information</h3>
               <button class="ui basic button js-textbook" course-code="{{courseInfo.code}}" course-id="{{sectionObj.course}}" section-num="{{sectionObj.section}}"><i class="book icon"></i>Click to view</button>
+            {{else}}
+              Sorry, this section is no longer available for this semester.
             {{/if}}
           </div>
 
@@ -273,16 +275,17 @@
                 <i class="angle double down icon"></i>
                 Next section
               </button>-->
-
-              {{#if isSectionChosen}}
-                <button class="ui blue button js-take" section-id="{{sectionObj.id}}">
-                  Sage Code: {{getSageCode sectionObj.id}}
-                </button>
-              {{else}}
-                <button class="ui basic blue button js-take" section-id="{{sectionObj.id}}">
-                  <i class="checkmark icon"></i>
-                  Decided to take
-                </button>
+              {{#if sectionReady}}
+                {{#if isSectionChosen}}
+                  <button class="ui blue button js-take" section-id="{{sectionObj.id}}">
+                    Sage Code: {{getSageCode sectionObj.id}}
+                  </button>
+                {{else}}
+                  <button class="ui basic blue button js-take" section-id="{{sectionObj.id}}">
+                    <i class="checkmark icon"></i>
+                    Decided to take
+                  </button>
+                {{/if}}
               {{/if}}
 
               <button class="ui basic orange button js-delete-section" section-id="{{sectionObj.id}}">

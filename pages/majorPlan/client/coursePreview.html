@@ -28,7 +28,12 @@
                         {{else}}
                             <div class="item js-view-detail">
                                 <div class="header" section-id="{{course.section_id}}">
-                                    {{course.code}}
+                                    
+                                    {{#if unavailableSection course.section_id}}
+                                        {{course.code}}
+                                    {{else}}
+                                        <p style="color:orange">{{course.code}}</p>
+                                    {{/if}}
                                     {{#if isNewPlan}}
                                         <i class="remove icon pull-right js-remove-course" section-id="{{course.section_id}}" term="{{term.id}}"></i>
                                     {{else}}
