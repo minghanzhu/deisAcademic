@@ -521,3 +521,13 @@ Schemas.SchedulesPnc = new SimpleSchema({
 })
 
 SchedulesPnc.attachSchema(Schemas.SchedulesPnc);
+
+Schemas.GlobalParameters = new SimpleSchema({
+    allowed_terms: {
+        type: Number,
+        min: 3,
+        max: 10
+    }
+})
+
+GlobalParameters.attachSchema(Schemas.GlobalParameters);

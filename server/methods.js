@@ -131,6 +131,12 @@ if (Term.find().count() > 0) {
 
 //this sets the allowed number of terms to be predicted
 const server_allowed_terms = 6;
+if(GlobalParameters.find().count() == 0) {
+    GlobalParameters.insert({allowed_terms: server_allowed_terms});
+} else {
+    GlobalParameters.remove({});
+    GlobalParameters.insert({allowed_terms: server_allowed_terms});
+}
 
 console.log("If you don't see current and future terms, please restart the server");
 console.log("Prediction size: " + CoursePrediction.find().count());

@@ -417,7 +417,7 @@ Template.calendarTest.helpers({
 
     hasFutureTerm: function(){
         const latest_term = parseInt(Term.find().fetch().sort(function(a, b){return a.id - b.id;})[Term.find().count() - 1].id);
-        const allowed_term = 6;//global parameter, to be changed to a method call
+        const allowed_term = GlobalParameters.findOne().allowed_terms;//global parameter, to be changed to a method call
         const end_term = Template.instance().masterDict.get("planEndSemester");
 
         return end_term > latest_term && end_term <= (latest_term + 30);
@@ -439,7 +439,7 @@ Template.calendarTest.helpers({
 
     predictionDataReady: function(){
         const latest_term = parseInt(Term.find().fetch().sort(function(a, b){return a.id - b.id;})[Term.find().count() - 1].id);
-        const allowed_term = 6;//global parameter, to be changed to a method call
+        const allowed_term = GlobalParameters.findOne().allowed_terms;//global parameter, to be changed to a method call
         const end_term = Template.instance().masterDict.get("planEndSemester");
 
         if(end_term > latest_term && end_term <= (latest_term + 30)){
@@ -1183,7 +1183,7 @@ Template.scheduleCourseList.helpers({
 
     isFutureTerm: function(){
         const latest_term = parseInt(Term.find().fetch().sort(function(a, b){return a.id - b.id;})[Term.find().count() - 1].id);
-        const allowed_term = 6;//global parameter, to be changed to a method call
+        const allowed_term = GlobalParameters.findOne().allowed_terms;//global parameter, to be changed to a method call
         const end_term = Template.instance().masterDict.get("chosenTerm");
 
         return end_term > latest_term && end_term <= (latest_term + 30);

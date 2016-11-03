@@ -33,47 +33,23 @@
         <div class="fields">
             <div class="two wide field">
                 <label>Term: </label>
-                <select name="term" class="js-term form-control">
+                <!-- <select name="term" class="js-term form-control">
                     <option value="">Term</option>
-                    <option value="1171">Spring 2017</option>
-                    <option value="1163">Fall 2016</option>
-                    <option value="1162">Summer 2016</option>
-                    <option value="1161">Spring 2016</option>
-                    <option value="1153">Fall 2015</option>
-                    <option value="1152">Summer 2015</option>
-                    <option value="1151">Spring 2015</option>
-                    <option value="1143">Fall 2014</option>
-                    <option value="1142">Summer 2014</option>
-                    <option value="1141">Spring 2014</option>
-                    <option value="1133">Fall 2013</option>
-                    <option value="1132">Summer 2013</option>
-                    <option value="1131">Spring 2013</option>
-                    <option value="1123">Fall 2012</option>
-                    <option value="1122">Summer 2012</option>
-                    <option value="1121">Spring 2012</option>
-                    <option value="1113">Fall 2011</option>
-                    <option value="1112">Summer 2011</option>
-                    <option value="1111">Spring 2011</option>
-                    <option value="1103">Fall 2010</option>
-                    <option value="1102">Summer 2010</option>
-                    <option value="1101">Spring 2010</option>
-                    <option value="1093">Fall 2009</option>
-                    <option value="1092">Summer 2009</option>
-                    <option value="1091">Spring 2009</option>
-                    <option value="1083">Fall 2008</option>
-                    <option value="1082">Summer 2008</option>
-                    <option value="1081">Spring 2008</option>
-                    <option value="1073">Fall 2007</option>
-                    <option value="1072">Summer 2007</option>
-                    <option value="1071">Spring 2007</option>
-                    <option value="1063">Fall 2006</option>
-                    <option value="1062">Summer 2006</option>
-                    <option value="1061">Spring 2006</option>
-                    <option value="1053">Fall 2005</option>
-                    <option value="1052">Summer 2005</option>
-                    <option value="1051">Spring 2005</option>
-                    <option value="1043">Fall 2004</option>
-                </select>
+                    {{#each term in termList}}
+                      <option value="{{term.id}}">{{term.name}}</option>
+                    {{/each}}
+                </select> -->
+                <div class="ui selection fluid dropdown js-term">
+                  <input type="hidden" name="term">
+                  <i class="dropdown icon"></i>
+                  <div class="default text">Term</div>
+                  <div class="menu">
+                    <div class="item" data-value="">All terms</div>
+                    {{#each term in termList}}
+                      <div class="item" data-value="{{term.id}}">{{term.name}}</div>
+                    {{/each}}
+                  </div>
+                </div>
             </div>
 
             <div class="three wide field" id="req-select">

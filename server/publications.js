@@ -1,6 +1,10 @@
 Meteor.publish("major", function() {
-    return Major.find() });
+    return Major.find();
+});
 
+Meteor.publish("globalParameters", function(){
+    return GlobalParameters.find();
+});
 
 Meteor.publish("home_userProfile", function() {
     return UserProfilePnc.find({ 
