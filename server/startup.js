@@ -349,7 +349,6 @@ Meteor.startup(function() {
     //first insert course
     for (let item of data1) {
         if (1 == 1) {
-            count1++;
             SearchPnc.insert(item);
         }
     }
