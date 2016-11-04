@@ -1947,6 +1947,7 @@ Meteor.methods({
                         console.log(new_course_obj.term + " - " + new_course_obj.code + " added to course collection");
                     }
 
+                    course_obj = SearchPnc.findOne({id: item.course});
                     if(course_obj){
                         const course_id = course_obj._id;
                         const section_times = item.times;
@@ -2076,7 +2077,8 @@ Meteor.methods({
                     updateCollection = 1;
                 }
 
-                console.log("Done!");
+                console.log("All done!");
+                console.log("-------------------------------------");
             }));
         });
     },
