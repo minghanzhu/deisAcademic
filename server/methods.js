@@ -1015,7 +1015,7 @@ Meteor.methods({
             throw new Meteor.Error(206, "Invalid insert: No such term");
         };
 
-        if (MajorPlansPnc.findOne({userId: this.userId, majorId: {$all: major_code}, majorId: {$size: major_code.length}, start_term: term_range.start_term, end_term: term_range.end_term})){
+        if (MajorPlansPnc.findOne({userId: this.userId, majorId: {$all: major_code, $size: major_code.length}, start_term: term_range.start_term, end_term: term_range.end_term})){
             console.log("[saveSchedule_MajorPlan] - Invalid insert: Duplicate plans");
             throw new Meteor.Error(231, "Invalid insert: Duplicate plans");
         };
@@ -1282,7 +1282,7 @@ Meteor.methods({
                 console.log("[checkValidPlan] No such user: " + this.userId);
                 throw new Meteor.Error(102, "No such user");
             } else {
-                return !MajorPlansPnc.findOne({userId: this.userId,majorId: {$all: major_id}, majorId: {$size: major_id.length}, start_term: term_range.start_term, end_term: term_range.end_term});
+                return !MajorPlansPnc.findOne({userId: this.userId, majorId: {$all: major_id, $size: major_id.length}, start_term: term_range.start_term, end_term: term_range.end_term});
             }
         } else {//if it reaches here, it means it passed the check
             return true;

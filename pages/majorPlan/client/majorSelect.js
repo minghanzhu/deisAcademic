@@ -1,5 +1,6 @@
 Template.majorSelect.onCreated(function() {
     this.majorSelectDict = new ReactiveDict();
+    this.masterDict = this.data["dict"];
     this.majorSelectDict.set("clickedGo", false);
     this.majorSelectDict.set("clickedHelp", false);
     this.majorSelectDict.set("allowed_new_terms", 6);//3 years
@@ -58,7 +59,9 @@ Template.majorSelect.onRendered(function() {
 });
 
 Template.majorSelect.helpers({
-    clickedGo: function(dict) {
+    clickedGo: function() {
+        const dict = Template.instance().masterDict;
+
         dict.set("pageName", "chooseCourse");
         if(!$("#search-select input").val().split(',')[0]){
             dict.set("chosenMajor", []);
@@ -71,7 +74,9 @@ Template.majorSelect.helpers({
         return Template.instance().majorSelectDict.get("clickedGo");
     },
 
-    clickedHelp: function(dict) {
+    clickedHelp: function() {
+        const dict = Template.instance().masterDict;
+
         dict.set("pageName", "helpChooseMajor");
         if(!$("#search-select").val().split(',')[0]){
             dict.set("chosenMajor", []);
@@ -82,10 +87,6 @@ Template.majorSelect.helpers({
 
     hasClickedHelp: function() {
         return Template.instance().majorSelectDict.get("clickedHelp");
-    },
-
-    setMasterDict: function(dict) { //this saves the master dict to the template
-        Template.instance().masterDict = dict;
     },
 
     termList: function(){
@@ -191,7 +192,7 @@ Template.majorList.helpers({
 
     major: function() {
         // return Major.find({name: homeDict.get('majorName')}).fetch()[0];
-        return Major.findOne({ name: homeDict.get('majorName') });
+        //return Major.findOne({ name: homeDict.get('majorName') });
     }
 });
 
@@ -205,7 +206,7 @@ Template.majorList.events({
 Template.science.events({
     "click .js-popup": function(event) {
         const name = event.target.innerText;
-        homeDict.set('majorName', name);
+        //homeDict.set('majorName', name);
         let popup = $(".popup-bulletin");
         popup.css("top", (($(window).height() - popup.outerHeight()) / 2) + $(window).scrollTop() + 30 + "px");
         $(".bulletin-overlay, .popup-bulletin").fadeToggle();
