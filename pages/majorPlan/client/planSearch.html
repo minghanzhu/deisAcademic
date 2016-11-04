@@ -1,4 +1,11 @@
 <template name="planSearch">  
+    <div class="ui orange message">
+        <i class="close icon"></i>
+        <div class="header">Important message</div>
+        <p>Some course codes have changed over the years.<br>
+            Please check before choosing the courses.</p>
+    </div>
+
     {{#if hasMajor}}
         {{getData}}
         {{#if showTable}}
