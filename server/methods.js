@@ -385,8 +385,7 @@ Meteor.methods({
             console.log("[searchPnc] - Only time");
             throw new Meteor.Error(100, "Please also choose a term.");
         }
-        
-        return SearchPnc.find(searchQuery, {
+        const search_result = SearchPnc.find(searchQuery, {
             fields: {
                 _id: 0,
                 type: 0,
@@ -395,6 +394,26 @@ Meteor.methods({
                 independent_study: 0,
             }
         }).fetch();
+
+        if(keyword_orig){
+            if(Statistics.findOne({keyword: keyword_orig})){
+                Statistics.update({
+                    keyword: keyword_orig}, {
+                    $addToSet: { 
+                        numberOfResult: search_result.length
+                    }
+                })
+            } else {
+                const statistical_data = {
+                    keyword: keyword_orig,
+                    numberOfResult: [search_result.length]
+                }
+
+                Statistics.insert(statistical_data);
+            }
+        }
+
+        return search_result;
     },
 
     searchTerm: function(key) {
@@ -1283,7 +1302,16 @@ Meteor.methods({
     },
 
     getCourseHistory: function(continuity_id){
-      const theHistory = Course.find({continuity_id: continuity_id}).fetch();
+      const theHistory = Course.find({continuity_id: continuity_id, term:{$lt: now_term}}).fetch();
+      if(updateCollection == 1){
+        for(let course of CourseUpdate2.find({continuity_id: continuity_id, term:{$gte: now_term}}).fetch()){
+            theHistory.push(course);
+        }
+      } else {
+        for(let course of CourseUpdate1.find({continuity_id: continuity_id, term:{$gte: now_term}}).fetch()){
+            theHistory.push(course);
+        }
+      }
       var historyTermCodes = _.pluck(theHistory, "term");
 
       historyTermCodes.sort().reverse();
