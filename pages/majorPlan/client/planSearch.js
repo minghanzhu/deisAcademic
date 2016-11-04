@@ -59,8 +59,10 @@ Template.planSearch.helpers({
         planDict.set('noResult', false);
 
         const dept = planDict.get('majorId'); //""for no option and "all" for all departments
+        const start_term = Template.instance().masterDict.get("planStartSemester");
+        const end_term = Template.instance().masterDict.get("planEndSemester");
 
-        Meteor.call("planSearch", dept, 
+        Meteor.call("planSearch", dept,
             function(err, result) {
                 if(err){
                     window.alert(err.message);
@@ -70,7 +72,101 @@ Template.planSearch.helpers({
                 if (result.length == 0) {
                     planDict.set('noResult', true);
                 } else {
+                    //first group them by majors, continuity id's and terms.
                     const sorted_result = result.sort(function(a, b) {
+                        //for a
+                        let course_num_a = parseInt(a.code.match(/\d+/gi)[0]);
+                        if (course_num_a < 10) course_num_a = "00" + course_num_a;
+                        if (course_num_a >= 10 && course_num_a < 100) course_num_a = "0" + course_num_a;
+                        const course_dep_a = a.code.substring(0, a.code.indexOf(" "));
+                        const last_a = a.code.charAt(a.code.length - 1);
+                        const secondLast_a = a.code.charAt(a.code.length - 2);
+                        let comp_string_a;
+                        if (/\w/i.test(last_a) && !/\w/i.test(secondLast_a)) {
+                            comp_string_a = course_num_a + last_a;
+                        } else if (!/\w/i.test(last_a) && !/\w/i.test(secondLast_a)) {
+                            comp_string_a = course_num_a + "0";
+                        } else {
+                            comp_string_a = course_num_a + last_a + secondLast_a;
+                        }
+
+                        //for b
+                        let course_num_b = parseInt(b.code.match(/\d+/gi)[0]);
+                        if (course_num_b < 10) course_num_b = "00" + course_num_b;
+                        if (course_num_b >= 10 && course_num_b < 100) course_num_b = "0" + course_num_b;
+                        const course_dep_b = b.code.substring(0, b.code.indexOf(" "));
+                        const last_b = b.code.charAt(b.code.length - 1);
+                        const secondLast_b = b.code.charAt(b.code.length - 2);
+                        let comp_string_b;
+                        if (/\w/i.test(last_b) && !/\w/i.test(secondLast_b)) {
+                            comp_string_b = course_num_b + last_b;
+                        } else if (!/\w/i.test(last_b) && !/\w/i.test(secondLast_b)) {
+                            comp_string_b = course_num_b + "0";
+                        } else {
+                            comp_string_b = course_num_b + last_b + secondLast_b;
+                        }
+
+                        const major_comp = course_dep_a.localeCompare(course_dep_b);
+                        if (major_comp != 0) {
+                            return major_comp;
+                        } else {
+                            const num_comp = a.continuity_id.localeCompare(b.continuity_id);
+                            if(num_comp != 0){
+                                return num_comp
+                            } else {
+                                return a.term - b.term;
+                            }
+                        }
+                    });
+
+                    //then drop any of them according to terms
+                    let current_cont = sorted_result[0].continuity_id;
+                    let course_group = [];
+                    const final_result = [];
+                    for(let i = 0; i < sorted_result.length; i++){
+                        //keep adding courses that have the same cont id
+                        if(sorted_result[i].continuity_id === current_cont){
+                            course_group.push(sorted_result[i]);
+                        } else {//current one is not the same course
+                            const sorted_group = course_group.sort(function(a, b){
+                                return a.term - b.term;//increasing order
+                            })
+
+                            //all future terms
+                            if(sorted_group[sorted_group.length - 1].term < start_term){
+                                final_result.push(sorted_group[sorted_group.length - 1]);
+                            } else {
+                                for(let course of sorted_group){
+                                    if(course.term >= start_term && course.term <= end_term){
+                                        final_result.push(course);
+                                    }
+                                }
+                            }
+
+                            current_cont = sorted_result[i].continuity_id;
+                            course_group = [sorted_result[i]];
+                        }
+
+                        if(i == sorted_result.length - 1){
+                            const sorted_group = course_group.sort(function(a, b){
+                                return a.term - b.term;//increasing order
+                            })
+
+                            //all future terms
+                            if(sorted_group[sorted_group.length - 1].term < start_term){
+                                final_result.push(sorted_group[sorted_group.length - 1]);
+                            } else {
+                                for(let course of sorted_group){
+                                    if(course.term >= start_term && course.term <= end_term){
+                                        final_result.push(course);
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    //finally sort the result by code
+                    const sorted_final_result = final_result.sort(function(a, b) {
                         //for a
                         let course_num_a = parseInt(a.code.match(/\d+/gi)[0]);
                         if (course_num_a < 10) course_num_a = "00" + course_num_a;
@@ -115,22 +211,21 @@ Template.planSearch.helpers({
                             }
                         }
                     });
-
-                    const current_course = {};
-                    for(let i = 0; i < sorted_result.length; i++){
-                        if((sorted_result[i].code.trim()) === current_course.code 
-                            && sorted_result[i].continuity_id === current_course.continuity_id){
-                            sorted_result.splice(i, 1);
+                    
+                    //delete duplicate names
+                    let current_course = "";
+                    for(let i = 0; i < sorted_final_result.length; i++){
+                        if((sorted_final_result[i].code.trim()) === current_course){
+                            sorted_final_result.splice(i, 1);
                             i--;
                         };
-                        current_course.code = sorted_result[i].code.trim();
-                        current_course.continuity_id = sorted_result[i].continuity_id;            
+                        current_course = sorted_final_result[i].code.trim();        
                     }
 
-                    for (let i = 0; i < sorted_result.length; i++) {
-                        sorted_result[i].index = i;
+                    for (let i = 0; i < sorted_final_result.length; i++) {
+                        sorted_final_result[i].index = i;
                     };
-                    planDict.set('courseData', sorted_result);
+                    planDict.set('courseData', sorted_final_result);
                     planDict.set('noResult', false);
                 }
 
