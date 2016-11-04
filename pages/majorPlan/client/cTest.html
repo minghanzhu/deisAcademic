@@ -1,5 +1,4 @@
 <template name="calendarTest">
-  {{#if masterDictSet}}
   <div class="ui stackable grid">
     {{#if isNewPlan}}
   		<div class="twelve wide column">
@@ -44,7 +43,19 @@
 
   		<div class="four wide column">
   			<div class="ui container" id="courseList">
-				  {{#if hasCourseList AND predictionDataReady}}
+          {{#if hideAdded}}
+            <div class="ui slider checkbox js-hide-addedCourses">
+              <input type="checkbox" name="hideCourses" checked="checked">
+              <label>Hide added courses</label>
+            </div>
+          {{else}}
+            <div class="ui slider checkbox js-hide-addedCourses">
+              <input type="checkbox" name="hideCourses">
+              <label>Hide added courses</label>
+            </div>
+          {{/if}}
+          
+				  {{#if and hasCourseList predictionDataReady}}
             {{#if currentUser}}
               {{#if hasWishlist}}
                 <div class="ui slider checkbox js-add-wishlist">
@@ -61,20 +72,22 @@
 
             <div class="ui vertical accordion menu">
               {{#each course in getCourseList}}
-                {{> scheduleCourseList c=course dict=calendarDict masterDict=dict index=@index}}
+                {{#if showsUp course.continuity_id}}
+                  {{> scheduleCourseList c=course dict=calendarDict masterDict=dict index=@index}}
+                {{/if}}
               {{/each}}
             </div>
   				{{else}}
   					{{pullUserCourseList}}
             {{#if hasFutureTerm}}
-              {{pullPredictionData dict}}
+              {{pullPredictionData}}
             {{/if}}
   					<div class="ui active inline loader"></div>
   				{{/if}}
   			</div>
   		</div>
     {{else}}
-      {{#if currentUser AND sameUser}}
+      {{#if and currentUser sameUser}}
         <div class="twelve wide column">
           <div class="ui sticky">
             <div class="ui container calendar">
@@ -87,7 +100,7 @@
 
                 {{> calendar dict=dict calendarDict=calendarDict}}
               {{else}}
-                {{#if predictionDataReady AND hasCourseList}}
+                {{#if and predictionDataReady hasCourseList}}
                   {{> coursePreview dict=dict calendarDict=calendarDict}} <br>
                 {{else}}
                   <div class="ui active inline loader"></div>
@@ -112,7 +125,19 @@
 
         <div class="four wide column">
           <div class="ui container" id="courseList">
-            {{#if hasCourseList AND predictionDataReady}}
+            {{#if hideAdded}}
+              <div class="ui slider checkbox js-hide-addedCourses">
+                <input type="checkbox" name="hideCourses" checked="checked">
+                <label>Hide added courses</label>
+              </div>
+            {{else}}
+              <div class="ui slider checkbox js-hide-addedCourses">
+                <input type="checkbox" name="hideCourses">
+                <label>Hide added courses</label>
+              </div>
+            {{/if}}
+
+            {{#if and hasCourseList predictionDataReady}}
               {{#if currentUser}}
                 {{#if hasWishlist}}
                   <div class="ui slider checkbox js-add-wishlist">
@@ -129,13 +154,15 @@
 
               <div class="ui vertical accordion menu">
                 {{#each course in getCourseList}}
-                  {{> scheduleCourseList c=course dict=calendarDict masterDict=dict index=@index}}
+                  {{#if showsUp course.continuity_id}}
+                    {{> scheduleCourseList c=course dict=calendarDict masterDict=dict index=@index}}
+                  {{/if}}
                 {{/each}}
               </div>
             {{else}}
               {{pullUserCourseList}}
               {{#if hasFutureTerm}}
-                {{pullPredictionData dict}}
+                {{pullPredictionData}}
               {{/if}}
               <div class="ui active inline loader"></div>
             {{/if}}
@@ -145,7 +172,7 @@
         <div class="sixteen wide column">
           <div class="ui sticky">
             <div class="ui container calendar">
-              {{#if currentUser AND sameUser}}{{else}}
+              {{#if and currentUser sameUser}}{{else}}
                 <h2>Plan made by {{getUsername}}</h2>
               {{/if}}
               {{#if viewCalendar}}
@@ -157,17 +184,17 @@
 
                 {{> calendar dict=dict calendarDict=calendarDict}}
               {{else}}
-                {{#if predictionDataReady AND hasCourseList}}
+                {{#if and predictionDataReady hasCourseList}}
                   {{> coursePreview dict=dict calendarDict=calendarDict}} <br>
                 {{else}}
                   {{pullUserCourseList}}
                   {{#if hasFutureTerm}}
-                    {{pullPredictionData dict}}
+                    {{pullPredictionData}}
                   {{/if}}
                   <div class="ui active inline loader"></div>
                 {{/if}}
               {{/if}}
-              {{#if hasCourseList AND predictionDataReady}}
+              {{#if and hasCourseList predictionDataReady}}
                 {{#if viewCalendar}}
                   <button class="ui button js-view-change">Overview</button>
                 {{else}}
@@ -226,7 +253,7 @@
 
     <div class="ui bottom attached tab segment" data-tab="first" tab-num="1">
       <div class="ui stackable divided grid">
-        {{#if currentUser AND sameUser}}
+        {{#if and currentUser sameUser}}
           <div class="eleven wide column">
             {{#if sectionReady}}
               <h3>Section {{sectionObj.section}}</h3>
@@ -288,7 +315,7 @@
                 {{/if}}
               {{/if}}
 
-              <button class="ui basic orange button js-delete-section" section-id="{{sectionObj.id}}">
+              <button class="ui basic orange button js-delete-section" section-id="{{sectionObj.id}}" course-id="{{sectionObj.course}}">
                 <i class="remove icon"></i>
                 Delete this section on calendar
               </button>
@@ -338,31 +365,15 @@
       {{/if}}
     </div>
   </div>
-  {{else}}
-    {{setMasterDict dict}}
-  {{/if}}
 </template>
 
 <template name="scheduleCourseList">
-  {{setMasterDict masterDict}}
   <div class="item">
     <a class="title js-title">
       <i class="dropdown icon"></i>
-      {{#if (noResult c.continuity_id dict masterDict)}}
+      {{#if (noResult c.continuity_id)}}
         {{#if isFutureTerm}}
-          {{#if na c.continuity_id}}
-            <p style="color:grey">{{c.code}}{{#if inList c.continuity_id}}<i class="checkmark icon pull-right"></i>{{/if}}</p>
-          {{else}}
-            {{#if high c.continuity_id}}
-              <p style="color:blue">{{c.code}}{{#if inList c.continuity_id}}<i class="checkmark icon pull-right"></i>{{/if}}</p>
-            {{else}}
-              {{#if mid c.continuity_id}}
-                {{c.code}}{{#if inList c.continuity_id}}<i class="checkmark icon pull-right"></i>{{/if}}
-              {{else}}
-                <p style="color:orange">{{c.code}}{{#if inList c.continuity_id}}<i class="checkmark icon pull-right"></i>{{/if}}</p>
-              {{/if}}
-            {{/if}}
-          {{/if}}
+          <p style="color:{{color c.continuity_id}}">{{c.code}}{{#if inList c.continuity_id}}<i class="checkmark icon pull-right"></i>{{/if}}</p>
         {{else}}
           <p style="color:grey">{{c.code}}{{#if inList c.continuity_id}}<i class="checkmark icon pull-right"></i>{{/if}}</p>
         {{/if}}
@@ -373,15 +384,15 @@
 
     <div class="content">
       <div class="ui link list" id="sectionList">
-        {{#if (hasSectionInfo c.continuity_id dict masterDict)}}
-          {{#if (noResult c.continuity_id dict masterDict)}}
+        {{#if (hasSectionInfo c.continuity_id)}}
+          {{#if (noResult c.continuity_id)}}
             {{#if isFutureTerm}}
-              <a class="item js-add-future-course" cont-id="{{c.continuity_id}}">Offer chance - {{getPredictionData c.continuity_id masterDict}}<i class="plus icon pull-right"></i></a>
+              <a class="item js-add-future-course" cont-id="{{c.continuity_id}}">Offer chance - {{getPredictionData c.continuity_id}}<i class="plus icon pull-right"></i></a>
             {{else}}
               Not Available
             {{/if}}
           {{else}}
-            {{#each section in (sectionInfo c.continuity_id dict masterDict)}}
+            {{#each section in (sectionInfo c.continuity_id)}}
               <a class="item js-add-section" id="{{section.id}}" course-code="{{c.code}}" course-name="{{c.name}}">Section{{section.section}}<i class="plus icon pull-right"></i></a>
               {{#if hasTimes section.times}}
                 {{#each time in section.times}}
@@ -393,7 +404,7 @@
             {{/each}}
           {{/if}}
         {{else}}
-          {{getSections c.continuity_id dict masterDict index}}
+          {{getSections c.continuity_id index}}
           <div class="ui active inline loader"></div>
         {{/if}}
       </div>
@@ -402,9 +413,5 @@
 </template>
 
 <template name="calendar">
-  {{#if masterDictSet}}
-    <div id="calendar"></div><br>
-  {{else}} 
-    {{setMasterDict dict}} 
-  {{/if}}
+  <div id="calendar"></div><br>
 </template>

@@ -1,5 +1,6 @@
 Template.planTermRange.onCreated(function(){
 	this.termRangeDict = new ReactiveDict();
+    this.masterDict = this.data["dict"];
     this.termRangeDict.set("clickedOK", false);
     this.termRangeDict.set("allowed_new_terms", GlobalParameters.findOne().allowed_terms);//global parameter
 
@@ -51,16 +52,13 @@ Template.planTermRange.onRendered(function(){
 })
 
 Template.planTermRange.helpers({
-	clickedOK: function(dict) {
+	clickedOK: function() {
+        const dict = Template.instance().masterDict;
         dict.set("pageName", "chooseCourse");
     },
 
     hasClickedOK: function() {
         return Template.instance().termRangeDict.get("clickedOK");
-    },
-
-    setMasterDict: function(dict) { //this saves the master dict to the template
-        Template.instance().masterDict = dict;
     },
 
     termList: function(){

@@ -20,7 +20,7 @@ Template.masterMajorPlan.onCreated(function(){
 	    this.masterPageDict.set("planEndSemester", data.end_term);
 	    this.masterPageDict.set("isModify", true);
 
-
+        const addedCourses = [];
 	    const current_plan_id = Router.current().params._id;
         const scheduleList = MajorPlansPnc.findOne(current_plan_id).scheduleList;
         const masterDict = this.masterPageDict;
@@ -48,6 +48,8 @@ Template.masterMajorPlan.onCreated(function(){
                     const chosen = result_obj.chosen;
                     const course_code = result_obj.courseCode;
                     const events_array = [];
+
+                    addedCourses.push(section_obj.course.substring(section_obj.course.indexOf("-") + 1));
                     for (let time of section_obj.times) {
                         for (let day of time.days) {
                             //turn time from minuets form into a real time form (HH:MM:SS)
@@ -132,6 +134,8 @@ Template.masterMajorPlan.onCreated(function(){
             	}
 
                 for(let continuity_id of course_cont_list){
+                    addedCourses.push(continuity_id);
+
                     if($.inArray(continuity_id, chosenCourse) == -1){
                         if($.inArray(continuity_id, wishlist_course) == -1){
                             wishlist_course.push(continuity_id);
@@ -152,6 +156,7 @@ Template.masterMajorPlan.onCreated(function(){
                 }
                 masterDict.set("scheduleList", fetched_scheduleList);
                 masterDict.set("courseFetchInfo", fetch_wishlist_course);
+                masterDict.set("addedCourses", addedCourses);
                 masterDict.set("pageName", "makeSchedule");
                 if(hasUnavailable){
                     window.alert("Unfortunately, some of your sections are no longer available");

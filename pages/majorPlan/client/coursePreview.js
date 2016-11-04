@@ -232,6 +232,25 @@ Template.coursePreview.events({
 	"click .js-clear-termCourse": function(event){
 		const term = event.target.parentElement.parentElement.parentElement.parentElement.attributes[1].nodeValue;
 		const schedule_list = Template.instance().masterDict.get("scheduleList");
+        const courseList = schedule_list[term]["courseList"];
+
+        if(typeof courseList[0] === "string"){//future courses
+            for(let continuity_id of courseList){
+                const addedCourses = Template.instance().masterDict.get("addedCourses");
+                addedCourses.splice($.inArray(continuity_id, addedCourses), 1);
+                Template.instance().masterDict.set("addedCourses", addedCourses);
+            }
+        } else {
+            for(let section of courseList){
+                const section_obj = section.events[0].section_obj;
+                const course_id = section_obj.course;
+                const continuity_id = course_id.substring(course_id.indexOf("-") + 1);
+                const addedCourses = Template.instance().masterDict.get("addedCourses");
+                addedCourses.splice($.inArray(continuity_id, addedCourses), 1);
+                Template.instance().masterDict.set("addedCourses", addedCourses);
+            }
+        }
+
 		schedule_list[term] = {
 			term: term,
 			courseList: []
@@ -249,6 +268,8 @@ Template.coursePreview.events({
 	"click .js-remove-course": function(event){
 		const section_id = event.target.attributes[1].nodeValue;
 		const term = event.target.attributes[2].nodeValue;
+        const course_id = event.target.attributes[3].nodeValue;
+        const continuity_id = course_id.substring(course_id.indexOf("-") + 1);
 		const term_schedule = Template.instance().masterDict.get("scheduleList")[term];
 		const courseList = term_schedule.courseList;
 		for(var i = 0; i < courseList.length; i++){
@@ -261,6 +282,10 @@ Template.coursePreview.events({
 		const previous_schedule = Template.instance().masterDict.get("scheduleList");
 		previous_schedule[term] = term_schedule;
 		Template.instance().masterDict.set("scheduleList", previous_schedule);
+
+        const addedCourses = Template.instance().masterDict.get("addedCourses");
+        addedCourses.splice($.inArray(continuity_id, addedCourses), 1);
+        Template.instance().masterDict.set("addedCourses", addedCourses);
 	},
 
     "click .js-remove-future-course": function(event){
@@ -278,6 +303,10 @@ Template.coursePreview.events({
         const previous_schedule = Template.instance().masterDict.get("scheduleList");
         previous_schedule[term] = term_schedule;
         Template.instance().masterDict.set("scheduleList", previous_schedule);
+
+        const addedCourses = Template.instance().masterDict.get("addedCourses");
+        addedCourses.splice($.inArray(continuity_id, addedCourses), 1);
+        Template.instance().masterDict.set("addedCourses", addedCourses);
     },
 
 	"click .js-view-detail": function(event){
