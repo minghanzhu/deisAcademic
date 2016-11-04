@@ -29,6 +29,6 @@
 
 <template name="planList">
 	{{#each plan in getUserPlans}}
-        <div class="item" data-value="{{plan._id}}">{{plan.majorName}} - <b>{{getTermName plan.start_term}}</b> to <b>{{getTermName plan.end_term}}</b></div>
+        <div class="item" data-value="{{plan._id}}">{{getMajorName plan.majorName}} - <b>{{getTermName plan.start_term}}</b> to <b>{{getTermName plan.end_term}}</b></div>
     {{/each}}
 </template>

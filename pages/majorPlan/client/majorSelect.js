@@ -41,7 +41,8 @@ Template.majorSelect.onCreated(function() {
 
 Template.majorSelect.onRendered(function() {
     $('#search-select').dropdown({
-        match: "text"
+        match: "text",
+        maxSelections: 6
     });
     $('#search-select-start-semester').dropdown({
         match: "text"
@@ -49,7 +50,7 @@ Template.majorSelect.onRendered(function() {
     $('#search-select-end-semester').dropdown({
         match: "text"
     });
-    const major = $("#search-select input").val();
+
     $('#help-major').popup({
         content: "Sorry, we are still finalizing this feature...",
         position: 'top center',
@@ -59,7 +60,11 @@ Template.majorSelect.onRendered(function() {
 Template.majorSelect.helpers({
     clickedGo: function(dict) {
         dict.set("pageName", "chooseCourse");
-        dict.set("chosenMajor", $("#search-select input").val());
+        if(!$("#search-select input").val().split(',')[0]){
+            dict.set("chosenMajor", []);
+        } else {
+            dict.set("chosenMajor", $("#search-select input").val().split(','));
+        }
     },
 
     hasClickedGo: function() {
@@ -68,7 +73,11 @@ Template.majorSelect.helpers({
 
     clickedHelp: function(dict) {
         dict.set("pageName", "helpChooseMajor");
-        dict.set("chosenMajor", $("#search-select input").val());
+        if(!$("#search-select").val().split(',')[0]){
+            dict.set("chosenMajor", []);
+        } else {
+            dict.set("chosenMajor", $("#search-select input").val().split(','));
+        }
     },
 
     hasClickedHelp: function() {
@@ -97,7 +106,7 @@ Template.majorSelect.events({
         });
 
         //check if the major is chosen
-        if (!$("#search-select input").val()) {
+        if (!$("#search-select input").val().split(',')[0]) {
             window.alert("Please choose a major. \nOr click the button below.");
             return;
         };
@@ -129,7 +138,7 @@ Template.majorSelect.events({
 
         $(".js-majorGo").attr("class", "medium ui primary loading disabled button js-majorGo");
         const dict = Template.instance().majorSelectDict;
-        Meteor.call("checkValidPlan", term_range, $("#search-select input").val(), function(err, result){
+        Meteor.call("checkValidPlan", term_range, $("#search-select input").val().split(','), function(err, result){
             if(err){
                 window.alert(err.message);
                 $(".js-majorGo").attr("class", "medium ui primary button js-majorGo");

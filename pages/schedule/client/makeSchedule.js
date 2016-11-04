@@ -494,6 +494,7 @@ Template.semesterSchedule.helpers({
             //then check available terms in schedule list
             if(scheduleList.length != 0){
                 for(let schedule of scheduleList){
+                    if(!SchedulesPnc.findOne(schedule)) continue;
                     const term_obj = Term.findOne({id: SchedulesPnc.findOne(schedule).term});
                     if($.inArray(term_obj.id, term_record) == -1){
                         wish_terms.push(term_obj);

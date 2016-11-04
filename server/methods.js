@@ -44,7 +44,7 @@ insert: [2] , update: [3], remove: [4]
 31. "Duplicate plans"
 32. "Incomplete term"
 33. "Empty schedule"
-34.
+34. "Too many majors"
 35.
 36.
 37.
@@ -414,6 +414,36 @@ Meteor.methods({
         }
 
         return search_result;
+    },
+
+    planSearch: function(dept_array){
+        const searchQuery = {
+            'subjects.id': {
+                $in: []
+            }
+        };
+
+        for(let dept of dept_array){
+            const major_regex = new RegExp("-" + dept + "$", "i");
+            if(!Subject.findOne({id: major_regex})){
+                return [];
+            }
+        }
+
+        for(let dept of dept_array){
+            const major_regex = new RegExp("-" + dept + "$", "i");
+            searchQuery["subjects.id"].$in.push(major_regex);
+        }
+
+        return SearchPnc.find(searchQuery, {
+            fields: {
+                _id: 0,
+                type: 0,
+                comment: 0,
+                credits: 0,
+                independent_study: 0,
+            }
+        }).fetch();
     },
 
     searchTerm: function(key) {
@@ -887,12 +917,16 @@ Meteor.methods({
             throw new Meteor.Error(202, "Invalid insert: No such user");
         };
 
-        const code_regex = new RegExp("-" + major_code + "$", "i");
-        const major_name = Subject.findOne({ id: code_regex }).name;
+        const major_name_list = [];
+        for(let id of major_code){
+            const code_regex = new RegExp("-" + id + "$", "i");
+            const major_name = Subject.findOne({ id: code_regex }).name;
+            major_name_list.push(major_name);
+        }
         let final_major_plan;
         if(futureList.length == 0){
             final_major_plan = {
-                majorName: major_name,
+                majorName: major_name_list,
                 majorId: major_code,
                 userId: this.userId,
                 chosenCourse: availableCourseList,
@@ -902,7 +936,7 @@ Meteor.methods({
             };
         } else {
             final_major_plan = {
-                majorName: major_name,
+                majorName: major_name_list,
                 majorId: major_code,
                 userId: this.userId,
                 chosenCourse: availableCourseList,
@@ -939,11 +973,16 @@ Meteor.methods({
             throw new Meteor.Error(202, "Invalid insert: No such user");
         };
 
-        let regexCode = new RegExp("-" + major_code + "$", "i");
-        if (!Subject.findOne({ id: regexCode })) {
-            console.log("[saveSchedule_MajorPlan] - Invalid insert: No such major: " + major_code);
-            throw new Meteor.Error(207, "Invalid insert: No such major");
-        };
+        let ifValidMajor = true;
+        const invalidMajors = [];
+        for(let id of major_code){
+            let regexCode = new RegExp("-" + id + "$", "i");
+            if (!Subject.findOne({ id: regexCode })) {
+                console.log("[saveSchedule_MajorPlan] - No such major: " + id);
+                invalidMajors.push(id);
+            };
+        }
+        if(invalidMajors.length != 0) throw new Meteor.Error(207, "No such major");
 
         if (availableCourseList.length == 0) {
             console.log("[saveSchedule_MajorPlan] - Invalid insert: No chosen course");
@@ -976,7 +1015,7 @@ Meteor.methods({
             throw new Meteor.Error(206, "Invalid insert: No such term");
         };
 
-        if (MajorPlansPnc.findOne({userId: this.userId, majorId: major_code, start_term: term_range.start_term, end_term: term_range.end_term})){
+        if (MajorPlansPnc.findOne({userId: this.userId, majorId: {$all: major_code}, majorId: {$size: major_code.length}, start_term: term_range.start_term, end_term: term_range.end_term})){
             console.log("[saveSchedule_MajorPlan] - Invalid insert: Duplicate plans");
             throw new Meteor.Error(231, "Invalid insert: Duplicate plans");
         };
@@ -1060,11 +1099,16 @@ Meteor.methods({
             throw new Meteor.Error(302, "Invalid update: No such user");
         };
 
-        let regexCode = new RegExp("-" + major_code + "$", "i");
-        if (!Subject.findOne({ id: regexCode })) {
-            console.log("[updateSchedule_MajorPlan] - Invalid update: No such major: " + major_code);
-            throw new Meteor.Error(307, "Invalid update: No such major");
-        };
+        let ifValidMajor = true;
+        const invalidMajors = [];
+        for(let id of major_code){
+            let regexCode = new RegExp("-" + id + "$", "i");
+            if (!Subject.findOne({ id: regexCode })) {
+                console.log("[updateSchedule_MajorPlan] - No such major: " + id);
+                invalidMajors.push(id);
+            };
+        }
+        if(invalidMajors.length != 0) throw new Meteor.Error(307, "No such major");
 
         if (availableCourseList.length == 0) {
             console.log("[updateSchedule_MajorPlan] - Invalid update: No chosen course");
@@ -1204,11 +1248,22 @@ Meteor.methods({
             }
         }
 
-        let regexCode = new RegExp("-" + major_id + "$", "i");
-        if (!Subject.findOne({ id: regexCode })) {
-            console.log("[checkValidPlan] - No such major: " + major_id);
-            throw new Meteor.Error(107, "No such major");
-        };
+        if(major_id.length > 6){
+            console.log("[checkValidPlan] - Too many majors");
+            throw new Meteor.Error(134, "Too many majors");
+        }
+
+        let ifValidMajor = true;
+        const invalidMajors = [];
+        for(let id of major_id){
+            let regexCode = new RegExp("-" + id + "$", "i");
+            if (!Subject.findOne({ id: regexCode })) {
+                console.log("[checkValidPlan] - No such major: " + id);
+                invalidMajors.push(id);
+            };
+        }
+        if(invalidMajors.length != 0) throw new Meteor.Error(107, "No such major");
+        
 
         if (!term_range.start_term || !term_range.end_term) {
             console.log("[checkValidPlan] - Incomplete term");
@@ -1227,7 +1282,7 @@ Meteor.methods({
                 console.log("[checkValidPlan] No such user: " + this.userId);
                 throw new Meteor.Error(102, "No such user");
             } else {
-                return !MajorPlansPnc.findOne({userId: this.userId, majorId: major_id, start_term: term_range.start_term, end_term: term_range.end_term});
+                return !MajorPlansPnc.findOne({userId: this.userId,majorId: {$all: major_id}, majorId: {$size: major_id.length}, start_term: term_range.start_term, end_term: term_range.end_term});
             }
         } else {//if it reaches here, it means it passed the check
             return true;

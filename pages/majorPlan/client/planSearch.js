@@ -51,11 +51,7 @@ Template.planSearch.helpers({
 
         const dept = planDict.get('majorId'); //""for no option and "all" for all departments
 
-        Meteor.call("searchPnc", "", "", [], dept, "", {
-            days: [],
-            start: "",
-            end: ""
-        }, false, false,
+        Meteor.call("planSearch", dept, 
             function(err, result) {
                 if(err){
                     window.alert(err.message);
@@ -171,7 +167,7 @@ Template.plan_result.onRendered(function() {
     //clean all filters first
     Template.instance().filter_code.set("");
     Template.instance().filter_name.set("");
-    
+
     const sticky_height = $("#planSearch_result").height();
     const target_height = $("#major_info").height();
     if(sticky_height < target_height){
