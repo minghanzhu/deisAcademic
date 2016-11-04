@@ -74,4 +74,18 @@ Template.planList.helpers({
             }
         }
     },
+
+    getMajorName: function(name_array){
+        let result = ""
+
+        for(let i = 0; i < name_array.length; i++){
+            if(i != name_array.length - 1){
+                result += name_array[i] + " & ";
+            } else {
+                result += name_array[i];
+            }
+        }
+
+        return result;
+    }
 })

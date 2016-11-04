@@ -304,35 +304,48 @@ UserProfilePnc.attachSchema(Schemas.UserProfilePnc);
 
 Schemas.MajorPlansPnc = new SimpleSchema({
     majorName: {
-        type: String,
+        type: [String],
         custom: function(){
             //first check if this major exists
-            if(!Subject.findOne({name: this.value})){
-                return "noSuchMajor"
+            for(let name of this.value){
+                if(!Subject.findOne({name: name})){
+                    return "noSuchMajor"
+                }
             }
 
             //then make sure the major name matches the major id
-            const major_obj = Subject.findOne({name: this.value});
-            const major_id = major_obj.id.substring(major_obj.id.indexOf("-") + 1);
-            if(major_id !== this.field('majorId').value){
-                return "noSuchMajor"
+            for(let name of this.value){
+                const major_obj = Subject.findOne({name: name});
+                const major_id = major_obj.id.substring(major_obj.id.indexOf("-") + 1);
+                if(_.indexOf(this.field('majorId').value, major_id) == -1) {
+                    return "noSuchMajor"
+                }
             }
-        }
+        },
+        minCount: 1,
+        maxCount: 6
     },
     majorId: {
-        type: String,
+        type: [String],
         custom: function(){
-            const major_regex = new RegExp("-" + this.value + "$", "i");
-            if(!Subject.findOne({id: major_regex})){
-                return "noSuchMajor"
+            for(let id of this.value){
+                const major_regex = new RegExp("-" + id + "$", "i");
+                if(!Subject.findOne({id: major_regex})){
+                    return "noSuchMajor"
+                }
             }
-
-            const major_obj = Subject.findOne({id: major_regex});
-            const major_name = major_obj.name;
-            if(major_name !== this.field('majorName').value){
-                return "noSuchMajor"
-            }
-        }
+            
+            for(let id of this.value){
+                const major_regex = new RegExp("-" + id + "$", "i");
+                const major_obj = Subject.findOne({id: major_regex});
+                const major_name = major_obj.name;
+                if(_.indexOf(this.field('majorName').value, major_name) == -1){
+                    return "noSuchMajor"
+                }
+            }         
+        },
+        minCount: 1,
+        maxCount: 6
     },
     userId: {
         type: String,

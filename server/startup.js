@@ -338,7 +338,7 @@ Meteor.startup(function() {
     if(CoursePrediction.find().count() == 0) Meteor.call("predictionAlgorithm", Meteor.settings.predictionKey);
     Meteor.setInterval(function(){
         Meteor.call("updateJSON", Meteor.settings.updateKey);
-    }, 600000);
+    }, 300000);
     
     if(SearchPnc.find().count() != 0) return;
     SearchPnc.remove({});
@@ -349,7 +349,6 @@ Meteor.startup(function() {
     //first insert course
     for (let item of data1) {
         if (1 == 1) {
-            count1++;
             SearchPnc.insert(item);
         }
     }

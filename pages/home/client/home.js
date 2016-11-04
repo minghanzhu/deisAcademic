@@ -27,6 +27,7 @@ Template.voiceButton.onRendered(function() {
 Template.home.onRendered(function() {
     const homeDict = Template.instance().homeDict;
     //this monitors the pressing of enter, if so, do a search
+    $('body').unbind('keydown');
     $('body').keydown(function(e) {
         if(Router.current().url !== "http://turing.cs-i.brandeis.edu:5000/"
             && Router.current().url !== "/"

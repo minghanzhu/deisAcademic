@@ -5,18 +5,23 @@
 
 	<div class="ui stackable grid">
   <div class="nine wide column">
-		{{> planSearch dict=dict}}
+  	<div class="ui sticky" id="planSearch_result">
+  		{{> planSearch dict=dict}}
+  	</div>
+		
   </div>
 
   <div class="seven wide column">
-		<ul>
-			{{#each m in (majors dict)}}
-			<li>
-				{{> majorItem m = m}}
-				<br>
-			</li>
-			<hr> {{/each}}
-		</ul>
+		<div id="major_info">
+			<ul>
+				{{#each m in (majors dict)}}
+				<li>
+					{{> majorItem m = m}}
+					<br>
+				</li>
+				<hr> {{/each}}
+			</ul>
+		</div>
   </div>
 </div>
 	<!-- <ul>
