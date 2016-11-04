@@ -1658,16 +1658,24 @@ Meteor.methods({
             }
 
             //search courses in future list
-            for(let futureSchedule of futureList){
-                const courseList = futureSchedule.courseList;
-                for(let cont_id of courseList){
-                    if(_.indexOf(continuity_id_list, cont_id) == -1){
-                        continuity_id_list.push(cont_id);
+            if(futureList){
+                for(let futureSchedule of futureList){
+                    const courseList = futureSchedule.courseList;
+                    for(let cont_id of courseList){
+                        if(_.indexOf(continuity_id_list, cont_id) == -1){
+                            continuity_id_list.push(cont_id);
+                        }
                     }
                 }
             }
-
-            wishlist_section_id_list = [];
+            
+            if(!this.userId){
+                wishlist_section_id_list = [];
+            } else if(this.userId == MajorPlansPnc.findOne(plan_id).userId){
+                wishlist_section_id_list = UserProfilePnc.findOne({userId: this.userId}).wishlist;
+            } else {
+                wishlist_section_id_list = [];
+            }
         } else {//new plan
             if(this.userId){
                 wishlist_section_id_list = UserProfilePnc.findOne({userId: this.userId}).wishlist;

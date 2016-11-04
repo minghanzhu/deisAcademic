@@ -120,7 +120,8 @@ Template.masterMajorPlan.onCreated(function(){
             }
 
             
-            const futureList = MajorPlansPnc.findOne(current_plan_id).futureList;
+            let futureList = MajorPlansPnc.findOne(current_plan_id).futureList;
+            if(!futureList) futureList = [];
             const wishlist_course = [];
             for(let future_schedule of futureList){
             	const course_cont_list = future_schedule.courseList;

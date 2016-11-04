@@ -966,7 +966,13 @@ Template.scheduleCourseList.onRendered(function() {
     const target_height = $("#courseList").height();
     if (sticky_height < target_height) {
         $('.ui.sticky').sticky({
-            context: '#courseList'
+            context: '#courseList',
+            observeChanges: true
+        });
+    } else {
+        $('.ui.sticky').sticky({
+            context: false,
+            observeChanges: true
         });
     }
     $(".ui.slider.checkbox").checkbox();
@@ -1367,7 +1373,13 @@ Template.scheduleCourseList.events({
 
             if (sticky_height < target_height) {
                 $('.ui.sticky').sticky({
-                    context: '#courseList'
+                    context: '#courseList',
+                    observeChanges: true
+                });
+            } else {
+                $('.ui.sticky').sticky({
+                    context: false,
+                    observeChanges: true
                 });
             }
         }, 600);
