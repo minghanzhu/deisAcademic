@@ -35,10 +35,10 @@
                                         <p style="color:orange">{{course.code}} - {{course.section_obj.section}}</p>
                                     {{/if}}
                                     {{#if isNewPlan}}
-                                        <i class="remove icon pull-right js-remove-course" section-id="{{course.section_id}}" term="{{term.id}}"></i>
+                                        <i class="remove icon pull-right js-remove-course" section-id="{{course.section_id}}" term="{{term.id}}" cont-id="{{course.section_obj.course}}"></i>
                                     {{else}}
                                         {{#if currentUser AND sameUser}}
-                                            <i class="remove icon pull-right js-remove-course" section-id="{{course.section_id}}" term="{{term.id}}"></i>
+                                            <i class="remove icon pull-right js-remove-course" section-id="{{course.section_id}}" term="{{term.id}}" cont-id="{{course.section_obj.course}}"></i>
                                         {{/if}}
                                     {{/if}}
                                 </div>

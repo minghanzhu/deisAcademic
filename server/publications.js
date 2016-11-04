@@ -117,17 +117,49 @@ Meteor.publish("modify_plan_majorPlans", function(plan_id) {
         //console.log("Invalid plan id");
         return MajorPlansPnc.find(plan_id);
     } else {
-        return MajorPlansPnc.find( 
-            plan_id, {
-            fields:{
-                scheduleList: 1,
-                chosenCourse: 1,
-                majorId: 1,
-                start_term: 1,
-                end_term: 1,
-                futureList: 1
+        const plan_obj = MajorPlansPnc.findOne(plan_id);
+        const userId = plan_obj.userId;
+
+        if(this.userId){
+            if(this.userId === userId){
+                return MajorPlansPnc.find( 
+                    plan_id, {
+                    fields:{
+                        scheduleList: 1,
+                        chosenCourse: 1,
+                        majorId: 1,
+                        start_term: 1,
+                        end_term: 1,
+                        futureList: 1,
+                        userId: 1
+                    }
+                })
+            } else {
+                return MajorPlansPnc.find( 
+                    plan_id, {
+                    fields:{
+                        scheduleList: 1,
+                        chosenCourse: 1,
+                        majorId: 1,
+                        start_term: 1,
+                        end_term: 1,
+                        futureList: 1
+                    }
+                })
             }
-        })
+        } else {
+            return MajorPlansPnc.find( 
+                plan_id, {
+                fields:{
+                    scheduleList: 1,
+                    chosenCourse: 1,
+                    majorId: 1,
+                    start_term: 1,
+                    end_term: 1,
+                    futureList: 1
+                }
+            })
+        }
     }
 
     /*
