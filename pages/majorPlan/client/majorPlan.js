@@ -1,5 +1,10 @@
+Template.majorPlan.onCreated(function(){
+	this.masterDict = this.data["dict"];
+})
+
 Template.majorPlan.helpers({
-    majors: function(dict) {
+    majors: function() {
+      const dict = Template.instance().masterDict;
       return Major.find({id:{$in: dict.get("chosenMajor")}});
     },
 });

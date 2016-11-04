@@ -2,8 +2,14 @@ import fullCalendar from 'fullcalendar';
 
 Template.calendarTest.onCreated(function() {
     this.calendarDict = new ReactiveDict();
-    this.calendarDict.set("masterDictSet", false);
     this.calendarDict.set("viewCalendar", false);
+
+    this.masterDict = this.data["dict"];
+    this.masterDict.set("hasCourseList", false);
+    this.masterDict.set("fetched_courseList");
+    this.masterDict.set("clickedChange", false);
+    this.masterDict.set("predictionDataReady", false);
+
     if (!this.data["dict"].get("scheduleList")) {
         this.data["dict"].set("scheduleList", {});
     } 
@@ -12,6 +18,10 @@ Template.calendarTest.onCreated(function() {
         this.calendarDict.set("courseFetchInfo", this.data["dict"].get("courseFetchInfo"));
     } else {//it's a new plan
         this.calendarDict.set("courseFetchInfo", {});
+    }
+
+    if (!this.masterDict.get("includeWishlist")) {
+        Template.instance().masterDict.set("includeWishlist", false);
     }
 })
 
@@ -23,25 +33,6 @@ Template.calendarTest.onRendered(function() {
 })
 
 Template.calendarTest.helpers({
-    setMasterDict: function(dict) {
-        if (!Template.instance().masterDict) {
-            Template.instance().masterDict = dict;
-            Template.instance().masterDict.set("hasCourseList", false);
-            Template.instance().masterDict.set("fetched_courseList");
-            Template.instance().calendarDict.set("masterDictSet", true);
-            Template.instance().masterDict.set("clickedChange", false);
-            Template.instance().masterDict.set("predictionDataReady", false);
-        }
-
-        if (!Template.instance().masterDict.get("includeWishlist")) {
-            Template.instance().masterDict.set("includeWishlist", false);
-        }
-    },
-
-    masterDictSet: function() {
-        return !!Template.instance().calendarDict.get("masterDictSet");
-    },
-
     viewCalendar: function(){
         return Template.instance().calendarDict.get("viewCalendar");
     },
@@ -423,7 +414,8 @@ Template.calendarTest.helpers({
         return end_term > latest_term && end_term <= (latest_term + 30);
     },
 
-    pullPredictionData: function(masterDict){
+    pullPredictionData: function(){
+        const masterDict = Template.instance().masterDict;
         const chosen_course_list = masterDict.get("courseList");
         Meteor.call("getCoursePrediction", chosen_course_list, Router.current().params._id, function(err, result){
             if(err){
@@ -960,6 +952,11 @@ Template.calendarTest.events({
     },
 })
 
+Template.scheduleCourseList.onCreated(function(){
+    this.masterDict = this.data["masterDict"];
+    this.calendarDict = this.data["dict"];
+})
+
 Template.scheduleCourseList.onRendered(function() {
     $('.accordion').accordion();
     const sticky_height = $(".ui.sticky").height();
@@ -979,11 +976,10 @@ Template.scheduleCourseList.onRendered(function() {
 })
 
 Template.scheduleCourseList.helpers({
-    setMasterDict: function(masterDict) {
-        Template.instance().masterDict = masterDict;
-    },
+    getSections: function(courseContId, index) {
+        const dict = Template.instance().calendarDict;
+        const masterDict = Template.instance().masterDict;
 
-    getSections: function(courseContId, dict, masterDict, index) {
         if (!masterDict.get("chosenTerm") || !courseContId) { //continue only if the data is ready
             return;
         };
@@ -1086,7 +1082,9 @@ Template.scheduleCourseList.helpers({
         });
     },
 
-    hasSectionInfo: function(courseContId, dict, masterDict) {
+    hasSectionInfo: function(courseContId) {
+        const dict = Template.instance().calendarDict;
+        const masterDict = Template.instance().masterDict;
         const courseId = masterDict.get("chosenTerm") + "-" + courseContId;
         if(!Term.findOne({id: masterDict.get("chosenTerm")})){
             if(!dict.get("sectionInfo")){
@@ -1108,12 +1106,16 @@ Template.scheduleCourseList.helpers({
         }
     },
 
-    sectionInfo: function(courseContId, dict, masterDict) {
+    sectionInfo: function(courseContId) {
+        const dict = Template.instance().calendarDict;
+        const masterDict = Template.instance().masterDict;
         const courseId = masterDict.get("chosenTerm") + "-" + courseContId;
         return dict.get("sectionInfo")[courseId];
     },
 
-    noResult: function(courseContId, dict, masterDict) {
+    noResult: function(courseContId) {
+        const dict = Template.instance().calendarDict;
+        const masterDict = Template.instance().masterDict;
         const courseId = masterDict.get("chosenTerm") + "-" + courseContId;
         if(!dict.get("sectionInfo")){
             return true;
@@ -1160,7 +1162,9 @@ Template.scheduleCourseList.helpers({
         return time;
     },
 
-    getPredictionData: function(continuity_id, masterDict){
+    getPredictionData: function(continuity_id){
+        const masterDict = Template.instance().masterDict;
+
         if(!Template.instance().masterDict.get("predictionData")[continuity_id]){
             return "N/A"
         }
@@ -1419,6 +1423,7 @@ Template.calendar.onCreated(function(){
     this.calendarDivDict = new ReactiveDict();
     this.calendarDivDict.set("masterDictSet", false);
     this.masterDict = this.data["dict"];
+    this.calendarDict = this.data["calendarDict"];
 })
 
 Template.calendar.onRendered(function(){
@@ -1476,27 +1481,15 @@ Template.calendar.onRendered(function(){
             $(".overlay-calendar, .popup-calendar").fadeToggle();
         },
     });
-    if (!!Template.instance().masterDict) {
-        const chosenTerm = Template.instance().masterDict.get("chosenTerm");
-        $(".js-term").val(chosenTerm);
-        const currentTerm_sources = Template.instance().masterDict.get("scheduleList")[chosenTerm];
-        if (currentTerm_sources) {
-            if (currentTerm_sources["courseList"].length != 0) {
-                for (let source of currentTerm_sources["courseList"]) {
-                    $("#calendar").fullCalendar("addEventSource", source);
-                }
+
+    const chosenTerm = Template.instance().masterDict.get("chosenTerm");
+    $(".js-term").val(chosenTerm);
+    const currentTerm_sources = Template.instance().masterDict.get("scheduleList")[chosenTerm];
+    if (currentTerm_sources) {
+        if (currentTerm_sources["courseList"].length != 0) {
+            for (let source of currentTerm_sources["courseList"]) {
+                $("#calendar").fullCalendar("addEventSource", source);
             }
-        }  
-    }
-})
-
-Template.calendar.helpers({
-    setMasterDict: function(dict) {
-        Template.instance().masterDict = dict;
-        Template.instance().calendarDivDict.set("masterDictSet", true);
-    },
-
-    masterDictSet: function() {
-        return Template.instance().calendarDivDict.get("masterDictSet");
-    },
+        }
+    }  
 })

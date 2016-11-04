@@ -1,5 +1,4 @@
 <template name="planTermRange">
-	{{setMasterDict dict}}
 	<div id="planTermRange" class="ui form">
 		<div class="fields">
 			<div class="two wide field"></div>
@@ -39,7 +38,7 @@
 
 		<div class="fields">
 			<button class="ui blue button js-ok">OK</button>
-			{{#if hasClickedOK}}{{clickedOK dict}}{{/if}}
+			{{#if hasClickedOK}}{{clickedOK}}{{/if}}
 		</div>
 	</div>
 </template>

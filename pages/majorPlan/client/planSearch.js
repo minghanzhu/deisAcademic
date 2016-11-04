@@ -1,5 +1,19 @@
+Template.planSearch.onCreated(function(){
+    this.masterDict = this.data["dict"];
+    this.planSearchDict = this.data["dict"];
+    this.planSearchDict.set('majorId', this.data["dict"].get('chosenMajor'));
+    this.planSearchDict.set('showTable', false);
+    this.planSearchDict.set('majorDetail', []);
+    this.planSearchDict.set('sectionDetail', []);
+    this.planSearchDict.set('sectionIndex', 0);
+    this.planSearchDict.set('courseData');
+    this.planSearchDict.set('clickedNext', false);
+    this.planSearchDict.set('clickedTerm', false);
+})
+
 Template.planSearch.helpers({
-    showTable: function(planDict) {
+    showTable: function() {
+        const planDict = Template.instance().planSearchDict;
         return Template.instance().planSearchDict.get('showTable');
     },
 
@@ -11,7 +25,8 @@ Template.planSearch.helpers({
         return Template.instance().planSearchDict.get('clickedNext');
     },
 
-    clickedNext: function(dict){
+    clickedNext: function(){
+        const dict = Template.instance().masterDict;
         dict.set("pageName", 'makeSchedule');
     },
 
@@ -19,21 +34,9 @@ Template.planSearch.helpers({
         return Template.instance().planSearchDict.get('clickedTerm');
     },
 
-    clickedTerm: function(dict){
+    clickedTerm: function(){
+        const dict = Template.instance().masterDict;
         dict.set("pageName", 'changeTerm');
-    },
-
-    setMasterDict: function(dict){
-        Template.instance().masterDict = dict;
-        Template.instance().planSearchDict = dict;
-        Template.instance().planSearchDict.set('majorId', dict.get('chosenMajor'));
-        Template.instance().planSearchDict.set('showTable', false);
-        Template.instance().planSearchDict.set('majorDetail', []);
-        Template.instance().planSearchDict.set('sectionDetail', []);
-        Template.instance().planSearchDict.set('sectionIndex', 0);
-        Template.instance().planSearchDict.set('courseData');
-        Template.instance().planSearchDict.set('clickedNext', false);
-        Template.instance().planSearchDict.set('clickedTerm', false);
     },
 
     hasMajor: function(){
@@ -160,6 +163,8 @@ Template.planSearch.events({
 Template.plan_result.onCreated(function(){
     this.filter_code = new ReactiveTable.Filter('planSearch_filter_code', ['code']);
     this.filter_name = new ReactiveTable.Filter('planSearch_filter_name', ['name']);
+    this.masterDict = this.data["dict"];//save the dict to the template
+    this.planResultDict = this.data["dict"];
 })
 
 Template.plan_result.onRendered(function() {
@@ -184,37 +189,19 @@ Template.plan_result.onRendered(function() {
 })
 
 Template.plan_result.helpers({
-    setMasterDict: function(dict){
-        Template.instance().masterDict = dict;//save the dict to the template
-        Template.instance().planResultDict = dict;
-    },
-
-    detailReady: function(planDict) {
+    detailReady: function() {
+        const planDict = Template.instance().planResultDict;
         return planDict.get('courseInfo') != null;
     },
 
-    courseDataReady: function(planDict) {
+    courseDataReady: function() {
+        const planDict = Template.instance().planResultDict;
         return planDict.get('courseData') != null;
     },
 
-    courseData: function(planDict) {
+    courseData: function() {
+        const planDict = Template.instance().planResultDict;
         return planDict.get('courseData');
-    },
-
-    courseInfo: function(planDict) {
-        return planDict.get('courseInfo');
-    },
-
-    majorInfo: function(planDict) {
-        return planDict.get('majorDetail');
-    },
-
-    sectionData: function(planDict) {
-        return planDict.get('sectionDetail');
-    },
-
-    noResult: function(planDict) {
-        return planDict.get('noResult');
     },
 
     settings_course: function() {

@@ -1,5 +1,4 @@
 <template name="calendarTest">
-  {{#if masterDictSet}}
   <div class="ui stackable grid">
     {{#if isNewPlan}}
   		<div class="twelve wide column">
@@ -67,7 +66,7 @@
   				{{else}}
   					{{pullUserCourseList}}
             {{#if hasFutureTerm}}
-              {{pullPredictionData dict}}
+              {{pullPredictionData}}
             {{/if}}
   					<div class="ui active inline loader"></div>
   				{{/if}}
@@ -135,7 +134,7 @@
             {{else}}
               {{pullUserCourseList}}
               {{#if hasFutureTerm}}
-                {{pullPredictionData dict}}
+                {{pullPredictionData}}
               {{/if}}
               <div class="ui active inline loader"></div>
             {{/if}}
@@ -162,7 +161,7 @@
                 {{else}}
                   {{pullUserCourseList}}
                   {{#if hasFutureTerm}}
-                    {{pullPredictionData dict}}
+                    {{pullPredictionData}}
                   {{/if}}
                   <div class="ui active inline loader"></div>
                 {{/if}}
@@ -338,17 +337,13 @@
       {{/if}}
     </div>
   </div>
-  {{else}}
-    {{setMasterDict dict}}
-  {{/if}}
 </template>
 
 <template name="scheduleCourseList">
-  {{setMasterDict masterDict}}
   <div class="item">
     <a class="title js-title">
       <i class="dropdown icon"></i>
-      {{#if (noResult c.continuity_id dict masterDict)}}
+      {{#if (noResult c.continuity_id)}}
         {{#if isFutureTerm}}
           {{#if na c.continuity_id}}
             <p style="color:grey">{{c.code}}{{#if inList c.continuity_id}}<i class="checkmark icon pull-right"></i>{{/if}}</p>
@@ -373,15 +368,15 @@
 
     <div class="content">
       <div class="ui link list" id="sectionList">
-        {{#if (hasSectionInfo c.continuity_id dict masterDict)}}
-          {{#if (noResult c.continuity_id dict masterDict)}}
+        {{#if (hasSectionInfo c.continuity_id)}}
+          {{#if (noResult c.continuity_id)}}
             {{#if isFutureTerm}}
-              <a class="item js-add-future-course" cont-id="{{c.continuity_id}}">Offer chance - {{getPredictionData c.continuity_id masterDict}}<i class="plus icon pull-right"></i></a>
+              <a class="item js-add-future-course" cont-id="{{c.continuity_id}}">Offer chance - {{getPredictionData c.continuity_id}}<i class="plus icon pull-right"></i></a>
             {{else}}
               Not Available
             {{/if}}
           {{else}}
-            {{#each section in (sectionInfo c.continuity_id dict masterDict)}}
+            {{#each section in (sectionInfo c.continuity_id)}}
               <a class="item js-add-section" id="{{section.id}}" course-code="{{c.code}}" course-name="{{c.name}}">Section{{section.section}}<i class="plus icon pull-right"></i></a>
               {{#if hasTimes section.times}}
                 {{#each time in section.times}}
@@ -393,7 +388,7 @@
             {{/each}}
           {{/if}}
         {{else}}
-          {{getSections c.continuity_id dict masterDict index}}
+          {{getSections c.continuity_id index}}
           <div class="ui active inline loader"></div>
         {{/if}}
       </div>
@@ -402,9 +397,5 @@
 </template>
 
 <template name="calendar">
-  {{#if masterDictSet}}
-    <div id="calendar"></div><br>
-  {{else}} 
-    {{setMasterDict dict}} 
-  {{/if}}
+  <div id="calendar"></div><br>
 </template>
