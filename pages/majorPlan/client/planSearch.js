@@ -11,6 +11,12 @@ Template.planSearch.onCreated(function(){
     this.planSearchDict.set('clickedTerm', false);
 })
 
+Template.planSearch.onRendered(function(){
+    $('.message .close').on('click', function() {
+        $(this).closest('.message').transition('fade');
+    });
+})
+
 Template.planSearch.helpers({
     showTable: function() {
         const planDict = Template.instance().planSearchDict;

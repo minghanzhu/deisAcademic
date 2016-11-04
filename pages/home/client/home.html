@@ -317,8 +317,8 @@
     <div class="ui container popup" id="home-popup">
         <i class="remove icon pull-right js-close-popup"></i>
         <div class="ui top attached tabular menu" id="popup-tab">
-            <a class="active item" data-tab="first">Course Detail</a>
-            <a class="item" data-tab="second">Section Detail</a>
+            <a class="active item" data-tab="first">Course Details</a>
+            <a class="item" data-tab="second">Section Details</a>
             <a class="item" data-tab="third">Offering History</a>
         </div>
 
@@ -372,11 +372,11 @@
                             {{#each time in sectionDetail.times}}
                                 {{#if notFirstTime @index}}<div class="ui horizontal divider"></div>{{/if}}
                                 {{#if time.start}}<b>{{getSectionDays time.days}}:</b> {{convertTime time.start}} to {{convertTime time.end}}<br>{{else}}TBD<br>{{/if}}
-                                {{#if time.building}}{{time.building}} - {{time.room}}<br>{{else}}Please wait until Brandeis posts place information for this section<br>{{/if}}
+                                {{#if time.building}}{{time.building}} - {{time.room}}<br>{{else}}Please wait until Brandeis updates place information for this section<br>{{/if}}
                                 {{#if time.type}}<b>Type: </b>{{time.type}}{{/if}}
                             {{/each}}
                         {{else}}
-                            <p>Please wait until Brandeis posts time and day information for this section</p>
+                            <p>Please wait until Brandeis updates time and day information for this section</p>
                         {{/if}}
                         <h3>Enrollment</h3>
                         {{sectionDetail.enrolled}}/{{limitNum sectionDetail.limit}} - {{sectionDetail.status_text}}
