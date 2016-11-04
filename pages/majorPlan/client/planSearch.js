@@ -97,24 +97,30 @@ Template.planSearch.helpers({
                             comp_string_b = course_num_b + last_b + secondLast_b;
                         }
 
-
                         const major_comp = course_dep_a.localeCompare(course_dep_b);
                         if (major_comp != 0) {
                             return major_comp;
                         } else {
-                            return comp_string_a.localeCompare(comp_string_b);
+                            const num_comp = comp_string_a.localeCompare(comp_string_b);
+                            if(num_comp != 0){
+                                return num_comp
+                            } else {
+                                return a.term - b.term;
+                            }
                         }
-
                     });
-                    let current_course = "";
+
+                    const current_course = {};
                     for(let i = 0; i < sorted_result.length; i++){
-                        if((sorted_result[i].code.trim()) === current_course){
-                            current_course = sorted_result[i].code.trim();
+                        if((sorted_result[i].code.trim()) === current_course.code 
+                            && sorted_result[i].continuity_id === current_course.continuity_id){
                             sorted_result.splice(i, 1);
                             i--;
                         };
-                        current_course = sorted_result[i].code.trim();                 
+                        current_course.code = sorted_result[i].code.trim();
+                        current_course.continuity_id = sorted_result[i].continuity_id;            
                     }
+
                     for (let i = 0; i < sorted_result.length; i++) {
                         sorted_result[i].index = i;
                     };
