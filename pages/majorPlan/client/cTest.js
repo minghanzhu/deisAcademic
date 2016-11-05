@@ -11,6 +11,10 @@ Template.calendarTest.onCreated(function() {
     this.masterDict.set("predictionDataReady", false);
     this.masterDict.set("hideAdded", true);
     this.masterDict.set("fetched", false);
+    
+    if(!this.masterDict.get("noTimeSections")){
+        this.masterDict.set("noTimeSections", {});
+    }
 
     if (!this.data["dict"].get("scheduleList")) {
         this.data["dict"].set("scheduleList", {});
@@ -106,8 +110,8 @@ Template.calendarTest.helpers({
 
     pullUserCourseList: function() {
         const dict = Template.instance().masterDict;
-        const courseList = dict.get('courseList');
-
+        const courseList = dict.get('chosenCourse');
+        
         let sectionList = [];
         if(UserProfilePnc.findOne()){
             sectionList = UserProfilePnc.findOne().wishlist;
@@ -426,7 +430,7 @@ Template.calendarTest.helpers({
 
     pullPredictionData: function(){
         const masterDict = Template.instance().masterDict;
-        const chosen_course_list = masterDict.get("courseList");
+        const chosen_course_list = masterDict.get("chosenCourse");
         Meteor.call("getCoursePrediction", chosen_course_list, Router.current().params._id, function(err, result){
             if(err){
                 window.alert(err.message);
@@ -638,7 +642,7 @@ Template.calendarTest.events({
     "click .js-save-plan": function() {
         $(".js-save-plan").attr("class", "ui loading disabled button js-save-plan pull-right");
         $(".js-change-course").attr("class", "ui disabled button js-change-course");
-        const is_calendarView = Template.instance().data["dict"].get("viewCalendar");
+        const is_calendarView = Template.instance().calendarDict.get("viewCalendar");
         if(is_calendarView){
             //save the current term's schedule to the dict
             const current_term = $(".js-term").val() || Template.instance().masterDict.get("chosenTerm");
@@ -668,7 +672,7 @@ Template.calendarTest.events({
         //turn the dict data into user data to save
         const masterDict = Template.instance().masterDict;
         const major_code = masterDict.get("chosenMajor");
-        const availableCourseList = masterDict.get("courseList");
+        const availableCourseList = masterDict.get("chosenCourse");
         const major_plan_object = {
             majorId: major_code,
             chosenCourse: availableCourseList,
@@ -744,7 +748,7 @@ Template.calendarTest.events({
         $(".js-save-plan").attr("class", "ui loading disabled button js-save-plan");
         $(".js-delete-plan").attr("class", "ui disabled red button js-delete-plan pull-right");
         $(".js-change-course").attr("class", "ui disabled button js-change-course");
-        const is_calendarView = Template.instance().data["dict"].get("viewCalendar");
+        const is_calendarView = Template.instance().calendarDict.get("viewCalendar");
         const current_plan_id = Router.current().params._id;
         if(is_calendarView){
             //save the current term's schedule to the dict
@@ -775,7 +779,7 @@ Template.calendarTest.events({
         //turn the dict data into user data to save
         const masterDict = Template.instance().masterDict;
         const major_code = masterDict.get("chosenMajor");
-        const availableCourseList = masterDict.get("courseList");
+        const availableCourseList = masterDict.get("chosenCourse");
         const major_plan_object = {
             majorId: major_code,
             chosenCourse: availableCourseList,
@@ -1270,6 +1274,24 @@ Template.scheduleCourseList.events({
         const is_calendarView = Template.instance().data["dict"].get("viewCalendar");
         const masterDict = Template.instance().masterDict;
         const calendar_source = masterDict.get("scheduleList");
+        const specialTimes = {
+            start1: "2000-01-03T07:30:00-05:00",
+            start2: "2000-01-04T07:30:00-05:00",
+            start3: "2000-01-05T07:30:00-05:00",
+            start4: "2000-01-06T07:30:00-05:00",
+            start5: "2000-01-07T07:30:00-05:00",
+            end1: "2000-01-03T08:00:00-05:00",
+            end2: "2000-01-04T08:00:00-05:00",
+            end3: "2000-01-05T08:00:00-05:00",
+            end4: "2000-01-06T08:00:00-05:00",
+            end5: "2000-01-07T08:00:00-05:00"
+        }
+        const term = section_id.substring(0, section_id.indexOf("-"));
+        const noTimeSections = Template.instance().masterDict.get("noTimeSections");
+        if(!noTimeSections[term]){
+            noTimeSections[term] = 0
+        } 
+
         //start  : '2010-01-09T12:30:00-5:00',this is the format of the time
 
         //check if the section is added
@@ -1302,93 +1324,107 @@ Template.scheduleCourseList.events({
                 return;
             };
 
-            if (result.times.length != 0) {
-                const events_array = [];
+            const events_array = [];
 
-                const addedCourses = masterDict.get("addedCourses");
-                addedCourses.push(result.course.substring(result.course.indexOf("-") + 1));
-                masterDict.set("addedCourses", addedCourses);
+            const addedCourses = masterDict.get("addedCourses");
+            addedCourses.push(result.course.substring(result.course.indexOf("-") + 1));
+            masterDict.set("addedCourses", addedCourses);
 
-                for (let time of result.times) {
-                    for (let day of time.days) {
-                        //turn time from minuets form into a real time form (HH:MM:SS)
-                        function convertTime(time) {
-                            var min = Math.floor(time % 60);
-                            if (min < 10) {
-                                min = "0" + min;
-                            }
+            for (let time of result.times) {
+                for (let day of time.days) {
+                    //turn time from minuets form into a real time form (HH:MM:SS)
+                    function convertTime(time) {
+                        var min = Math.floor(time % 60);
+                        if (min < 10) {
+                            min = "0" + min;
+                        }
 
-                            var hr = Math.floor(time / 60);
-                            if (hr < 10) {
-                                hr = "0" + hr;
-                            }
+                        var hr = Math.floor(time / 60);
+                        if (hr < 10) {
+                            hr = "0" + hr;
+                        }
 
-                            var time = hr + ":" + min + ":00";
-                            return time;
-                        };
+                        var time = hr + ":" + min + ":00";
+                        return time;
+                    };
 
-                        //turns day names into date
-                        function dayNum(day) {
-                            if (day === "m") {
-                                return "03";
-                            } else if (day === "tu") {
-                                return "04";
-                            } else if (day === "w") {
-                                return "05";
-                            } else if (day === "th") {
-                                return "06";
-                            } else if (day === "f") {
-                                return "07";
-                            }
-                        };
+                    //turns day names into date
+                    function dayNum(day) {
+                        if (day === "m") {
+                            return "03";
+                        } else if (day === "tu") {
+                            return "04";
+                        } else if (day === "w") {
+                            return "05";
+                        } else if (day === "th") {
+                            return "06";
+                        } else if (day === "f") {
+                            return "07";
+                        }
+                    };
 
-                        const event_obj = {
-                            id: result.id, //this holds the section id so events at different tiems are associated
-                            title: course_code,
-                            start: "2000-01-" + dayNum(day) + "T" + convertTime(time.start) + "-05:00",
-                            end: "2000-01-" + dayNum(day) + "T" + convertTime(time.end) + "-05:00",
-                            section_obj: result //this hold the actual section object for later use
-                        };
+                    const event_obj = {
+                        id: result.id, //this holds the section id so events at different tiems are associated
+                        title: course_code,
+                        start: "2000-01-" + dayNum(day) + "T" + convertTime(time.start) + "-05:00",
+                        end: "2000-01-" + dayNum(day) + "T" + convertTime(time.end) + "-05:00",
+                        section_obj: result //this hold the actual section object for later use
+                    };
 
-                        events_array.push(event_obj);
-                    }
+                    events_array.push(event_obj);
+                }
+            }
+
+            if(events_array.length == 0){
+                noTimeSections[term]++
+                if(noTimeSections[term] > 5) noTimeSections[term] = 1;
+
+                const event_obj = {
+                    id: result.id, //this holds the section id so events at different tiems are associated
+                    title: course_code,
+                    start: specialTimes["start" + noTimeSections[term]],
+                    end: specialTimes["end" + noTimeSections[term]],
+                    section_obj: result, //this hold the actual section object for later use,
+                    color: '#87cefa'
+                };
+
+                masterDict.set("noTimeSections", noTimeSections);
+                events_array.push(event_obj);
+            }
+            
+            if(is_calendarView){
+                //add the source which contains all the events at different times for the same section into the calendar
+                $("#calendar").fullCalendar("addEventSource", {
+                    events: events_array,
+                    id: result.id,
+                    chosen: false
+                })
+            } else {
+                const term = $(".ui.four.cards .checkbox.checked")[0].attributes[1].nodeValue;
+                const has_term = $(".ui.four.cards .checkbox.checked").length != 0;
+                const courseList = calendar_source[term].courseList;
+
+                if(!has_term){
+                    window.alert("Please check a term before adding courses");
+                    return
+                }
+
+                const term_array = $(".ui.four.cards .checkbox.checked");
+                if(term_array.length != 1){
+                    window.alert("Please check only one term");
+                    return
                 }
                 
-                if(is_calendarView){
-                    //add the source which contains all the events at different times for the same section into the calendar
-                    $("#calendar").fullCalendar("addEventSource", {
+                if(calendar_source[term]){
+                    const new_sourse = {
                         events: events_array,
                         id: result.id,
                         chosen: false
-                    })
-                } else {
-                    const term = $(".ui.four.cards .checkbox.checked")[0].attributes[1].nodeValue;
-                    const has_term = $(".ui.four.cards .checkbox.checked").length != 0;
-                    const courseList = calendar_source[term].courseList;
-
-                    if(!has_term){
-                        window.alert("Please check a term before adding courses");
-                        return
                     }
-
-                    const term_array = $(".ui.four.cards .checkbox.checked");
-                    if(term_array.length != 1){
-                        window.alert("Please check only one term");
-                        return
-                    }
-                    
-                    if(calendar_source[term]){
-                        const new_sourse = {
-                            events: events_array,
-                            id: result.id,
-                            chosen: false
-                        }
-                        courseList.push(new_sourse)
-                        masterDict.set("scheduleList", calendar_source);
-                    } 
-                }
-                
-            }
+                    courseList.push(new_sourse)
+                    masterDict.set("scheduleList", calendar_source);
+                } 
+            } 
         });
     },
 

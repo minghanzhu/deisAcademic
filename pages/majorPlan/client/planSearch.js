@@ -242,7 +242,7 @@ Template.planSearch.helpers({
 Template.planSearch.events({
     "click .js-makeSchedule": function(event){
         event.preventDefault();
-        const courseList = Template.instance().masterDict.get("courseList");
+        const courseList = Template.instance().masterDict.get("chosenCourse");
         if(!courseList){
             window.alert("You haven't chosen any course yet!");
             return;
@@ -373,7 +373,6 @@ Template.plan_result.events({
                 chosen_array.splice(id_index, 1);
             }
             Template.instance().planResultDict.set('chosenCourse', chosen_array);
-            Template.instance().masterDict.set('courseList', chosen_array);//set the result to the master dict
         }
     },
 

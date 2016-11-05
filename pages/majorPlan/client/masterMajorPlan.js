@@ -14,11 +14,11 @@ Template.masterMajorPlan.onCreated(function(){
 		const chosenMajor = data.majorId;
 		this.masterPageDict.set("chosenCourse", chosenCourse);
 		this.masterPageDict.set("chosenMajor", chosenMajor);
-		this.masterPageDict.set("courseList", chosenCourse);
 		
 		this.masterPageDict.set("planStartSemester", data.start_term);
 	    this.masterPageDict.set("planEndSemester", data.end_term);
 	    this.masterPageDict.set("isModify", true);
+        this.masterPageDict.set("noTimeSections", {});
 
         const addedCourses = [];
 	    const current_plan_id = Router.current().params._id;
@@ -34,6 +34,20 @@ Template.masterMajorPlan.onCreated(function(){
 
             const result = response.data;
             const fetched_scheduleList = {};
+            const specialTimes = {
+                start1: "2000-01-03T07:30:00-05:00",
+                start2: "2000-01-04T07:30:00-05:00",
+                start3: "2000-01-05T07:30:00-05:00",
+                start4: "2000-01-06T07:30:00-05:00",
+                start5: "2000-01-07T07:30:00-05:00",
+                end1: "2000-01-03T08:00:00-05:00",
+                end2: "2000-01-04T08:00:00-05:00",
+                end3: "2000-01-05T08:00:00-05:00",
+                end4: "2000-01-06T08:00:00-05:00",
+                end5: "2000-01-07T08:00:00-05:00"
+            }
+            const noTimeSections = {};
+
             if(response.msg["unavailable"].length != 0) {
                 hasUnavailable = true;
                 masterDict.set("unavailableSections", response.msg["unavailable"]);
@@ -42,6 +56,8 @@ Template.masterMajorPlan.onCreated(function(){
             for (let term in result) { //go through each term in the result
                 const courseList = [];
                 const term = term;
+                noTimeSections[term] = 0;
+
                 for (let section in result[term]) {
                     const result_obj = result[term][section];
                     const section_obj = result_obj.object;
@@ -104,6 +120,24 @@ Template.masterMajorPlan.onCreated(function(){
 
                             events_array.push(event_obj);
                         }
+                    }
+
+                    if(events_array.length == 0){
+                        noTimeSections[term]++;
+                        if(noTimeSections[term] > 5) noTimeSections[term] = 1;
+
+                        const event_obj = {
+                            id: result.id, //this holds the section id so events at different tiems are associated
+                            title: course_code,
+                            start: specialTimes["start" + noTimeSections[term]],
+                            end: specialTimes["end" + noTimeSections[term]],
+                            section_obj: section_obj, //this hold the actual section object for later use,
+                            color: '#87cefa',
+                            displayEventTime : false
+                        };
+
+                        masterDict.set("noTimeSections", noTimeSections);
+                        events_array.push(event_obj);
                     }
 
                     const source = {

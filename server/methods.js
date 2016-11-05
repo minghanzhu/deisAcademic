@@ -1176,7 +1176,7 @@ Meteor.methods({
             } 
         };
 
-        MajorPlansPnc.update(current_plan_id, { $set: { start_term: term_range.start_term, end_term: term_range.end_term } });
+        MajorPlansPnc.update(current_plan_id, { $set: { start_term: term_range.start_term, end_term: term_range.end_term, chosenCourse: availableCourseList}});
         if(futureList.length != 0){
             MajorPlansPnc.update(current_plan_id, {$set: {futureList: futureList}})
         } else {
