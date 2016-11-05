@@ -110,8 +110,8 @@ Template.calendarTest.helpers({
 
     pullUserCourseList: function() {
         const dict = Template.instance().masterDict;
-        const courseList = dict.get('courseList');
-
+        const courseList = dict.get('chosenCourse');
+        
         let sectionList = [];
         if(UserProfilePnc.findOne()){
             sectionList = UserProfilePnc.findOne().wishlist;
@@ -430,7 +430,7 @@ Template.calendarTest.helpers({
 
     pullPredictionData: function(){
         const masterDict = Template.instance().masterDict;
-        const chosen_course_list = masterDict.get("courseList");
+        const chosen_course_list = masterDict.get("chosenCourse");
         Meteor.call("getCoursePrediction", chosen_course_list, Router.current().params._id, function(err, result){
             if(err){
                 window.alert(err.message);
@@ -642,7 +642,7 @@ Template.calendarTest.events({
     "click .js-save-plan": function() {
         $(".js-save-plan").attr("class", "ui loading disabled button js-save-plan pull-right");
         $(".js-change-course").attr("class", "ui disabled button js-change-course");
-        const is_calendarView = Template.instance().data["dict"].get("viewCalendar");
+        const is_calendarView = Template.instance().calendarDict.get("viewCalendar");
         if(is_calendarView){
             //save the current term's schedule to the dict
             const current_term = $(".js-term").val() || Template.instance().masterDict.get("chosenTerm");
@@ -672,7 +672,7 @@ Template.calendarTest.events({
         //turn the dict data into user data to save
         const masterDict = Template.instance().masterDict;
         const major_code = masterDict.get("chosenMajor");
-        const availableCourseList = masterDict.get("courseList");
+        const availableCourseList = masterDict.get("chosenCourse");
         const major_plan_object = {
             majorId: major_code,
             chosenCourse: availableCourseList,
@@ -748,7 +748,7 @@ Template.calendarTest.events({
         $(".js-save-plan").attr("class", "ui loading disabled button js-save-plan");
         $(".js-delete-plan").attr("class", "ui disabled red button js-delete-plan pull-right");
         $(".js-change-course").attr("class", "ui disabled button js-change-course");
-        const is_calendarView = Template.instance().data["dict"].get("viewCalendar");
+        const is_calendarView = Template.instance().calendarDict.get("viewCalendar");
         const current_plan_id = Router.current().params._id;
         if(is_calendarView){
             //save the current term's schedule to the dict
@@ -779,7 +779,7 @@ Template.calendarTest.events({
         //turn the dict data into user data to save
         const masterDict = Template.instance().masterDict;
         const major_code = masterDict.get("chosenMajor");
-        const availableCourseList = masterDict.get("courseList");
+        const availableCourseList = masterDict.get("chosenCourse");
         const major_plan_object = {
             majorId: major_code,
             chosenCourse: availableCourseList,
@@ -1276,7 +1276,7 @@ Template.scheduleCourseList.events({
         const calendar_source = masterDict.get("scheduleList");
         const specialTimes = {
             start1: "2000-01-03T07:30:00-05:00",
-            start2: "2000-02-04T07:30:00-05:00",
+            start2: "2000-01-04T07:30:00-05:00",
             start3: "2000-01-05T07:30:00-05:00",
             start4: "2000-01-06T07:30:00-05:00",
             start5: "2000-01-07T07:30:00-05:00",

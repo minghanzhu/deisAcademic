@@ -14,7 +14,6 @@ Template.masterMajorPlan.onCreated(function(){
 		const chosenMajor = data.majorId;
 		this.masterPageDict.set("chosenCourse", chosenCourse);
 		this.masterPageDict.set("chosenMajor", chosenMajor);
-		this.masterPageDict.set("courseList", chosenCourse);
 		
 		this.masterPageDict.set("planStartSemester", data.start_term);
 	    this.masterPageDict.set("planEndSemester", data.end_term);
