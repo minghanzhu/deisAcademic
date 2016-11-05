@@ -100,6 +100,9 @@ Template.planTermRange.events({
         } else if ($.inArray(end_semester, termList) - $.inArray(start_semester, termList) == 0){
             window.alert("Please choose two different semesters");
             return;
+        } else if ($.inArray(end_semester, termList) - $.inArray(start_semester, termList) > 11){
+            window.alert("Please choose a smaller range");
+            return;
         }
 
         $(".js-majorGo").attr("class", "ui loading disabled button js-ok");
