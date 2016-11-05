@@ -26,6 +26,10 @@ Template.calendarTest.onCreated(function() {
         this.masterDict.set("addedCourses", []);
     }
 
+    if(this.data["dict"].get("predictionData")){
+        this.masterDict.set("predictionData", this.data["dict"].get("predictionData"));
+    }
+
     if (!this.masterDict.get("includeWishlist")) {
         Template.instance().masterDict.set("includeWishlist", false);
     }
@@ -461,6 +465,9 @@ Template.calendarTest.helpers({
     },
 
     sameUser: function(){
+        //if it's a new plan, allow it since there's no plan object to get yet
+        if(!Template.instance().masterDict.get("isModify")) return true;
+
         if(!MajorPlansPnc.findOne()){
             return false;
         }
@@ -1238,7 +1245,7 @@ Template.scheduleCourseList.helpers({
 
     color: function(continuity_id){
         const term = Template.instance().masterDict.get("chosenTerm");
-        if(!Template.instance().masterDict.get("predictionData")[continuity_id]) return "grey";
+        if(!Template.instance().masterDict.get("predictionData")[continuity_id][term]) return "grey";
         const percentage = Template.instance().masterDict.get("predictionData")[continuity_id][term].percentage;
 
         if(percentage >= 0.85){
