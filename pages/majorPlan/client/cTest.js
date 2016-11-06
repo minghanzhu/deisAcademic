@@ -882,7 +882,7 @@ Template.calendarTest.events({
         Template.instance().masterDict.set("hideAdded", !current_status);
     },
 
-    "click .js-add-course": function(){
+    "click .js-add-course": function(event){
         const course_cont_id = event.target.attributes[1].nodeValue;
         const masterDict = Template.instance().masterDict;
         const availableCourseList = masterDict.get("fetched_courseList");
@@ -1454,7 +1454,7 @@ Template.scheduleCourseList.events({
         }, 600);
     },
 
-    "click .js-add-future-course": function(){
+    "click .js-add-future-course": function(event){
         const is_calendarView = Template.instance().masterDict.get("viewCalendar");
 
         if(!is_calendarView){
