@@ -207,55 +207,50 @@
                     </div>
                 </div>
                 {{#if hasMajorPlan}}
-                    <h4 class="ui dividing header">Plan Settings</h4>
-                    <div class="field">
-                        <label>Offical Plan</label>
-                        <div class="ui fluid search selection dropdown" id="officialPlan">
-                            <input type="hidden" name="officialPlan" value="">
-                            <i class="dropdown icon"></i>
-                            <div class="default text">Choose one plan to be your official one</div>
-                            <div class="menu">
-                                <div class="item" data-value="">No official plan</div>
-                                {{#if hasMajorPlan}}
-                                    {{> userPlanList getUserPlans=getUserPlans}}
-                                {{/if}}
-                            </div>
+                <h4 class="ui dividing header">Plan Settings</h4>
+                <div class="field">
+                    <label>Offical Plan <i class="help circle icon" id="officialPlanHelp"></i></label>
+                    <div class="ui fluid search selection dropdown" id="officialPlan">
+                        <input type="hidden" name="officialPlan" value="">
+                        <i class="dropdown icon"></i>
+                        <div class="default text">Choose one plan to be your official one</div>
+                        <div class="menu">
+                            <div class="item" data-value="">No official plan</div>
+                            {{#if hasMajorPlan}} {{> userPlanList getUserPlans=getUserPlans}} {{/if}}
                         </div>
                     </div>
-                    <div class="field">
-                        <label>Shared Plans</label>
-                        <div class="ui fluid multiple search selection dropdown" id="sharedPlans">
-                            <input type="hidden" name="sharedPlans" value="">
-                            <i class="dropdown icon"></i>
-                            <div class="default text">Choose the plans you want to share with others</div>
-                            <div class="menu">
-                                {{#if hasMajorPlan}}
-                                    {{> userPlanList getUserPlans=getUserPlans}}
-                                {{/if}}
-                            </div>
+                </div>
+                <div class="field">
+                    <label>Shared Plans <i class="help circle icon" id="sharedPlanHelp"></i></label>
+                    <div class="ui fluid multiple search selection dropdown" id="sharedPlans">
+                        <input type="hidden" name="sharedPlans" value="">
+                        <i class="dropdown icon"></i>
+                        <div class="default text">Choose the plans you want to share with others</div>
+                        <div class="menu">
+                            {{#if hasMajorPlan}} {{> userPlanList getUserPlans=getUserPlans}} {{/if}}
                         </div>
                     </div>
+                </div>
                 {{else}}
-                    <h4 class="ui dividing header">Plan Settings - You currently have no plan</h4>
-                    <div class="disabled field">
-                        <label>Offical Plan</label>
-                        <div class="ui fluid search selection dropdown" id="officialPlan">
-                            <input type="hidden" name="officialPlan" value="">
-                            <i class="dropdown icon"></i>
-                            <div class="default text">Choose one plan to be your official one</div>
-                            <div class="menu"></div>
-                        </div>
+                <h4 class="ui dividing header">Plan Settings - You currently have no plan</h4>
+                <div class="disabled field">
+                    <label>Offical Plan</label>
+                    <div class="ui fluid search selection dropdown" id="officialPlan">
+                        <input type="hidden" name="officialPlan" value="">
+                        <i class="dropdown icon"></i>
+                        <div class="default text">Choose one plan to be your official one</div>
+                        <div class="menu"></div>
                     </div>
-
-                    <div class="disabled field">
-                        <label>Shared Plans</label>
-                        <div class="ui fluid multiple search selection dropdown" id="sharedPlans">
-                            <input type="hidden" name="sharedPlans" value="">
-                            <i class="dropdown icon"></i>
-                            <div class="default text">Choose the plans you want to share with others</div>
-                            <div class="menu"></div>
-                        </div>
+                </div>
+                <div class="disabled field">
+                    <label>Shared Plans</label>
+                    <div class="ui fluid multiple search selection dropdown" id="sharedPlans">
+                        <input type="hidden" name="sharedPlans" value="">
+                        <i class="dropdown icon"></i>
+                        <div class="default text">Choose the plans you want to share with others</div>
+                        <div class="menu"></div>
                     </div>
+                </div>
                 {{/if}}
                 <div class="ui primary submit button js-save-change">Save Changes</div>
                 <div class="ui blue hidden message" id="submitMsg">
@@ -264,12 +259,58 @@
                 <div class="ui error message"></div>
             </form>
         </div>
-    </div>
-    <div class="two wide column"></div>
-</template>
+        <div class="two wide column"></div>
+        <div class="ui basic large modal" id="officialPlanModal">
+            <i class="close icon"></i>
+            <div class="header">
+                Why you should make one of your plans official
+            </div>
+            <div class="image content">
+                <div class="image">
+                    <i class="calendar icon"></i>
+                </div>
+                <div class="description">
+                    <p>By making one of your plans official, you allow us to use the schedule data to get the course demand. The cool thing is that once we have enough data from different students, we can ask Brandeis to adjust their future course schedule based on the demand we get from you. So if you want to take a history class which you are not sure if it's going to be offered 2 years later, add it to your plan and we will show Brandeis registrar the demand. <br>
+                    <br>
+                    Don't have a plan or haven't made any future schedule yet? Do it now and make a change!</p>
+                </div>
+            </div>
+            <div class="actions">
+                <div class="ui inverted buttons">
+                    <div class="ui ok green basic inverted button">
+                        <i class="checkmark icon"></i> OK
+                    </div>
+                </div>
+            </div>
+        </div>
 
+        <div class="ui basic large modal" id="sharedPlanModal">
+            <i class="close icon"></i>
+            <div class="header">
+                All for one and one for all
+            </div>
+            <div class="image content">
+                <div class="image">
+                    <i class="share icon"></i>
+                </div>
+                <div class="description">
+                    <p>Sometimes it's hard to make a schedule because you just have no idea what courses to take. So why not take a look at other people's plans? By sharing your plans, you can help students who haven't decided their major yet or just want to check some popular courses. You can also share them with your friends and let them know what courses you are taking. Just share the URL when you open your plans. If you don't allow to share any of the plans, even though people might have the URL, they'll not be able to see it.<br>
+                    <br>
+                    We are making a new feature that helps you make a schedule by looking at other people's plans of the same majors/minors. So it is important that you share your plans with others.</p>
+                </div>
+            </div>
+            <div class="actions">
+                <div class="ui inverted buttons">
+                    <div class="ui ok green basic inverted button">
+                        <i class="checkmark icon"></i> OK
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
 <template name="userPlanList">
     {{#each plan in getUserPlans}}
-        <div class="item" data-value="{{plan._id}}">{{getMajorName plan.majorName}} - <b>{{getTermName plan.start_term}}</b> to <b>{{getTermName plan.end_term}}</b></div>
+    <div class="item" data-value="{{plan._id}}">{{getMajorName plan.majorName}} - <b>{{getTermName plan.start_term}}</b> to <b>{{getTermName plan.end_term}}</b></div>
     {{/each}}
 </template>

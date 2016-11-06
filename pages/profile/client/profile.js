@@ -111,6 +111,14 @@ Template.userProfile.events({
 			}, 3000)
 		})
 	},
+
+	"click #officialPlanHelp": function(){
+		$('#officialPlanModal').modal('show');
+	},
+
+	"click #sharedPlanHelp": function(){
+		$('#sharedPlanModal').modal('show');
+	},
 })
 
 Template.userPlanList.onRendered(function(){
