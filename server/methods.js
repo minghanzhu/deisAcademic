@@ -450,36 +450,47 @@ Meteor.methods({
         return Term.findOne({ id: key }).name;
     },
 
-    //this takes an array of prof. id's and return results
-    //so that each line is one <prof. name>
-    //and prevents fencepost error
     searchInstructorArray: function(instrutorData) {
-        var instructors = "";
-        if (instrutorData.length == 1) {
-            const instru_id = instrutorData[0]; //get the current professor id
+        const names_array = [];
+        let non_exist = "";//This hold special situations ("/" or Staff)
+        let staff = "";
+
+        for(let instru_id of instrutorData){
             const instru_obj = Instructor.findOne({ id: instru_id }); //get the professor object using the id
-
-            var instru_name = instru_obj.first + " " + instru_obj.last;
-            if (instru_obj.first == "Staff" || instru_obj.last == "Staff") instru_name = "Staff";
-            instructors = instructors + instru_name;
-        } else {
-            const instru_id_1st = instrutorData[0]; //get the current professor id
-            const instru_obj_1st = Instructor.findOne({ id: instru_id_1st }); //get the professor object using the id
-
-            var instru_name_1st = instru_obj_1st.first + " " + instru_obj_1st.last;
-            if (instru_obj_1st.first == "Staff" || instru_obj_1st.last == "Staff") return "Staff";
-            instructors = instructors + instru_name_1st;
-
-            for (var i = 1; i < instrutorData.length; i++) {
-                const instru_id = instrutorData[i]; //get the current professor id
-                const instru_obj = Instructor.findOne({ id: instru_id }); //get the professor object using the id
-
+            if(instru_obj){
                 var instru_name = instru_obj.first + " " + instru_obj.last;
-                instructors = instructors + "<br>" + instru_name;
+                if (instru_obj.first == "Staff" || instru_obj.last == "Staff"){
+                   staff = "1" 
+                } else {
+                    names_array.push(instru_name)
+                }
+            } else {
+                non_exist = "1";
             }
         }
-        
-        return instructors;
+
+        if(names_array.length == 0){
+            if(!!staff){
+                return "Staff";
+            } else {
+                return "/";
+            }
+        } else {
+            let instructors = "";
+            for(let i = 0; i < names_array.length; i++){
+                if(i != names_array.length - 1){
+                    instructors += names_array[i] + "<br>";
+                } else {
+                    instructors += names_array[i] 
+                }
+            }
+
+            if(!!staff){
+                instructors = "Staff" + "<br>" + names_array[i];
+            }
+
+            return instructors;
+        }
     },
 
     //takes a course object and turns it's subjects array into
