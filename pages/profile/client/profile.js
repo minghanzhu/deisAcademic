@@ -17,8 +17,8 @@ Template.userProfile.onRendered(function(){
 	      		identifier: 'userName',
 	      		rules:[
 	      			{
-	      				type: 'regExp[/^[a-zA-Z0-9_-]{4,16}$/]',
-	      				prompt: 'Please enter a 4-25 character long userName'
+	      				type: 'regExp[/^[a-zA-Z0-9_-]{3,16}$/]',
+	      				prompt: 'Please enter a 3-25 characters long username'
 	      			}
 	      		]
 	      	}
@@ -28,7 +28,7 @@ Template.userProfile.onRendered(function(){
 	$("#userMajor").dropdown({
         match: "text",
         fullTextSearch: true,
-        maxSelections: 3
+        maxSelections: 4
     });
 
     $("#userMinor").dropdown({

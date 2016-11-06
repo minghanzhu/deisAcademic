@@ -43,7 +43,7 @@ Template.majorSelect.onCreated(function() {
 Template.majorSelect.onRendered(function() {
     $('#search-select').dropdown({
         match: "text",
-        maxSelections: 6
+        maxSelections: 8
     });
     $('#search-select-start-semester').dropdown({
         match: "text"
