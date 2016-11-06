@@ -211,8 +211,9 @@ Meteor.users.attachSchema(Schemas.User);
 Schemas.UserProfilePnc = new SimpleSchema({
     userName: {
         type: String,
-        max: 100,
-        unique: true
+        max: 50,
+        unique: true,
+        regEx: /^[a-zA-Z0-9_-]{4,50}$/
     },
     userId: {
         type: String,
@@ -226,7 +227,7 @@ Schemas.UserProfilePnc = new SimpleSchema({
     },
     userYear: {
         type: String,
-        regEx: /^(Freshman|Sophomore|Junior|Senior|Graduate|Ph.D)$/,
+        regEx: /^(Freshman|Sophomore|Junior|Senior|Graduate|Ph.D|Empty)$/,
     },
     wishlist: {
         type: Array
@@ -296,7 +297,26 @@ Schemas.UserProfilePnc = new SimpleSchema({
         optional: true
     },
     courseRate: {
-        type: [Object]
+        type: [Object],
+        optional: true
+    },
+    userMajor: {
+        type: [String],
+        maxCount: 3,
+        optional: true
+    },
+    userMinor: {
+        type: [String],
+        maxCount: 4,
+        optional: true
+    },
+    officialPlan: {
+        type: String,
+        optional: true
+    },
+    sharedPlans: {
+        type: [String],
+        optional: true
     }
 })
 
@@ -478,6 +498,14 @@ Schemas.MajorPlansPnc = new SimpleSchema({
             }
         }
     },
+    official: {
+        type: Boolean,
+        optional: true
+    },
+    shared: {
+        type: Boolean,
+        optional: true
+    }
 })
 
 MajorPlansPnc.attachSchema(Schemas.MajorPlansPnc);

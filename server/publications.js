@@ -121,7 +121,7 @@ Meteor.publish("modify_plan_majorPlans", function(plan_id) {
         const userId = plan_obj.userId;
 
         if(this.userId){
-            if(this.userId === userId){
+            if(this.userId === userId){//same user
                 return MajorPlansPnc.find( 
                     plan_id, {
                     fields:{
@@ -134,7 +134,25 @@ Meteor.publish("modify_plan_majorPlans", function(plan_id) {
                         userId: 1
                     }
                 })
-            } else {
+            } else {//different user
+                if(MajorPlansPnc.findOne(plan_id).shared){
+                    return MajorPlansPnc.find( 
+                        plan_id, {
+                        fields:{
+                            scheduleList: 1,
+                            chosenCourse: 1,
+                            majorId: 1,
+                            start_term: 1,
+                            end_term: 1,
+                            futureList: 1
+                        }
+                    })
+                } else {
+                    return MajorPlansPnc.find("null");
+                }
+            }
+        } else {
+            if(MajorPlansPnc.findOne(plan_id).shared){
                 return MajorPlansPnc.find( 
                     plan_id, {
                     fields:{
@@ -146,67 +164,11 @@ Meteor.publish("modify_plan_majorPlans", function(plan_id) {
                         futureList: 1
                     }
                 })
+            } else {
+                return MajorPlansPnc.find("null");
             }
-        } else {
-            return MajorPlansPnc.find( 
-                plan_id, {
-                fields:{
-                    scheduleList: 1,
-                    chosenCourse: 1,
-                    majorId: 1,
-                    start_term: 1,
-                    end_term: 1,
-                    futureList: 1
-                }
-            })
         }
-    }
-
-    /*
-    const plan_obj = MajorPlansPnc.findOne(plan_id);
-    const plan_user = plan_obj.userId;
-    if(!this.userId){
-        console.log("1")
-        return MajorPlansPnc.find( 
-            plan_id, {
-            fields:{
-                scheduleList: 1,
-                chosenCourse: 1,
-                majorId: 1,
-                start_term: 1,
-                end_term: 1,
-                futureList: 1
-            }
-        })
-    } else if(this.userId !== plan_user){
-        console.log("2")
-        return MajorPlansPnc.find( 
-            plan_id, {
-            fields:{
-                scheduleList: 1,
-                chosenCourse: 1,
-                majorId: 1,
-                start_term: 1,
-                end_term: 1,
-                futureList: 1
-            }
-        })
-    } else {
-        console.log("3")
-        return MajorPlansPnc.find({ 
-            userId: this.userId 
-        },{
-            fields:{
-                scheduleList: 1,
-                chosenCourse: 1,
-                majorId: 1,
-                start_term: 1,
-                end_term: 1,
-                futureList: 1
-            }
-        }) 
     } 
-    */   
 });
 
 Meteor.publish("modify_plan_userProfile", function() {
@@ -235,6 +197,42 @@ Meteor.publish("layout_userProfile", function() {
     },{
         fields: {
             userId: 1
+        }
+    }) 
+});
+
+Meteor.publish("profile_userProfile", function(){
+    return UserProfilePnc.find({
+        userId: this.userId
+    },{
+        fields: {
+            userName: 1,
+            userYear: 1,
+            userMajor: 1,
+            userMinor: 1,
+            officialPlan: 1,
+            sharedPlans: 1
+        }   
+    })
+})
+
+Meteor.publish("profile_majorPlans", function() {
+    return MajorPlansPnc.find({ 
+        userId: this.userId 
+    },{
+        fields:{
+            majorName: 1,
+            start_term: 1,
+            end_term: 1
+        }
+    }) 
+});
+
+Meteor.publish("profile_term", function() {
+    return Term.find({},{
+        fields: {
+            id: 1,
+            name: 1
         }
     }) 
 });
