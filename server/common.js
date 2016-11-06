@@ -213,7 +213,7 @@ Schemas.UserProfilePnc = new SimpleSchema({
         type: String,
         max: 50,
         unique: true,
-        regEx: /^[a-zA-Z0-9_-]{4,50}$/
+        regEx: /^[a-zA-Z0-9_-]{2,50}$/
     },
     userId: {
         type: String,
@@ -302,7 +302,7 @@ Schemas.UserProfilePnc = new SimpleSchema({
     },
     userMajor: {
         type: [String],
-        maxCount: 3,
+        maxCount: 4,
         optional: true
     },
     userMinor: {
