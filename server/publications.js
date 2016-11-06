@@ -238,3 +238,39 @@ Meteor.publish("layout_userProfile", function() {
         }
     }) 
 });
+
+Meteor.publish("profile_userProfile", function(){
+    return UserProfilePnc.find({
+        userId: this.userId
+    },{
+        fields: {
+            userName: 1,
+            userYear: 1,
+            userMajor: 1,
+            userMinor: 1,
+            officialPlan: 1,
+            sharedPlans: 1
+        }   
+    })
+})
+
+Meteor.publish("profile_majorPlans", function() {
+    return MajorPlansPnc.find({ 
+        userId: this.userId 
+    },{
+        fields:{
+            majorName: 1,
+            start_term: 1,
+            end_term: 1
+        }
+    }) 
+});
+
+Meteor.publish("profile_term", function() {
+    return Term.find({},{
+        fields: {
+            id: 1,
+            name: 1
+        }
+    }) 
+});

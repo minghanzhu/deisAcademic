@@ -22,9 +22,9 @@ insert: [2] , update: [3], remove: [4]
 11. "No such course"
 12. "No such plan"
 13. "No such schedule"
-14.
-15.
-16.
+14. "No such year"
+15. "No such subject"
+16. 
 17.
 18.
 19.
@@ -2081,6 +2081,109 @@ Meteor.methods({
                 console.log("-------------------------------------");
             }));
         });
+    },
+
+    saveProfileChange: function(submit_obj){
+        if (!this.userId) {
+            console.log("[saveProfileChange] - Invalid update: Not logged in")
+            throw new Meteor.Error(301, "Invalid update: Not logged in");
+        }
+
+        if (!UserProfilePnc.findOne({ userId: this.userId })) {
+            console.log("[saveProfileChange] - Invalid update: No such user: " + this.userId);
+            throw new Meteor.Error(302, "Invalid update: No such user");
+        }
+
+        const officialPlan = submit_obj.officialPlan;//id string
+        const sharedPlans = submit_obj.sharedPlans;//array of id's
+        const userName = submit_obj.userName;//checked by schema
+        let userYear = submit_obj.userYear;//number string
+        const userMajor = submit_obj.userMajor;//array of id's
+        const userMinor = submit_obj.userMinor;//array of id's
+
+        //remove empty value
+        for(let i = 0; i < sharedPlans.length; i++){
+            if(!sharedPlans[i]){
+                sharedPlans.splice(i, 1);
+                i--;
+            }
+        }
+
+        for(let i = 0; i < userMajor.length; i++){
+            if(!userMajor[i]){
+                userMajor.splice(i, 1);
+                i--;
+            }
+        }
+
+        for(let i = 0; i < userMinor.length; i++){
+            if(!userMinor[i]){
+                userMinor.splice(i, 1);
+                i--;
+            }
+        }
+
+        if(!MajorPlansPnc.findOne(officialPlan) && !!officialPlan){
+            console.log("[saveProfileChange] - Invalid update: No such plan: " + officialPlan);
+            throw new Meteor.Error(312, "Invalid update: No such plan");
+        }
+
+        for(let plan of sharedPlans){
+            if(!MajorPlansPnc.findOne(plan)){
+                console.log("[saveProfileChange] - Invalid update: No such plan: " + plan);
+                throw new Meteor.Error(312, "Invalid update: No such plan");
+            }
+        }
+
+        let yearName;
+        if(userYear == "1"){
+            yearName = "Freshman";
+        } else if(userYear == "2"){
+            yearName = "Sophomore";
+        } else if(userYear == "3"){
+            yearName = "Junior";
+        } else if(userYear == "4"){
+            yearName = "Senior";
+        } else if(!!userYear){
+            console.log("[saveProfileChange] - Invalid update: No such year: " + userYear);
+            throw new Meteor.Error(314, "Invalid update: No such year");
+        } else {
+            yearName = "Empty";
+        }
+
+        for(let subject of userMajor){
+            const subjectRegEx = new RegExp("-" + subject + "$", "i");
+            if(!Subject.findOne({id: subjectRegEx})){
+                console.log("[saveProfileChange] - Invalid update: No such subject: " + subject);
+                throw new Meteor.Error(315, "Invalid update: No such subject");
+            }
+        }
+
+        for(let subject of userMinor){
+            const subjectRegEx = new RegExp("-" + subject + "$", "i");
+            if(!Subject.findOne({id: subjectRegEx})){
+                console.log("[saveProfileChange] - Invalid update: No such subject: " + subject);
+                throw new Meteor.Error(315, "Invalid update: No such subject");
+            }
+        }
+
+        MajorPlansPnc.update({userId: this.userId}, {$set: {shared: false, official: false}}, {multi: true});
+        for(let plan of sharedPlans){
+            MajorPlansPnc.update(plan, {$set: {shared: true}})
+        }
+
+        if(!!officialPlan){
+            MajorPlansPnc.update(officialPlan, {$set: {official: true}});
+        }
+
+        UserProfilePnc.update({userId: this.userId}, {$set: {
+            officialPlan: officialPlan, 
+            sharedPlans: sharedPlans,
+            userName: userName,
+            userYear: yearName,
+            userMajor: userMajor,
+            userMinor: userMinor
+        }})
     },
 });
 

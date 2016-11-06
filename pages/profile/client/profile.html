@@ -1,0 +1,275 @@
+<template name="userProfile">
+    <div class="ui grid">
+        <div class="two wide column"></div>
+        <div class="twelve wide column">
+            <form class="ui form" id="userProfileForm">
+                <h4 class="ui dividing header">User Information</h4>
+                <div class="two fields">
+                    <div class="field" id="userName">
+                        <label>Username</label>
+                        <input type="text" name="userName" placeholder="Others will see this name when they view your plan" value="{{getUserName}}">
+                    </div>
+                    <div class="field">
+                        <label>School Year</label>
+                        <div class="ui selection dropdown js-year" id="userYear">
+                            <input type="hidden" name="year">
+                            <i class="dropdown icon"></i>
+                            <div class="default text">Choose your year</div>
+                            <div class="menu">
+                                <div class="item" data-value="1">Freshman</div>
+                                <div class="item" data-value="2">Sophomore</div>
+                                <div class="item" data-value="3">Junior</div>
+                                <div class="item" data-value="4">Senior</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="two fields">
+                    <div class="field">
+                        <label>Major</label>
+                        <div class="ui fluid multiple search selection dropdown js-userMajor" id="userMajor">
+                            <input type="hidden" name="userMajor">
+                            <i class="dropdown icon"></i>
+                            <div class="default text">Choose your major</div>
+                            <div class="menu">
+                                <div class="item" data-value="100">African and Afro</div>
+                                <div class="item" data-value="200">American Studies</div>
+                                <div class="item" data-value="300">Anthropology</div>
+                                <div class="item" data-value="400">Arabic Language and Literature</div>
+                                <div class="item" data-value="500">Biochemistry</div>
+                                <div class="item" data-value="510">Biochemistry and Biophysics</div>
+                                <div class="item" data-value="600">Biological Physics</div>
+                                <div class="item" data-value="700">Biology</div>
+                                <div class="item" data-value="850">Biotechnology</div>
+                                <div class="item" data-value="900">Business</div>
+                                <div class="item" data-value="1000">Chemistry</div>
+                                <div class="item" data-value="1100">Chinese</div>
+                                <div class="item" data-value="1200">Classical Studies</div>
+                                <div class="item" data-value="1250">Comparative Humanities</div>
+                                <div class="item" data-value="1300">Comparative Literature and Culture</div>
+                                <div class="item" data-value="1400">Computer Science</div>
+                                <div class="item" data-value="1475">Creativity, the Arts, and Social Transformation</div>
+                                <div class="item" data-value="1500">East Asian Studies</div>
+                                <div class="item" data-value="1600">Economics</div>
+                                <div class="item" data-value="1700">Education</div>
+                                <div class="item" data-value="1800">English</div>
+                                <div class="item" data-value="1850">English as a Second Language</div>
+                                <div class="item" data-value="1900">Environmental Studies</div>
+                                <div class="item" data-value="2000">European Cultural Studies</div>
+                                <div class="item" data-value="2050">Experiential Learning Practicum</div>
+                                <div class="item" data-value="2100">Film, Television and Interactive Media</div>
+                                <div class="item" data-value="2300">Fine Arts</div>
+                                <div class="item" data-value="8000">First Year Seminars (FYS)</div>
+                                <div class="item" data-value="2400">French and Francophone Studies</div>
+                                <div class="item" data-value="2450">Genetic Counseling</div>
+                                <div class="item" data-value="2500">German Studies</div>
+                                <div class="item" data-value="2535">Global Studies</div>
+                                <div class="item" data-value="2550">Greek</div>
+                                <div class="item" data-value="2700">Health: Science, Society, and Policy</div>
+                                <div class="item" data-value="2800">Hebrew</div>
+                                <div class="item" data-value="2900">Heller School for Social Policy and Management</div>
+                                <div class="item" data-value="2950">Hindi</div>
+                                <div class="item" data-value="6600">Hispanic Studies</div>
+                                <div class="item" data-value="3000">History</div>
+                                <div class="item" data-value="3100">History of Ideas</div>
+                                <div class="item" data-value="3200">Hornstein Jewish Professional Leadership Program</div>
+                                <div class="item" data-value="3300">Independent Interdisciplinary Major</div>
+                                <div class="item" data-value="3400">International and Global Studies</div>
+                                <div class="item" data-value="3600">International Business School</div>
+                                <div class="item" data-value="3700">Internship</div>
+                                <div class="item" data-value="3900">Islamic and Middle Eastern Studies</div>
+                                <div class="item" data-value="4000">Italian Studies</div>
+                                <div class="item" data-value="4100">Japanese</div>
+                                <div class="item" data-value="4200">Journalism</div>
+                                <div class="item" data-value="4225">Justice Brandeis Semester</div>
+                                <div class="item" data-value="4235">Korean</div>
+                                <div class="item" data-value="4600">Language and Linguistics</div>
+                                <div class="item" data-value="4250">Latin</div>
+                                <div class="item" data-value="4300">Latin American and Latino Studies</div>
+                                <div class="item" data-value="4400">Legal Studies</div>
+                                <div class="item" data-value="4700">Mathematics</div>
+                                <div class="item" data-value="4800">Medieval and Renaissance Studies</div>
+                                <div class="item" data-value="4900">Molecular and Cell Biology</div>
+                                <div class="item" data-value="5000">Music</div>
+                                <div class="item" data-value="5100">Near Eastern and Judaic Studies</div>
+                                <div class="item" data-value="5200">Neuroscience</div>
+                                <div class="item" data-value="5300">Peace, Conflict, and Coexistence Studies</div>
+                                <div class="item" data-value="5400">Philosophy</div>
+                                <div class="item" data-value="5500">Physical Education</div>
+                                <div class="item" data-value="5600">Physics</div>
+                                <div class="item" data-value="5700">Politics</div>
+                                <div class="item" data-value="5750">Portuguese</div>
+                                <div class="item" data-value="5800">Postbaccalaureate Premedical Studies</div>
+                                <div class="item" data-value="5900">Psychology</div>
+                                <div class="item" data-value="5950">Quantitative Biology</div>
+                                <div class="item" data-value="6000">Religious Studies</div>
+                                <div class="item" data-value="6300">Russian Studies</div>
+                                <div class="item" data-value="6350">Sexuality and Queer Studies</div>
+                                <div class="item" data-value="6400">Social Justice and Social Policy</div>
+                                <div class="item" data-value="6500">Sociology</div>
+                                <div class="item" data-value="6550">South Asian Studies</div>
+                                <div class="item" data-value="6700">Theater Arts</div>
+                                <div class="item" data-value="6900">Women's, Gender, and Sexuality Studies</div>
+                                <div class="item" data-value="7050">University Writing (COMP and UWS)</div>
+                                <div class="item" data-value="7000">Yiddish</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label>Minor</label>
+                        <div class="ui fluid multiple search selection dropdown js-userMinor" id="userMinor">
+                            <input type="hidden" name="userMinor">
+                            <i class="dropdown icon"></i>
+                            <div class="default text">Choose your minor</div>
+                            <div class="menu">
+                                <div class="item" data-value="100">African and Afro</div>
+                                <div class="item" data-value="200">American Studies</div>
+                                <div class="item" data-value="300">Anthropology</div>
+                                <div class="item" data-value="400">Arabic Language and Literature</div>
+                                <div class="item" data-value="500">Biochemistry</div>
+                                <div class="item" data-value="510">Biochemistry and Biophysics</div>
+                                <div class="item" data-value="600">Biological Physics</div>
+                                <div class="item" data-value="700">Biology</div>
+                                <div class="item" data-value="850">Biotechnology</div>
+                                <div class="item" data-value="900">Business</div>
+                                <div class="item" data-value="1000">Chemistry</div>
+                                <div class="item" data-value="1100">Chinese</div>
+                                <div class="item" data-value="1200">Classical Studies</div>
+                                <div class="item" data-value="1250">Comparative Humanities</div>
+                                <div class="item" data-value="1300">Comparative Literature and Culture</div>
+                                <div class="item" data-value="1400">Computer Science</div>
+                                <div class="item" data-value="1475">Creativity, the Arts, and Social Transformation</div>
+                                <div class="item" data-value="1500">East Asian Studies</div>
+                                <div class="item" data-value="1600">Economics</div>
+                                <div class="item" data-value="1700">Education</div>
+                                <div class="item" data-value="1800">English</div>
+                                <div class="item" data-value="1850">English as a Second Language</div>
+                                <div class="item" data-value="1900">Environmental Studies</div>
+                                <div class="item" data-value="2000">European Cultural Studies</div>
+                                <div class="item" data-value="2050">Experiential Learning Practicum</div>
+                                <div class="item" data-value="2100">Film, Television and Interactive Media</div>
+                                <div class="item" data-value="2300">Fine Arts</div>
+                                <div class="item" data-value="8000">First Year Seminars (FYS)</div>
+                                <div class="item" data-value="2400">French and Francophone Studies</div>
+                                <div class="item" data-value="2450">Genetic Counseling</div>
+                                <div class="item" data-value="2500">German Studies</div>
+                                <div class="item" data-value="2535">Global Studies</div>
+                                <div class="item" data-value="2550">Greek</div>
+                                <div class="item" data-value="2700">Health: Science, Society, and Policy</div>
+                                <div class="item" data-value="2800">Hebrew</div>
+                                <div class="item" data-value="2900">Heller School for Social Policy and Management</div>
+                                <div class="item" data-value="2950">Hindi</div>
+                                <div class="item" data-value="6600">Hispanic Studies</div>
+                                <div class="item" data-value="3000">History</div>
+                                <div class="item" data-value="3100">History of Ideas</div>
+                                <div class="item" data-value="3200">Hornstein Jewish Professional Leadership Program</div>
+                                <div class="item" data-value="3300">Independent Interdisciplinary Major</div>
+                                <div class="item" data-value="3400">International and Global Studies</div>
+                                <div class="item" data-value="3600">International Business School</div>
+                                <div class="item" data-value="3700">Internship</div>
+                                <div class="item" data-value="3900">Islamic and Middle Eastern Studies</div>
+                                <div class="item" data-value="4000">Italian Studies</div>
+                                <div class="item" data-value="4100">Japanese</div>
+                                <div class="item" data-value="4200">Journalism</div>
+                                <div class="item" data-value="4225">Justice Brandeis Semester</div>
+                                <div class="item" data-value="4235">Korean</div>
+                                <div class="item" data-value="4600">Language and Linguistics</div>
+                                <div class="item" data-value="4250">Latin</div>
+                                <div class="item" data-value="4300">Latin American and Latino Studies</div>
+                                <div class="item" data-value="4400">Legal Studies</div>
+                                <div class="item" data-value="4700">Mathematics</div>
+                                <div class="item" data-value="4800">Medieval and Renaissance Studies</div>
+                                <div class="item" data-value="4900">Molecular and Cell Biology</div>
+                                <div class="item" data-value="5000">Music</div>
+                                <div class="item" data-value="5100">Near Eastern and Judaic Studies</div>
+                                <div class="item" data-value="5200">Neuroscience</div>
+                                <div class="item" data-value="5300">Peace, Conflict, and Coexistence Studies</div>
+                                <div class="item" data-value="5400">Philosophy</div>
+                                <div class="item" data-value="5500">Physical Education</div>
+                                <div class="item" data-value="5600">Physics</div>
+                                <div class="item" data-value="5700">Politics</div>
+                                <div class="item" data-value="5750">Portuguese</div>
+                                <div class="item" data-value="5800">Postbaccalaureate Premedical Studies</div>
+                                <div class="item" data-value="5900">Psychology</div>
+                                <div class="item" data-value="5950">Quantitative Biology</div>
+                                <div class="item" data-value="6000">Religious Studies</div>
+                                <div class="item" data-value="6300">Russian Studies</div>
+                                <div class="item" data-value="6350">Sexuality and Queer Studies</div>
+                                <div class="item" data-value="6400">Social Justice and Social Policy</div>
+                                <div class="item" data-value="6500">Sociology</div>
+                                <div class="item" data-value="6550">South Asian Studies</div>
+                                <div class="item" data-value="6700">Theater Arts</div>
+                                <div class="item" data-value="6900">Women's, Gender, and Sexuality Studies</div>
+                                <div class="item" data-value="7050">University Writing (COMP and UWS)</div>
+                                <div class="item" data-value="7000">Yiddish</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {{#if hasMajorPlan}}
+                    <h4 class="ui dividing header">Plan Settings</h4>
+                    <div class="field">
+                        <label>Offical Plan</label>
+                        <div class="ui fluid search selection dropdown" id="officialPlan">
+                            <input type="hidden" name="officialPlan" value="">
+                            <i class="dropdown icon"></i>
+                            <div class="default text">Choose one plan to be your official one</div>
+                            <div class="menu">
+                                <div class="item" data-value="">No official plan</div>
+                                {{#if hasMajorPlan}}
+                                    {{> userPlanList getUserPlans=getUserPlans}}
+                                {{/if}}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label>Shared Plans</label>
+                        <div class="ui fluid multiple search selection dropdown" id="sharedPlans">
+                            <input type="hidden" name="sharedPlans" value="">
+                            <i class="dropdown icon"></i>
+                            <div class="default text">Choose the plans you want to share with others</div>
+                            <div class="menu">
+                                {{#if hasMajorPlan}}
+                                    {{> userPlanList getUserPlans=getUserPlans}}
+                                {{/if}}
+                            </div>
+                        </div>
+                    </div>
+                {{else}}
+                    <h4 class="ui dividing header">Plan Settings - You currently have no plan</h4>
+                    <div class="disabled field">
+                        <label>Offical Plan</label>
+                        <div class="ui fluid search selection dropdown" id="officialPlan">
+                            <input type="hidden" name="officialPlan" value="">
+                            <i class="dropdown icon"></i>
+                            <div class="default text">Choose one plan to be your official one</div>
+                            <div class="menu"></div>
+                        </div>
+                    </div>
+
+                    <div class="disabled field">
+                        <label>Shared Plans</label>
+                        <div class="ui fluid multiple search selection dropdown" id="sharedPlans">
+                            <input type="hidden" name="sharedPlans" value="">
+                            <i class="dropdown icon"></i>
+                            <div class="default text">Choose the plans you want to share with others</div>
+                            <div class="menu"></div>
+                        </div>
+                    </div>
+                {{/if}}
+                <div class="ui primary submit button js-save-change">Save Changes</div>
+                <div class="ui blue hidden message" id="submitMsg">
+                    <p>The changes you made have been successfully saved.</p>
+                </div>
+                <div class="ui error message"></div>
+            </form>
+        </div>
+    </div>
+    <div class="two wide column"></div>
+</template>
+
+<template name="userPlanList">
+    {{#each plan in getUserPlans}}
+        <div class="item" data-value="{{plan._id}}">{{getMajorName plan.majorName}} - <b>{{getTermName plan.start_term}}</b> to <b>{{getTermName plan.end_term}}</b></div>
+    {{/each}}
+</template>
