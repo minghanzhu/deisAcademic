@@ -3,6 +3,8 @@ Template.userProfile.onCreated(function(){
 		window.alert("Please log in to see your profile");
 		Router.go('/');
 	}
+
+	this.profileDict = new ReactiveDict();
 })
 
 Template.userProfile.onRendered(function(){
@@ -81,13 +83,30 @@ Template.userProfile.events({
 	"submit #userProfileForm": function(event){
 		event.preventDefault();
 		$(".js-save-change").attr("class", "ui loading disabled primary submit button js-save-change");
-		
+
 		const officialPlan = $("#officialPlan input").val();
 		const sharedPlans = $("#sharedPlans input").val().split(',');
 		const userName = $("#userName input").val();
 		const userYear = $("#userYear input").val();
 		const userMajor = $("#userMajor input").val().split(',');
 		const userMinor = $("#userMinor input").val().split(',');
+
+		//make sure there's really a change
+		if(Template.instance().profileDict.get("last_time_data")){
+			const last_obj = Template.instance().profileDict.get("last_time_data");
+			if(
+				last_obj.officialPlan === officialPlan &&
+				_.difference(last_obj.sharedPlans, sharedPlans) &&
+				last_obj.userName === userName &&
+				last_obj.userYear === userYear &&
+				_.difference(last_obj.userMajor, userMajor).length == 0 &&
+				_.difference(last_obj.userMinor, userMinor).length == 0
+			){
+				$(".js-save-change").attr("class", "ui primary submit button js-save-change");
+				return;
+			}
+		}
+
 		const submit_obj = {
 			officialPlan: officialPlan,
 			sharedPlans: sharedPlans,
@@ -96,6 +115,7 @@ Template.userProfile.events({
 			userMajor: userMajor,
 			userMinor: userMinor
 		}
+		Template.instance().profileDict.set("last_time_data", submit_obj);
 
 		Meteor.call("saveProfileChange", submit_obj, function(err, result){
 			if(err){

@@ -567,7 +567,17 @@ Schemas.GlobalParameters = new SimpleSchema({
     allowed_terms: {
         type: Number,
         min: 3,
-        max: 10
+        max: 10,
+        optional: true
+    },
+    current_term: {
+        type: String,
+        custom: function(){
+            if(!Term.findOne({id: this.value})){
+                return "noSuchTerm"
+            }
+        },
+        optional: true
     }
 })
 
