@@ -39,16 +39,10 @@ Template.home.onRendered(function() {
             //these get all the keywords for search
             const keyword = $(".js-submit-search").val();
             const term = $(".js-term input").val();
-            const req_array = $(".js-req .ui.label.transition.visible").toArray();
-            const req_names_array = [];
-            for (let item of req_array) {
-                req_names_array.push(item.innerText);
-            };
-            const days_array = $(".js-days .ui.label.transition.visible").toArray();
-            const days_names_array = [];
-            for (let item of days_array) {
-                days_names_array.push($(item).attr("data-value"));
-            };
+            let req_names_array = $(".js-req").dropdown("get values");
+            if(!req_names_array) req_names_array = ["null"];
+            let days_names_array = $(".js-days").dropdown("get values");
+            if(!days_names_array) days_names_array = ["null"];
             const start_time = $(".js-start-time input").val();
             const end_time = $(".js-end-time input").val();
             const time_and_date = {
@@ -80,6 +74,53 @@ Template.home.onRendered(function() {
                 }
             }
 
+            if(req_names_array[0] === "null") req_names_array = [];
+            if(time_and_date.days[0] === "null") time_and_date.days = [];
+
+            //validate the search
+            if(
+                !keyword.replace(/ +/ig," ").trim() &&
+                !term &&
+                (!dept || dept === "all") &&
+                !instructor &&
+                (!time_and_date.start || time_and_date.start === "all") &&
+                (!time_and_date.end || time_and_date.end ==="all") &&
+                time_and_date.days.length == 0 &&
+                req_names_array.length == 0
+            ){
+                window.alert("Please don't search nothing.");
+                return;
+            } else if(
+                keyword.replace(/ +/ig," ").trim().length == 1 &&
+                !term
+            ){
+                if(keyword.replace(/ +/ig," ").trim().length == 1){
+                    window.alert("Please don't search just one character.");
+                    return;
+                }
+            } else if(
+                !keyword.replace(/ +/ig," ").trim() &&
+                (!dept || dept === "all") &&
+                !instructor &&
+                !term && (
+                !(!time_and_date.start || time_and_date.start === "all") ||
+                !(!time_and_date.end || time_and_date.end ==="all") ||
+                time_and_date.days.length != 0) &&
+                req_names_array.length == 0
+            ){
+                window.alert("Please add a keyword, a term, a department, or an instructor.");
+                return;
+            } else if(
+                !keyword.replace(/ +/ig," ").trim() &&
+                !instructor &&
+                !term &&
+                (!dept || dept === "all") &&
+                req_names_array.length != 0
+            ) {
+                window.alert("Please add a keyword, a term, a department, or an instructor.");
+                return;
+            } 
+
             //these reset the home dict so that the popup won't read wrong information
             //and also the loading indicators can work
             homeDict.set('showTable', false); //this determines if the table should shows up
@@ -92,13 +133,20 @@ Template.home.onRendered(function() {
             const submit_obj = {
                 keyword: keyword,
                 term: term,
-                req_names_array: req_names_array,
+                req_names_array: req_names_array.slice(),
                 dept: dept,
                 instructor: instructor,
-                time_and_date: time_and_date,
+                time_and_date: {
+                    days: time_and_date.days.slice(),
+                    start: start_time,
+                    end: end_time
+                },
                 if_indept: if_indept,
                 if_not_sure: if_not_sure
             }
+
+            if(!$(".js-req").dropdown("get values")) submit_obj.req_names_array = ["null"];
+            if(!$(".js-days").dropdown("get values")) submit_obj.time_and_date.days = ["null"];
 
             homeDict.set("last_time_data", submit_obj);
 
@@ -344,17 +392,11 @@ Template.home.events({
                                 //
                                 // 	$("select#multi-select-days[multiple][data-value='daysRes']").addClass("active");
                                 // }
-
-                                const req_array = $(".js-req .ui.label.transition.visible").toArray();
-                                const req_names_array = [];
-                                for (let item of req_array) {
-                                    req_names_array.push(item.innerText);
-                                };
-                                const days_array = $(".js-days .ui.label.transition.visible").toArray();
-                                const days_names_array = [];
-                                for (let item of days_array) {
-                                    days_names_array.push($(item).attr("data-value"));
-                                };
+                                
+                                let req_names_array = $(".js-req").dropdown("get values");
+                                if(!req_names_array) req_names_array = [];
+                                let days_names_array = $(".js-days").dropdown("get values");
+                                if(!days_names_array) days_names_array = [];
                                 const start_time = $(".js-start-time input").val();
                                 const end_time = $(".js-end-time input").val();
                                 const time_and_date = {
@@ -362,7 +404,6 @@ Template.home.events({
                                     start: start_time,
                                     end: end_time
                                 };
-
                                 const if_indept = $(".js-if-indep").is(':checked');
                                 const if_not_sure = $(".js-if-not-sure").is(':checked');
 
