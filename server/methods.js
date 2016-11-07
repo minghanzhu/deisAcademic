@@ -132,10 +132,10 @@ if (Term.find().count() > 0) {
 //this sets the allowed number of terms to be predicted
 const server_allowed_terms = 6;
 if(GlobalParameters.find().count() == 0) {
-    GlobalParameters.insert({allowed_terms: server_allowed_terms});
+    GlobalParameters.insert({allowed_terms: server_allowed_terms, current_term: now_term});
 } else {
     GlobalParameters.remove({});
-    GlobalParameters.insert({allowed_terms: server_allowed_terms});
+    GlobalParameters.insert({allowed_terms: server_allowed_terms, current_term: now_term});
 }
 
 console.log("If you don't see current and future terms, please restart the server");

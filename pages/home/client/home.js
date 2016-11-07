@@ -237,6 +237,8 @@ Template.home.onRendered(function() {
     $('#search-select-end-time').dropdown();
     $('#multi-select-days').dropdown();
     $('.js-term').dropdown();
+    const now_term = GlobalParameters.findOne().current_term;
+    $('.js-term').dropdown("set selected", now_term);
     $('.ui.checkbox').checkbox();
 
     //this gets all the professors names and initialize the search selection
