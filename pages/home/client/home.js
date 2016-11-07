@@ -39,10 +39,17 @@ Template.home.onRendered(function() {
             //these get all the keywords for search
             const keyword = $(".js-submit-search").val();
             const term = $(".js-term input").val();
-            let req_names_array = $(".js-req").dropdown("get values");
-            if(!req_names_array) req_names_array = ["null"];
-            let days_names_array = $(".js-days").dropdown("get values");
-            if(!days_names_array) days_names_array = ["null"];
+
+            function getValues(f){
+                if(!f){
+                    return [];
+                } else {
+                    return f;
+                }
+            }
+
+            const req_names_array = getValues($(".js-req").dropdown("get values"));
+            const days_names_array = getValues($(".js-days").dropdown("get values"));
             const start_time = $(".js-start-time input").val();
             const end_time = $(".js-end-time input").val();
             const time_and_date = {
@@ -67,15 +74,14 @@ Template.home.onRendered(function() {
                     last_obj.if_not_sure === if_not_sure &&
                     last_obj.time_and_date.start === time_and_date.start &&
                     last_obj.time_and_date.end === time_and_date.end &&
-                    _.difference(last_obj.time_and_date.days, time_and_date.days).length == 0 &&
-                    _.difference(last_obj.req_names_array, req_names_array).length == 0
+                    ($(last_obj.time_and_date.days).not(time_and_date.days).length === 0 && 
+                        $(time_and_date.days).not(last_obj.time_and_date.days).length === 0) &&
+                    ($(last_obj.req_names_array).not(req_names_array).length === 0 && 
+                        $(req_names_array).not(last_obj.req_names_array).length === 0)
                 ) {
                     return;
                 }
             }
-
-            if(req_names_array[0] === "null") req_names_array = [];
-            if(time_and_date.days[0] === "null") time_and_date.days = [];
 
             //validate the search
             if(
@@ -133,20 +139,17 @@ Template.home.onRendered(function() {
             const submit_obj = {
                 keyword: keyword,
                 term: term,
-                req_names_array: req_names_array.slice(),
+                req_names_array: req_names_array,
                 dept: dept,
                 instructor: instructor,
                 time_and_date: {
-                    days: time_and_date.days.slice(),
+                    days: time_and_date.days,
                     start: start_time,
                     end: end_time
                 },
                 if_indept: if_indept,
                 if_not_sure: if_not_sure
             }
-
-            if(!$(".js-req").dropdown("get values")) submit_obj.req_names_array = ["null"];
-            if(!$(".js-days").dropdown("get values")) submit_obj.time_and_date.days = ["null"];
 
             homeDict.set("last_time_data", submit_obj);
 
