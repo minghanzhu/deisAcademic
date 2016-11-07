@@ -19,23 +19,25 @@
                 <div class="ui active inline loader"></div>
               {{/if}}
             {{/if}}
-            <button class="ui button js-change-course">Change Chosen Courses</button>
-            {{#if viewCalendar}}
-              <button class="ui button js-view-change">Overview</button>
-            {{else}}
-              {{#if isFuture}}
-                <button class="ui disabled button js-view-change">Calendar View</button>
+            {{#if hasCourseList}}
+              <button class="ui button js-change-course">Change Chosen Courses</button>
+              {{#if viewCalendar}}
+                <button class="ui button js-view-change">Overview</button>
               {{else}}
-                <button class="ui button js-view-change">Calendar View</button>
+                {{#if isFuture}}
+                  <button class="ui disabled button js-view-change">Calendar View</button>
+                {{else}}
+                  <button class="ui button js-view-change">Calendar View</button>
+                {{/if}}
               {{/if}}
-            {{/if}}
-            {{#if hasClickedChange}}{{clickedChange}}{{/if}}
-            {{#if currentUser}}
-              <button class="ui primary button js-save-plan pull-right">Save My Plan</button>
-            {{else}}
-              <div class="js-not-save-plan pull-right">
-                <button class="ui disabled primary button">Save the plan</button>
-              </div>
+              {{#if hasClickedChange}}{{clickedChange}}{{/if}}
+              {{#if currentUser}}
+                <button class="ui primary button js-save-plan pull-right">Save My Plan</button>
+              {{else}}
+                <div class="js-not-save-plan pull-right">
+                  <button class="ui disabled primary button">Save the plan</button>
+                </div>
+              {{/if}}
             {{/if}}
           </div>
   			</div>
@@ -106,19 +108,21 @@
                   <div class="ui active inline loader"></div>
                 {{/if}}
               {{/if}}
-              <button class="ui button js-change-course">Change Chosen Courses</button>
-              {{#if viewCalendar}}
-                <button class="ui button js-view-change">Overview</button>
-              {{else}}
-                {{#if isFuture}}
-                  <button class="ui disabled button js-view-change">Calendar View</button>
+              {{#if hasCourseList}}
+                <button class="ui button js-change-course">Change Chosen Courses</button>
+                {{#if viewCalendar}}
+                  <button class="ui button js-view-change">Overview</button>
                 {{else}}
-                  <button class="ui button js-view-change">Calendar View</button>
+                  {{#if isFuture}}
+                    <button class="ui disabled button js-view-change">Calendar View</button>
+                  {{else}}
+                    <button class="ui button js-view-change">Calendar View</button>
+                  {{/if}}
                 {{/if}}
+                {{#if hasClickedChange}}{{clickedChange}}{{/if}}
+                <button class="ui primary button js-update-plan">Save the plan</button>
+                <button class="ui red button js-delete-plan pull-right">Delete the plan</button>
               {{/if}}
-              {{#if hasClickedChange}}{{clickedChange}}{{/if}}
-              <button class="ui primary button js-update-plan">Save the plan</button>
-              <button class="ui red button js-delete-plan pull-right">Delete the plan</button>
             </div>
           </div>
         </div>
@@ -326,7 +330,7 @@
             {{#if sectionReady}}
               <h3>Section {{sectionObj.section}}</h3>
               <h3>Professor</h3>
-              {{#if profNameLoading sectionObj.id}}<div class="ui active inline loader"></div>{{/if}}{{{getProfInfo sectionObj.instructors}}}<br>
+              {{{getProfInfo sectionObj.instructors}}}<br>
               <h3>Time and Place</h3>
               {{#if sectionObj.times}}
                 {{#each time in sectionObj.times}}
@@ -368,8 +372,9 @@
 </template>
 
 <template name="scheduleCourseList">
+  {{getSections}}
   <div class="item">
-    <a class="title js-title">
+    <a class="title js-title" cont-id="{{c.continuity_id}}">
       <i class="dropdown icon"></i>
       {{#if (noResult c.continuity_id)}}
         {{#if isFutureTerm}}
@@ -383,8 +388,8 @@
     </a>
 
     <div class="content">
-      <div class="ui link list" id="sectionList">
-        {{#if (hasSectionInfo c.continuity_id)}}
+      <div class="ui link list hidden" id="sectionList">
+        {{#if clickedOpen c.continuity_id}}  
           {{#if (noResult c.continuity_id)}}
             {{#if isFutureTerm}}
               <a class="item js-add-future-course" cont-id="{{c.continuity_id}}">Offer chance - {{getPredictionData c.continuity_id}}<i class="plus icon pull-right"></i></a>
@@ -394,6 +399,7 @@
           {{else}}
             {{#each section in (sectionInfo c.continuity_id)}}
               <a class="item js-add-section" id="{{section.id}}" course-code="{{c.code}}" course-name="{{c.name}}">Section{{section.section}}<i class="plus icon pull-right"></i></a>
+              {{profName section.instructors}}<br>
               {{#if hasTimes section.times}}
                 {{#each time in section.times}}
                       <p>{{getSectionDays time.days}}: {{convertTime time.start}} {{convertTime time.end}}</p>
@@ -404,7 +410,6 @@
             {{/each}}
           {{/if}}
         {{else}}
-          {{getSections c.continuity_id index}}
           <div class="ui active inline loader"></div>
         {{/if}}
       </div>

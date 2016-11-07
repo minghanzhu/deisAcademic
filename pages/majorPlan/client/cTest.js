@@ -3,6 +3,7 @@ import fullCalendar from 'fullcalendar';
 Template.calendarTest.onCreated(function() {
     this.calendarDict = new ReactiveDict();
     this.calendarDict.set("viewCalendar", false);
+    this.calendarDict.set("sectionFetched", false);
 
     this.masterDict = this.data["dict"];
     this.masterDict.set("hasCourseList", false);
@@ -296,18 +297,23 @@ Template.calendarTest.helpers({
 
     getProfInfo: function(prof_list) {
         const dict = Template.instance().calendarDict;
-        Meteor.call("getProfInfo", prof_list, function(err, result) {
-            if(err){
-                window.alert(err.message);
-                return;
-            }
+        let result = "";
 
-            if (result.includes("Staff")) {
-                dict.set("instructorsName", "Staff - This information will be updated once Brandeis posts the professor names for this section\n");
-            } else {
-                dict.set("instructorsName", result);
-            }
-        });
+        for (let prof of prof_list) {
+            let prof_email = " - " + Instructor.findOne({ id: prof }).email;
+            const prof_first = Instructor.findOne({ id: prof }).first;
+            const prof_last = Instructor.findOne({ id: prof }).last;
+            if (!prof_email) prof_email = "";
+            result = result + prof_first + " " + prof_last + prof_email + "<br>";
+        }
+
+        result = result.substring(0, result.lastIndexOf("<br>"));
+
+        if (result.includes("Staff")) {
+            dict.set("instructorsName", "Staff - This information will be updated once Brandeis posts the professor names for this section\n");
+        } else {
+            dict.set("instructorsName", result);
+        }
 
         return dict.get("instructorsName");
     },
@@ -873,6 +879,7 @@ Template.calendarTest.events({
         const current_status = Template.instance().masterDict.get("includeWishlist");
         Template.instance().masterDict.set("includeWishlist", !current_status);
         Template.instance().calendarDict.set("sectionInfo");
+        Template.instance().calendarDict.set("sectionFetched", false);
         Template.instance().masterDict.set("hasCourseList", false);
         Template.instance().masterDict.set("fetched", false);
     },
@@ -1026,25 +1033,8 @@ Template.scheduleCourseList.helpers({
     getSections: function(courseContId, index) {
         const dict = Template.instance().calendarDict;
         const masterDict = Template.instance().masterDict;
-
-        if (!masterDict.get("chosenTerm") || !courseContId) { //continue only if the data is ready
-            return;
-        };
-
-        //do it only once
-        if(masterDict.get("fetched")){
-            return;
-        }
-
-        masterDict.set("fetched", !masterDict.get("fetched"));
-        //check if the info is already there
-        const courseId = masterDict.get("chosenTerm") + "-" + courseContId;
-        if(dict.get("sectionInfo")){
-            if(dict.get("sectionInfo")[courseId]){
-                return;
-            }
-        }
-        
+        if(dict.get("sectionFetched")) return;
+        dict.set("sectionFetched", true);
 
         let courseList = [];
         const availableCourseList = Template.instance().masterDict.get("fetched_courseList");
@@ -1169,6 +1159,9 @@ Template.scheduleCourseList.helpers({
         if(!dict.get("sectionInfo")){
             return true;
         }
+
+        if(!dict.get("sectionInfo")[courseId]) return true;
+
         return dict.get("sectionInfo")[courseId] === "NR";
     },
 
@@ -1264,6 +1257,69 @@ Template.scheduleCourseList.helpers({
     inList: function(continuity_id){
         const addedCourses = Template.instance().masterDict.get("addedCourses");
         return $.inArray(continuity_id, addedCourses) != -1;
+    },
+
+    profName: function(instrutorData){
+        const names_array = [];
+        let non_exist = "";//This hold special situations ("/" or Staff)
+        let staff = "";
+
+        for(let instru_id of instrutorData){
+            const instru_obj = Instructor.findOne({ id: instru_id }); //get the professor object using the id
+            if(instru_obj){
+                var instru_name = instru_obj.first + " " + instru_obj.last;
+                if (instru_obj.first == "Staff" || instru_obj.last == "Staff"){
+                   staff = "1" 
+                } else {
+                    names_array.push(instru_name)
+                }
+            } else {
+                non_exist = "1";
+            }
+        }
+
+        if(names_array.length == 0){
+            if(!!staff){
+                return "Staff";
+            } else {
+                return "/";
+            }
+        } else {
+            let instructors = "";
+            for(let i = 0; i < names_array.length; i++){
+                if(i != names_array.length - 1){
+                    instructors += names_array[i] + "<br>";
+                } else {
+                    instructors += names_array[i] 
+                }
+            }
+
+            if(!!staff){
+                instructors = "Staff" + "<br>" + names_array[i];
+            }
+
+            return Spacebars.SafeString(instructors);
+        }
+    },
+
+    clickedOpen: function(continuity_id){
+        const calendarDict = Template.instance().calendarDict;
+        const openedCourse = calendarDict.get("openedCourse");
+
+        //if there's no record, it's the first time the user opens the page
+        if(!openedCourse){
+            return false;
+        }
+
+        //if it is the same as the one saved, show it
+        if(openedCourse === continuity_id){
+            return true;
+        }
+
+        //if it is different, close it
+        if(openedCourse !== continuity_id){
+            return false;
+        }
     },
 })
 
@@ -1428,13 +1484,15 @@ Template.scheduleCourseList.events({
         });
     },
 
-    "click .js-title": function() {
+    "click .js-title": function(event) {
         const is_calendarView = Template.instance().data["dict"].get("viewCalendar");
 
         //reads the term when the user click a course to view
         if (!Template.instance().masterDict.get("chosenTerm") && is_calendarView) {
             Template.instance().masterDict.set("chosenTerm", $(".js-term").val());
         };
+
+        Template.instance().calendarDict.set("openedCourse", event.currentTarget.attributes[1].nodeValue);
 
         setTimeout(function() {
             const sticky_height = $(".ui.sticky").height();
