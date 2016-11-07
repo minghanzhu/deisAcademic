@@ -78,6 +78,8 @@ Template.planTermRange.events({
         termList = termList.sort(function(a, b){
             return parseInt(a) - parseInt(b);
         });
+        const previous_start_term = Template.instance().masterDict.get("planStartSemester");
+        const previous_end_term = Template.instance().masterDict.get("planEndSemester");
         //check if the semesters chosen are valid
         Template.instance().masterDict.set("planStartSemester", $(".js-start-semester input").val());
         Template.instance().masterDict.set("planEndSemester", $(".js-end-semester input").val());
@@ -103,6 +105,10 @@ Template.planTermRange.events({
         } else if ($.inArray(end_semester, termList) - $.inArray(start_semester, termList) > 11){
             window.alert("Please choose a smaller range");
             return;
+        }
+
+        if(previous_start_term !== start_semester || previous_end_term !== end_semester){
+            Template.instance().masterDict.set("fetched_planSearchData");
         }
 
         $(".js-majorGo").attr("class", "ui loading disabled button js-ok");

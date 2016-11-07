@@ -3,9 +3,6 @@ Template.planSearch.onCreated(function(){
     this.planSearchDict = this.data["dict"];
     this.planSearchDict.set('majorId', this.data["dict"].get('chosenMajor'));
     this.planSearchDict.set('showTable', false);
-    this.planSearchDict.set('majorDetail', []);
-    this.planSearchDict.set('sectionDetail', []);
-    this.planSearchDict.set('sectionIndex', 0);
     this.planSearchDict.set('courseData');
     this.planSearchDict.set('clickedNext', false);
     this.planSearchDict.set('clickedTerm', false);
@@ -51,11 +48,16 @@ Template.planSearch.helpers({
 
     getData: function(){
         const planDict = Template.instance().planSearchDict;
+        const masterDict = Template.instance().masterDict;
+        if(masterDict.get("fetched_planSearchData")){
+            planDict.set("courseData", masterDict.get("fetched_planSearchData"));
+            planDict.set('noResult', false);
+            planDict.set('showTable', true);
+            return;
+        } 
+        
         planDict.set('showTable', false);
-        planDict.set('majorDetail', []);
-        planDict.set('sectionDetail', []);
         planDict.set('courseData');
-        planDict.set('termName');
         planDict.set('noResult', false);
 
         const dept = planDict.get('majorId'); //""for no option and "all" for all departments
@@ -226,6 +228,7 @@ Template.planSearch.helpers({
                         sorted_final_result[i].index = i;
                     };
                     planDict.set('courseData', sorted_final_result);
+                    masterDict.set("fetched_planSearchData", sorted_final_result);
                     planDict.set('noResult', false);
                 }
 

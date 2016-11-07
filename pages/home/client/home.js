@@ -36,17 +36,6 @@ Template.home.onRendered(function() {
         }
 
         if (e.keyCode == 13 && !$(".reactive-table-navigation input").is(":focus")) {
-
-
-            //these reset the home dict so that the popup won't read wrong information
-            //and also the loading indicators can work
-            homeDict.set('showTable', false); //this determines if the table should shows up
-            homeDict.set('majorDetail', []); //this shows the major names and notes for a given section
-            homeDict.set('sectionDetail', []); //this holds the section objects
-            homeDict.set('courseData'); //this holds the course object
-            homeDict.set('termName'); //this saves the term name
-            homeDict.set('noResult', false); //this determines if showing no results
-
             //these get all the keywords for search
             const keyword = $(".js-submit-search").val();
             const term = $(".js-term input").val();
@@ -71,6 +60,47 @@ Template.home.onRendered(function() {
             const instructor = $(".js-prof input").val();
             const if_indept = $(".js-if-indep").is(':checked');
             const if_not_sure = $(".js-if-not-sure").is(':checked');
+
+            //make sure there's change before sending new request
+            if(homeDict.get("last_time_data")){
+                const last_obj = homeDict.get("last_time_data");
+                if(
+                    last_obj.keyword === keyword &&
+                    last_obj.term === term &&
+                    last_obj.dept === dept &&
+                    last_obj.instructor === instructor &&
+                    last_obj.if_indept === if_indept &&
+                    last_obj.if_not_sure === if_not_sure &&
+                    last_obj.time_and_date.start === time_and_date.start &&
+                    last_obj.time_and_date.end === time_and_date.end &&
+                    _.difference(last_obj.time_and_date.days, time_and_date.days).length == 0 &&
+                    _.difference(last_obj.req_names_array, req_names_array).length == 0
+                ) {
+                    return;
+                }
+            }
+
+            //these reset the home dict so that the popup won't read wrong information
+            //and also the loading indicators can work
+            homeDict.set('showTable', false); //this determines if the table should shows up
+            homeDict.set('majorDetail', []); //this shows the major names and notes for a given section
+            homeDict.set('sectionDetail', []); //this holds the section objects
+            homeDict.set('courseData'); //this holds the course object
+            homeDict.set('termName'); //this saves the term name
+            homeDict.set('noResult', false); //this determines if showing no results
+
+            const submit_obj = {
+                keyword: keyword,
+                term: term,
+                req_names_array: req_names_array,
+                dept: dept,
+                instructor: instructor,
+                time_and_date: time_and_date,
+                if_indept: if_indept,
+                if_not_sure: if_not_sure
+            }
+
+            homeDict.set("last_time_data", submit_obj);
 
             //call the meteor method to do the search and get results
             Meteor.call("searchPnc", keyword, term, req_names_array, dept, instructor, time_and_date, if_indept, if_not_sure,
@@ -152,7 +182,8 @@ Template.home.onRendered(function() {
     })
 
     //these initialize the semantic ui components
-    $('#multi-select').dropdown();
+    $('.js-req').dropdown();
+    $('.js-days').dropdown();
     $('#search-select').dropdown();
     $('#search-select-start-time').dropdown();
     $('#search-select-end-time').dropdown();
