@@ -65,13 +65,24 @@ Meteor.publish("new_plan_term", function() {
 
 Meteor.publish("new_plan_userProfile", function() {
     return UserProfilePnc.find({ 
-    	userId: this.userId 
+        userId: this.userId 
     },{
-    	fields: {
-    		wishlist: 1
-    	}
+        fields: {
+            wishlist: 1
+        }
     }) 
 });
+
+Meteor.publish("new_plan_profData", function(){
+    return Instructor.find({},{
+        fields: {
+            id: 1,
+            first: 1,
+            last: 1,
+            email: 1
+        }
+    }) 
+})
 
 //Meteor.publish("new_plan_prediction", function(){
 //    return CoursePrediction.find();
@@ -180,6 +191,17 @@ Meteor.publish("modify_plan_userProfile", function() {
         }
     }) 
 });
+
+Meteor.publish("modify_plan_profData", function(){
+    return Instructor.find({},{
+        fields: {
+            id: 1,
+            first: 1,
+            last: 1,
+            email: 1
+        }
+    }) 
+})
 
 Meteor.publish("wishlist_userProfile", function() {
     return UserProfilePnc.find({ 
