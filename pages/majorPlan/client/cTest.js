@@ -557,6 +557,8 @@ Template.calendarTest.events({
                 }
             }
         }
+
+        $('.js-title.active').accordion("close")
     },
 
     "click .overlay-calendar,.js-close-popup": function(event) {
@@ -965,6 +967,7 @@ Template.calendarTest.events({
         }
         
         Template.instance().calendarDict.set("viewCalendar", !current_state);
+        $('.js-title.active').accordion("close")
     },
 
     "click .js-show-dict": function(event){
