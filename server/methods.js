@@ -749,7 +749,7 @@ Meteor.methods({
         if (user_obj == null) {
             const profile_obj = {
                 userName: user_username,
-                userYear: "Junior",
+                userYear: "Empty",
                 userId: this.userId,
                 wishlist: [],
                 majorPlanList: [],
