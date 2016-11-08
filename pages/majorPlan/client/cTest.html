@@ -1,4 +1,7 @@
 <template name="calendarTest">
+  {{#if and hasCourseList predictionDataReady}}{{else}}
+    {{> loading}}
+  {{/if}}
   <div class="ui stackable grid">
     {{#if isNewPlan}}
   		<div class="twelve wide column">
@@ -13,7 +16,7 @@
 
               {{> calendar dict=dict calendarDict=calendarDict}}
             {{else}}
-              {{#if predictionDataReady}}
+              {{#if and predictionDataReady hasCourseList}}
                 {{> coursePreview dict=dict calendarDict=calendarDict}} <br>
               {{else}}
                 <div class="ui active inline loader"></div>
@@ -80,10 +83,6 @@
               {{/each}}
             </div>
   				{{else}}
-  					{{pullUserCourseList}}
-            {{#if hasFutureTerm}}
-              {{pullPredictionData}}
-            {{/if}}
   					<div class="ui active inline loader"></div>
   				{{/if}}
   			</div>
@@ -108,7 +107,7 @@
                   <div class="ui active inline loader"></div>
                 {{/if}}
               {{/if}}
-              {{#if hasCourseList}}
+              {{#if and hasCourseList predictionDataReady}}
                 <button class="ui button js-change-course">Change Chosen Courses</button>
                 {{#if viewCalendar}}
                   <button class="ui button js-view-change">Overview</button>
@@ -164,10 +163,6 @@
                 {{/each}}
               </div>
             {{else}}
-              {{pullUserCourseList}}
-              {{#if hasFutureTerm}}
-                {{pullPredictionData}}
-              {{/if}}
               <div class="ui active inline loader"></div>
             {{/if}}
           </div>
@@ -191,10 +186,6 @@
                 {{#if and predictionDataReady hasCourseList}}
                   {{> coursePreview dict=dict calendarDict=calendarDict}} <br>
                 {{else}}
-                  {{pullUserCourseList}}
-                  {{#if hasFutureTerm}}
-                    {{pullPredictionData}}
-                  {{/if}}
                   <div class="ui active inline loader"></div>
                 {{/if}}
               {{/if}}
@@ -372,7 +363,6 @@
 </template>
 
 <template name="scheduleCourseList">
-  {{getSections}}
   <div class="item">
     <a class="title js-title" cont-id="{{c.continuity_id}}">
       <i class="dropdown icon"></i>

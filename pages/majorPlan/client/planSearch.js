@@ -6,6 +6,11 @@ Template.planSearch.onCreated(function(){
     this.planSearchDict.set('courseData');
     this.planSearchDict.set('clickedNext', false);
     this.planSearchDict.set('clickedTerm', false);
+    if(this.masterDict.get("chosenCourse")){
+        this.origChosenCourse = this.masterDict.get("chosenCourse");
+    } else {
+        this.origChosenCourse = [];
+    }
 })
 
 Template.planSearch.onRendered(function(){
@@ -256,6 +261,11 @@ Template.planSearch.events({
             } 
         };
 
+        if(_.difference(courseList, Template.instance().origChosenCourse).length == 0){//no new courses added
+            Template.instance().masterDict.set("noNewCourses", true);
+        } else {
+            Template.instance().masterDict.set("noNewCourses", false);
+        }
         Template.instance().planSearchDict.set('clickedNext', true);
     },
 
