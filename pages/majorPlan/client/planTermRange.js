@@ -126,6 +126,13 @@ Template.planTermRange.events({
         };
         Template.instance().masterDict.set("scheduleList", scheduleList);
 
+        if(previous_start_term !== start_semester || previous_end_term !== end_semester){
+            Template.instance().masterDict.set("already_fetched_list", []);
+            Template.instance().masterDict.set("already_fetched_wishlist", []);
+            Template.instance().masterDict.set("hasCourseList", false);
+            Template.instance().masterDict.set("includeWishlist", false);
+        }
+
         Template.instance().termRangeDict.set("clickedOK", true);
     },
 })
