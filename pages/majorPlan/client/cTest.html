@@ -1,4 +1,7 @@
 <template name="calendarTest">
+  {{#if and hasCourseList predictionDataReady}}{{else}}
+    {{> loading}}
+  {{/if}}
   <div class="ui stackable grid">
     {{#if isNewPlan}}
   		<div class="twelve wide column">
