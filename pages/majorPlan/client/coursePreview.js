@@ -233,6 +233,11 @@ Template.coursePreview.onRendered(function() {
     		uncheckable: false,
     	});
     }, 100);
+
+    $(".js-not-save-plan").popup({
+        content: "Please login to save the plan",
+        position: "top center"
+    })
 })
 
 Template.coursePreview.helpers({
