@@ -12,7 +12,7 @@ Template.voiceButton.onRendered(function() {
 
   var isChrome = !!window.chrome && !!window.chrome.webstore;
   if (isChrome === false) {
-    console.log("chrome!");
+    console.log("Sorry, but only chrome supports our voice search now.");
     $(".js-voice-search").hide();
   }
 
@@ -324,13 +324,12 @@ Template.home.events({
                 Meteor.call("sendJSONtoAPI_ai", text, { returnStubValue: true },
                     function(error, result) {
                         if (error) {
-                            console.log(error);
+                            window.alert(error.message);
                             homeDict.set("notTalking", true);
                             return;
                         }
 
                         const apiRes = result;
-                        //console.log(apiRes);
 
                         if (apiRes) {
                             if (apiRes.data.result.parameters) {
@@ -349,7 +348,6 @@ Template.home.events({
                                 }
 
                                 homeDict.set("apiResObject", apiRes_obj);
-                                //console.log(apiRes_obj);
 
                                 const theQuery = dept + " " + courseNum + " " + courseName;
 
@@ -419,7 +417,7 @@ Template.home.events({
                                 Meteor.call("searchPnc", theQuery, term, req_names_array, null, instructor, time_and_date, if_indept, if_not_sure,
                                     function(err, result) {
                                         if(err){
-                                            console.log(err.message);
+                                            window.alert(err.message);
                                             return
                                         }
 
@@ -714,7 +712,7 @@ Template.search_result.helpers({
         Meteor.call("getCourseHistory", currCourseData.continuity_id,
             function(err, result) {
                 if (err) {
-                    console.log(err.message);
+                    window.alert(err.message);
                     return;
                 }
 
