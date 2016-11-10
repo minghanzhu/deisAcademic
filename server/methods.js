@@ -45,7 +45,7 @@ insert: [2] , update: [3], remove: [4]
 32. "Incomplete term"
 33. "Empty schedule"
 34. "Too many majors"
-35.
+35. "Duplicate usernames"
 36.
 37.
 38.
@@ -2184,6 +2184,11 @@ Meteor.methods({
                 console.log("[saveProfileChange] - Invalid update: No such subject: " + subject);
                 throw new Meteor.Error(315, "Invalid update: No such subject");
             }
+        }
+
+        if(UserProfilePnc.findOne({userName: submit_obj.userName})){
+            console.log("[saveProfileChange] - Invalid update: Duplicate usernames: " + submit_obj.userName);
+            throw new Meteor.Error(335, "This username has been used. Please try another.");
         }
 
         MajorPlansPnc.update({userId: this.userId}, {$set: {shared: false, official: false}}, {multi: true});
