@@ -35,39 +35,39 @@
 </template>
 
 <template name="majorItem">
-	<a href=""> <b style="font-size: 130%; color: #2874A6">{{{m.name}}}</b></a>
+	<a> <b style="font-size: 130%; color: #2874A6">{{{m.name}}}</b></a>
 	<!-- <div id={{m._id}} class="collapse"> -->
 		<br>
 		<br>
-		<a href="" data-toggle="collapse" data-target="#major{{m._id}}"><b style="font-size: 120%; color: #2874A6">Major (BA/BS)</b></a>
+		<a data-toggle="collapse" data-target="#major{{m._id}}"><b style="font-size: 120%; color: #2874A6">Major (BA/BS)</b></a>
 		<div id="major{{m._id}}" class="collapse in">{{{m.major}}}</div>
 		<br>
 		{{#if m.minor}}
-		<a href="" data-toggle="collapse" data-target="#minor{{m._id}}"><b style="font-size: 120%; color: #2874A6">Minor</b></a>
+		<a data-toggle="collapse" data-target="#minor{{m._id}}"><b style="font-size: 120%; color: #2874A6">Minor</b></a>
 		<div id="minor{{m._id}}" class="collapse">{{{m.minor}}}</div>
 		<br>
 		{{else}}
 		{{/if}}
 		{{#if m.MA}}
-		<a href="" data-toggle="collapse" data-target="#MA{{m._id}}"><b style="font-size: 120%; color: #2874A6">Master of Arts</b></a>
+		<a data-toggle="collapse" data-target="#MA{{m._id}}"><b style="font-size: 120%; color: #2874A6">Master of Arts</b></a>
 		<div id="MA{{m._id}}" class="collapse">{{{m.MA}}}</div>
 		<br>
 		{{else}}
 		{{/if}}
 		{{#if m.MS}}
-		<a href="" data-toggle="collapse" data-target="#MS{{m._id}}"><b style="font-size: 120%; color: #2874A6">Master of Science</b></a>
+		<a data-toggle="collapse" data-target="#MS{{m._id}}"><b style="font-size: 120%; color: #2874A6">Master of Science</b></a>
 		<div id="MS{{m._id}}" class="collapse">{{{m.MS}}}</div>
 		<br>
 		{{else}}
 		{{/if}}
 		{{#if m.combined}}
-		<a href="" data-toggle="collapse" data-target="#combined{{m._id}}"><b style="font-size: 120%; color: #2874A6">Combined BA/MA</b></a>
+		<a data-toggle="collapse" data-target="#combined{{m._id}}"><b style="font-size: 120%; color: #2874A6">Combined BA/MA</b></a>
 		<div id="combined{{m._id}}" class="collapse">{{{m.combined}}}</div>
 		<br>
 		{{else}}
 		{{/if}}
 		{{#if m.doctor}}
-		<a href="" data-toggle="collapse" data-target="#doctor{{m._id}}"><b style="font-size: 120%; color: #2874A6">Doctor of Philosophy</b></a>
+		<a data-toggle="collapse" data-target="#doctor{{m._id}}"><b style="font-size: 120%; color: #2874A6">Doctor of Philosophy</b></a>
 		<div id="doctor{{m._id}}" class="collapse">{{{m.doctor}}}</div>
 		<br>
 		{{else}}
