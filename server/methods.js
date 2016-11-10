@@ -2186,7 +2186,8 @@ Meteor.methods({
             }
         }
 
-        if(UserProfilePnc.findOne({userName: submit_obj.userName})){
+        if(UserProfilePnc.findOne({userName: submit_obj.userName}) 
+            && UserProfilePnc.findOne({userName: submit_obj.userName}).userId !== this.userId){
             console.log("[saveProfileChange] - Invalid update: Duplicate usernames: " + submit_obj.userName);
             throw new Meteor.Error(335, "This username has been used. Please try another.");
         }
