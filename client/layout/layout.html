@@ -3,8 +3,8 @@
 </head>
 
 <template name="layout">
-    <div class="side-nav nav-stacked">
-        <ul>
+    <div class="side-nav nav-stacked" id="side_nav_bar">
+        <ul id="functions">
             <li>
                 <a href="{{pathFor 'home'}}">
                     <span class="glyphicon glyphicon-search"></span><b>Search</b>
@@ -25,6 +25,11 @@
             {{else}}
               {{> loginButton}}
             {{/if}}
+            <li>
+                <a href="/FAQ">
+                    <span class="glyphicon glyphicon glyphicon-question-sign"></span><b>FAQ</b>   
+                </a>
+            </li>
             <!-- <li style="padding-top: 300px; bottom: 0;">
               <li style="font-size: 10px; overflow: hidden; white-space: nowrap;">
                 <a href="{{pathFor 'terms'}}">
@@ -43,7 +48,7 @@
             </li>
           </li>-->
         </ul>
-        <ul style="padding-top:450px">
+        <ul id="information">
             <li style="font-size: 10px; overflow: hidden; white-space: nowrap;">
                 <a href="{{pathFor 'terms'}}">
                     <b>Terms of Service</b>
@@ -59,7 +64,7 @@
                     <b>Contact Us</b>
                 </a>
             </li>
-        </ul>
+        </ul>    
         <!-- {{> loginButtons}} -->
     </div>
     <div class="move">
@@ -75,7 +80,7 @@
                 <!-- <div class="text">Profile</div> -->
                 <span class="text glyphicon glyphicon-user"></span><label><b style="">Profile</b></label>
                 <!-- <b>Major</b> -->
-                <div class="menu">
+                <div class="menu" id="profile_functions">
                     <a class="item" href="/myProfile">My Profile</a>
                     <a class="item" href="/myMajorPlan">My Plan</a>
                     <a class="item" href="/schedule">Schedule</a>

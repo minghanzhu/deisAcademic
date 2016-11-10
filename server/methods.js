@@ -163,8 +163,16 @@ Meteor.methods({
                 let second_half = item.substring(indexOfSlash + 1);
                 let regex_1 = new RegExp("( |^)" + first_half + " ?(\\d{1,3}[A-Z]{0,2})?( |$)", "i");
                 let regex_2 = new RegExp("( |^)" + second_half + " ?(\\d{1,3}[A-Z]{0,2})?( |$)", "i");
+                let regex_3 = new RegExp("( |^)" + item + " ?(\\d{1,3}[A-Z]{0,2})?( |$)", "i");
 
-                if (keyword.match(regex_1)) {
+                if ((keyword_orig.replace(/[^a-z0-9 \/]/gi, "\\$&")).match(regex_3)){
+                    let code_token = (keyword_orig.replace(/[^a-z0-9 \/]/gi, "\\$&")).match(regex_3)[0];
+                    let code_key = item + " " + code_token.trim().substring(item.length).trim().toUpperCase();
+                    codes_record.push(code_token);
+                    keys_record.push(code_key.trim());
+                    keyword = keyword_orig.replace(/[^a-z0-9 \/]/gi, "\\$&").replace(code_token, " ").replace(/[^a-z0-9 ]/gi, "\\$&");;
+                    keyword = keyword_orig.replace(/[^a-z0-9 \/]/gi, "\\$&").replace(/ {2, }/i, " ");
+                } else if (keyword.match(regex_1)) {
                     let code_token = keyword.match(regex_1)[0];
                     let code_key = item + " " + code_token.trim().substring(first_half.length).trim().toUpperCase();
                     codes_record.push(code_token);
@@ -174,7 +182,7 @@ Meteor.methods({
                     let code_key = item + " " + code_token.trim().substring(second_half.length).trim().toUpperCase();
                     codes_record.push(code_token);
                     keys_record.push(code_key.trim());
-                }
+                }  
             } else { //for normal code like COSI, MUS, MATH
                 let regex = new RegExp("( |^)" + item + " ?(\\d{1,3}[A-Z]{0,2})?( |$)", "i");
 

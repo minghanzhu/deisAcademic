@@ -647,7 +647,7 @@ Template.semesterSchedule.events({
     "click .js-delete-section": function(event) {
         event.preventDefault();
         const dict = Template.instance().calendarDict;
-        const section_id = $(event)[0].target.attributes[1].value;
+        const section_id = $(event)[0].currentTarget.attributes[1].value;
         $("#calendar").fullCalendar('removeEventSource', section_id);
         $(".overlay-calendar, .popup-calendar").fadeToggle();
         $("#calendar").fullCalendar('refetchEvents');
@@ -659,7 +659,7 @@ Template.semesterSchedule.events({
     },
 
     "click .js-take": function(event) {
-        const section_id = event.target.attributes[1].value;
+        const section_id = event.currentTarget.attributes[1].value;
         const source = $("#calendar").fullCalendar('getEventSourceById', section_id);
         source.chosen = !source.chosen;
         Template.instance().calendarDict.set("sectionChosen", source.chosen);

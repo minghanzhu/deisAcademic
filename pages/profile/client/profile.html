@@ -207,7 +207,10 @@
                     </div>
                 </div>
                 {{#if hasMajorPlan}}
-                <h4 class="ui dividing header">Plan Settings</h4>
+                    <h4 class="ui dividing header">Plan Settings</h4>
+                {{else}}
+                    <h4 class="ui dividing header">Plan Settings - You currently have no plan</h4>
+                {{/if}}
                 <div class="field">
                     <label>Offical Plan <i class="help circle icon" id="officialPlanHelp"></i></label>
                     <div class="ui fluid search selection dropdown" id="officialPlan">
@@ -231,27 +234,6 @@
                         </div>
                     </div>
                 </div>
-                {{else}}
-                <h4 class="ui dividing header">Plan Settings - You currently have no plan</h4>
-                <div class="disabled field">
-                    <label>Offical Plan</label>
-                    <div class="ui fluid search selection dropdown" id="officialPlan">
-                        <input type="hidden" name="officialPlan" value="">
-                        <i class="dropdown icon"></i>
-                        <div class="default text">Choose one plan to be your official one</div>
-                        <div class="menu"></div>
-                    </div>
-                </div>
-                <div class="disabled field">
-                    <label>Shared Plans</label>
-                    <div class="ui fluid multiple search selection dropdown" id="sharedPlans">
-                        <input type="hidden" name="sharedPlans" value="">
-                        <i class="dropdown icon"></i>
-                        <div class="default text">Choose the plans you want to share with others</div>
-                        <div class="menu"></div>
-                    </div>
-                </div>
-                {{/if}}
                 <div class="ui primary submit button js-save-change">Save Changes</div>
                 <div class="ui blue hidden message" id="submitMsg">
                     <p>The changes you made have been successfully saved.</p>
