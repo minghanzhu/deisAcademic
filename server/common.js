@@ -343,7 +343,7 @@ Schemas.MajorPlansPnc = new SimpleSchema({
             }
         },
         minCount: 1,
-        maxCount: 6
+        maxCount: 8
     },
     majorId: {
         type: [String],
@@ -365,7 +365,7 @@ Schemas.MajorPlansPnc = new SimpleSchema({
             }         
         },
         minCount: 1,
-        maxCount: 6
+        maxCount: 8
     },
     userId: {
         type: String,

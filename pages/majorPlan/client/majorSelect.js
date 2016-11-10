@@ -108,7 +108,7 @@ Template.majorSelect.events({
 
         //check if the major is chosen
         if (!$("#search-select input").val().split(',')[0]) {
-            window.alert("Please choose a major. \nOr click the button below.");
+            window.alert("Please choose a major.");// \nOr click the button below.");
             return;
         };
 
