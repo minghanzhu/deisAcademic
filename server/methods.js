@@ -1267,7 +1267,7 @@ Meteor.methods({
             }
         }
 
-        if(major_id.length > 6){
+        if(major_id.length > 8){
             console.log("[checkValidPlan] - Too many majors");
             throw new Meteor.Error(134, "Too many majors");
         }
