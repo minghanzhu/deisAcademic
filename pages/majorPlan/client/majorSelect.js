@@ -127,6 +127,7 @@ Template.majorSelect.events({
 
         if(!end_semester){
             window.alert("Please enter the ending semester");
+            return;
         }
 
         if($.inArray(end_semester, termList) - $.inArray(start_semester, termList) < 0){
