@@ -758,8 +758,8 @@ Template.calendarTest.events({
     "click .js-delete-section": function(event) {
         event.preventDefault();
         const dict = Template.instance().calendarDict;
-        const section_id = $(event)[0].target.attributes[1].value;
-        const course_id = $(event)[0].target.attributes[2].value;
+        const section_id = $(event)[0].currentTarget.attributes[1].value;
+        const course_id = $(event)[0].currentTarget.attributes[2].value;
         const is_calendarView = Template.instance().calendarDict.get("viewCalendar");
         if(is_calendarView){
             $("#calendar").fullCalendar('removeEventSource', section_id);
@@ -798,7 +798,7 @@ Template.calendarTest.events({
 
     "click .js-take": function(event) {
         event.preventDefault();
-        const section_id = event.target.attributes[1].value;
+        const section_id = event.currentTarget.attributes[1].value;
         const is_calendarView = Template.instance().calendarDict.get("viewCalendar");
         if(is_calendarView){
             const source = $("#calendar").fullCalendar('getEventSourceById', section_id);
@@ -1727,8 +1727,8 @@ Template.scheduleCourseList.helpers({
 
 Template.scheduleCourseList.events({
     "click .js-add-section": function(event) {
-        const section_id = event.target.attributes[1].nodeValue;
-        const course_code = event.target.attributes[2].nodeValue;
+        const section_id = event.currentTarget.attributes[1].nodeValue;
+        const course_code = event.currentTarget.attributes[2].nodeValue;
         const is_calendarView = Template.instance().data["dict"].get("viewCalendar");
         const masterDict = Template.instance().masterDict;
         const calendar_source = masterDict.get("scheduleList");
