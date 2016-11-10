@@ -1,4 +1,23 @@
 Template.layout.onRendered(function() {
+  //get the padding
+  const side_bar_height = $("#side_nav_bar").height();
+  const functions_height = $("#functions").height();
+  const information_height = $("#information").height();
+  const information_margin = 10;
+  const padding = side_bar_height - functions_height - information_height - information_margin * 2;
+
+  $('#information').attr("style", "padding-top:" + padding + "px");
+
+  $(window).resize(function() {
+    const side_bar_height = $("#side_nav_bar").height();
+    const functions_height = $("#functions").height();
+    const information_height = $("#information").height();
+    const information_margin = 10;
+    const padding = side_bar_height - functions_height - information_height - information_margin * 2;
+
+    $('#information').attr("style", "padding-top:" + padding + "px");
+  });
+
   $('.js-login span')
   .popup({
     content: "Sign in with your Brandeis email",
@@ -8,7 +27,6 @@ Template.layout.onRendered(function() {
   $('.ui.dropdown').dropdown({
     action: 'hide'
   });
-
 });
 
 Template.profileButton.onRendered(function() {

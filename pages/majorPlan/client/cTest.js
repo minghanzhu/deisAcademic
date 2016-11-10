@@ -348,7 +348,7 @@ Template.calendarTest.onCreated(function() {
 
 Template.calendarTest.onRendered(function() {
     $(".js-not-save-plan").popup({
-        content: "Please login to save the plan",
+        content: "Please log in to save the plan",
         position: "top center"
     })
 })

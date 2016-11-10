@@ -22,7 +22,7 @@ Template.schedule.helpers({
 	},
 
 	notLogin: function(){
-		window.alert("Please login to see your schedule");
+		window.alert("Please log in to see your schedule");
 		Router.go('/')
 	},
 })

@@ -235,7 +235,7 @@ Template.coursePreview.onRendered(function() {
     }, 100);
 
     $(".js-not-save-plan").popup({
-        content: "Please login to save the plan",
+        content: "Please log in to save the plan",
         position: "top center"
     })
 })
