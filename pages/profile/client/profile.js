@@ -52,7 +52,9 @@ Template.userProfile.onRendered(function(){
 		$("#userMinor").dropdown("set selected", userMinor);
 	} 
 
-	if(userYear == "Freshman"){
+	if(userYear == "N/A"){
+		$("#userYear").dropdown("set selected", "0");
+	} else if(userYear == "Freshman"){
 		$("#userYear").dropdown("set selected", "1");
 	} else if(userYear == "Sophomore"){
 		$("#userYear").dropdown("set selected", "2");
@@ -60,7 +62,11 @@ Template.userProfile.onRendered(function(){
 		$("#userYear").dropdown("set selected", "3");
 	} else if(userYear == "Senior"){
 		$("#userYear").dropdown("set selected", "4");
-	} 
+	} else if(userYear == "Graduate"){
+		$("#userYear").dropdown("set selected", "5");
+	} else if(userYear == "Ph.D"){
+		$("#userYear").dropdown("set selected", "6");
+	}
 })
 
 Template.userProfile.helpers({

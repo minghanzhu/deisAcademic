@@ -882,7 +882,12 @@ Template.search_result_time_table.helpers({
 
     sectionData: function() {
         const homeDict = Template.instance().homeDict;
-        return _.sortBy(homeDict.get('sectionDetail'), 'section');
+        const data = homeDict.get('sectionDetail').sort(function(a, b){return a.section - b.section});
+
+        for(let i = 0; i < data.length; i++){
+            data[i].index = i;
+        }
+        return data;
     },
 
     settings_result: function() {
@@ -999,6 +1004,9 @@ Template.search_result_time_table.helpers({
                             return new Spacebars.SafeString(instructors);
                         };
                     }
+                }, {
+                    key: 'index',
+                    hidden: true
                 },
             ],
         };

@@ -227,7 +227,7 @@ Schemas.UserProfilePnc = new SimpleSchema({
     },
     userYear: {
         type: String,
-        regEx: /^(Freshman|Sophomore|Junior|Senior|Graduate|Ph.D|Empty)$/,
+        regEx: /^(Freshman|Sophomore|Junior|Senior|Graduate|Ph.D|Empty|N\/A)$/,
     },
     wishlist: {
         type: Array
