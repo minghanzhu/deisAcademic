@@ -1107,6 +1107,82 @@ Meteor.methods({
         return {data: result, msg: msg};
     },
 
+    "fetchScheduleList_plan": function(scheduleList, available_future_schedule) {
+        let section_data;
+        if(updateCollection == 1){
+            section_data = SectionUpdate2;
+        } else {
+            section_data = SectionUpdate1;
+        }
+
+        const result = {};
+        const msg = {};
+        msg["unavailable"] = [];
+        msg["unavailable_future_course"] = {};
+        msg["more_than_one_section_course"] = {};
+        for (let schedule of scheduleList) {
+            const schedule_obj = SchedulesPnc.findOne(schedule);
+            const schedule_term = schedule_obj.term;
+            const schedule_course = schedule_obj.courseList;
+
+            result[schedule_term] = {};
+            for (let section of schedule_course) {
+                if(schedule_term >= now_term){
+                    if(!section_data.findOne({id: section.section_id})) {
+                        msg["unavailable"].push(section.section_id);
+                    }
+                }
+
+                const section_obj = Section.findOne({ id: section.section_id });
+                const courseCode = Course.findOne({ id: section_obj.course }).code;
+                result[schedule_term][section.section_id] = {
+                    chosen: section.chosen,
+                    object: section_obj,
+                    courseCode: courseCode
+                };
+            }
+        }
+
+        for(let future_schedule of available_future_schedule){
+            const term = future_schedule.term;
+            const course_cont_list = future_schedule.courseList;
+            result[term] = {};
+            msg["unavailable_future_course"][term] = [];
+            msg["more_than_one_section_course"][term] = [];
+
+            for(let cont_id of course_cont_list){
+                const course_id = term + "-" + cont_id;
+                //first check if it has any section
+                if(!section_data.findOne({course: course_id})){
+                    const newest_course_obj = Course.find({continuity_id: cont_id}).fetch().sort(function(a, b){return b.term - a.term})[0];
+                    const name = newest_course_obj.code + "-" + newest_course_obj.name;
+                    msg["unavailable_future_course"][term].push(name);
+                    continue;
+                }
+
+                //then check if the course has only one section
+                const sectionList = section_data.find({course: course_id}).fetch();
+                if(sectionList.length == 1){
+                    const section_obj = sectionList[0];
+                    const course_obj = Course.findOne({id: section_obj.course});
+                    const courseCode = course_obj.code;
+                    result[term][section_obj.id] = {
+                        chosen: false,
+                        object: section_obj,
+                        courseCode: courseCode
+                    };
+                } else {
+                    const section_obj = sectionList[0];
+                    const course_obj = Course.findOne({id: section_obj.course});
+                    const name = course_obj.code + "-" + course_obj.name;
+                    msg["more_than_one_section_course"][term].push(name);
+                }
+            }
+        }
+
+        return {data: result, msg: msg};
+    },
+
     "updateSchedule_MajorPlan": function(scheduleList, major_code, availableCourseList, current_plan_id, term_range) {
         if (!this.userId) {
             console.log("[updateSchedule_MajorPlan] - Invaid update: Not logged in");
@@ -1449,11 +1525,20 @@ Meteor.methods({
             const test_analysis = {};
             homeDict["test_analysis"] = test_analysis;
             const cont_list = cont_id_list;
-            CoursePrediction.remove({});
             var count = 0;
             for (let id of cont_list) {
                 const continuity_id = id;
-                const theHistory = Course.find({continuity_id: continuity_id,}).fetch();
+                const theHistory = Course.find({continuity_id: continuity_id, term:{$lt: now_term}}).fetch();
+                if(updateCollection == 1){
+                    for(let course of CourseUpdate2.find({continuity_id: continuity_id, term:{$gte: now_term}}).fetch()){
+                        theHistory.push(course);
+                    }
+                } else {
+                    for(let course of CourseUpdate1.find({continuity_id: continuity_id, term:{$gte: now_term}}).fetch()){
+                        theHistory.push(course);
+                    }
+                }
+
                 var historyTermCodes = _.pluck(theHistory, "term");
 
                 historyTermCodes.sort().reverse();
@@ -1702,6 +1787,7 @@ Meteor.methods({
                     percentage: p.percentage
                 }
             }
+            CoursePrediction.remove({course: continuity_id});
             CoursePrediction.insert(prediction_obj);
 
             const pdct_list = result.sort(function(a, b) {
@@ -1830,6 +1916,7 @@ Meteor.methods({
             return;
         } 
 
+        let if_compute_prediciton = false;
         const currentTerm = now_term;
         HTTP.call("GET", "http://registrar-prod-rhel6.unet.brandeis.edu/export/export.json", {}, function(err, response) {
             if (err) {
@@ -1889,6 +1976,7 @@ Meteor.methods({
                             */
                         } else {
                             Term.insert(d);
+                            if_compute_prediciton = true;
                         }
                     } else if (d.type == "subject") {
                         const isInData = Subject.findOne({id: d.id});
@@ -2098,6 +2186,10 @@ Meteor.methods({
 
                 console.log("All done!");
                 console.log("-------------------------------------");
+                if(if_compute_prediciton){
+                    console.log("New semester data available, recompute offering chance");
+                    Meteor.call("predictionAlgorithm", Meteor.settings.predictionKey);
+                }
             }));
         });
     },

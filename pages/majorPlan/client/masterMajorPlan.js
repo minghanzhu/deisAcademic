@@ -23,10 +23,33 @@ Template.masterMajorPlan.onCreated(function(){
         const addedCourses = [];
 	    const current_plan_id = Router.current().params._id;
         const scheduleList = MajorPlansPnc.findOne(current_plan_id).scheduleList;
+        let futureList = MajorPlansPnc.findOne(current_plan_id).futureList || [];
+        let available_future_schedule = [];
         const masterDict = this.masterPageDict;
+        let future_available_term_names = [];
         let hasUnavailable = false;
+        let hasMoreThanOne = false;
+        let hasUnavailableFutureCourse = false;
+
+        //check if the future term is available now;
+        //and there can be only one if so.
+        for(let i = 0; i < futureList.length; i++){
+            const future_schedule = futureList[i];
+            const future_term = future_schedule.term;
+            if(Term.findOne({id: future_term})){//if available
+                const term_obj = Term.findOne({id: future_term});
+                available_future_schedule.push(future_schedule);
+                future_available_term_names.push({name: term_obj.name, id: term_obj.id});
+                futureList.splice(i, 1);
+                i--;
+            }
+        }
+
+        if(future_available_term_names.length != 0){
+            future_available_term_names = future_available_term_names.sort(function(a, b){return a.id - b.id});
+        }
         
-        Meteor.call("fetchScheduleList", scheduleList, function(err, response) {
+        Meteor.call("fetchScheduleList_plan", scheduleList, available_future_schedule, function(err, response) {
             if (err) {
                 window.alert(err.message);
                 return;
@@ -53,9 +76,25 @@ Template.masterMajorPlan.onCreated(function(){
                 masterDict.set("unavailableSections", response.msg["unavailable"]);
             }
 
-            for (let term in result) { //go through each term in the result
+            for(let term in response.msg["unavailable_future_course"]){
+                if(response.msg["unavailable_future_course"].length == 0) continue;
+                
+                hasUnavailableFutureCourse = true;
+                masterDict.set("unavailableFutureCourse", response.msg["unavailable_future_course"]);
+                break;
+            }
+
+            for(let term in response.msg["more_than_one_section_course"]){
+                if(response.msg["more_than_one_section_course"][term].length == 0) continue;
+
+                hasMoreThanOne = true;
+                masterDict.set("more_than_one_section_course", response.msg["more_than_one_section_course"]);
+                break;
+            }
+
+            for (let schedule_term in result) { //go through each term in the result
                 const courseList = [];
-                const term = term;
+                const term = schedule_term;
                 noTimeSections[term] = 0;
 
                 for (let section in result[term]) {
@@ -155,8 +194,6 @@ Template.masterMajorPlan.onCreated(function(){
                 }
             }
 
-            
-            let futureList = MajorPlansPnc.findOne(current_plan_id).futureList;
             if(!futureList) futureList = [];
             const wishlist_course = [];
             for(let future_schedule of futureList){
@@ -192,8 +229,72 @@ Template.masterMajorPlan.onCreated(function(){
                 masterDict.set("courseFetchInfo", fetch_wishlist_course);
                 masterDict.set("addedCourses", addedCourses);
                 masterDict.set("pageName", "makeSchedule");
+
+                let warning_msg = ""
                 if(hasUnavailable){
-                    window.alert("Unfortunately, some of your sections are no longer available");
+                    warning_msg += "Unfortunately, some of your sections are no longer available\n\n"
+                }
+
+                if(available_future_schedule.length != 0){
+                    if(future_available_term_names.length == 1){
+                        warning_msg += Term.find().fetch().sort(function(a, b){return b.id - a.id})[0].name + " is available now!\n\n";
+                    } else {
+                        let term_list = "";
+                        for(let i = 0; i < future_available_term_names.length; i++){
+                            if(i == 0){
+                                term_list += future_available_term_names[i].name;
+                            } else {
+                                term_list += " & " + future_available_term_names[i].name;
+                            }
+                        }
+                        term_list += " are available now!\n\n";
+                        warning_msg += term_list;
+                    }
+                }
+
+                if(hasUnavailableFutureCourse && available_future_schedule.length != 0){
+                    warning_msg += "But unfortunately these courses you chose are not offered: ";
+                    
+                    let count = 0;
+                    for(let term in masterDict.get("unavailableFutureCourse")){
+                        count++;
+                    }
+
+                    for(let term of future_available_term_names){
+                        if(!masterDict.get("unavailableFutureCourse")[term.id]) continue;
+                        if(count > 1){
+                            warning_msg += "\nFor " + term.name + ": ";
+                        }
+                        for(let name of masterDict.get("unavailableFutureCourse")[term.id]){
+                            warning_msg += "\n" + name;
+                        }
+                    }
+
+                    warning_msg += "\n\n"
+                }
+
+                if(hasMoreThanOne && available_future_schedule.length != 0){
+                    warning_msg += "These courses have more than one section available, so please choose one: ";
+                    
+                    let count = 0;
+                    for(let term in masterDict.get("more_than_one_section_course")){
+                        count++;
+                    }
+
+                    for(let term of future_available_term_names){
+                        if(!masterDict.get("unavailableFutureCourse")[term.id]) continue;
+
+                        if(count > 1){
+                            warning_msg += "\nFor " + term.name + ": ";
+                        }
+                        for(let name of masterDict.get("more_than_one_section_course")[term.id]){
+                            warning_msg += "\n" + name;
+                        }
+                    }
+                }
+
+                if(warning_msg && MajorPlansPnc.findOne(current_plan_id).userId === Meteor.userId()){
+                    window.alert(warning_msg);
                 }
             })
         });
