@@ -19,6 +19,7 @@ Template.masterMajorPlan.onCreated(function(){
 	    this.masterPageDict.set("planEndSemester", data.end_term);
 	    this.masterPageDict.set("isModify", true);
         this.masterPageDict.set("noTimeSections", {});
+        this.masterPageDict.set("currentNewestTerm", Term.find().fetch().sort(function(a, b){return b.id - a.id})[0].id);
 
         const addedCourses = [];
 	    const current_plan_id = Router.current().params._id;
@@ -304,7 +305,7 @@ Template.masterMajorPlan.onCreated(function(){
 })
 
 Template.masterMajorPlan.helpers({
-	"typeMajor": function(){
+    "typeMajor": function(){
 		return Template.instance().masterPageDict.get("pageName") === "typeMajor";
 	},
 

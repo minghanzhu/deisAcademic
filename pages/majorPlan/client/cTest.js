@@ -354,6 +354,17 @@ Template.calendarTest.onRendered(function() {
 })
 
 Template.calendarTest.helpers({
+    needRefresh: function(){
+        return Template.instance().masterDict.get("currentNewestTerm") !== Term.find().fetch().sort(function(a, b){return b.id - a.id})[0].id;
+    },
+
+    refreshPage: function(){
+        if(Template.instance().masterDict.get("pageRefreshed")) return;
+        window.alert("New semeter data available, the page will be refreshed. \nAnd please wait for a while when we're computing the new predictions.");
+        window.location.reload();
+        Template.instance().masterDict.set("pageRefreshed", true);
+    },
+
     viewCalendar: function(){
         return Template.instance().calendarDict.get("viewCalendar");
     },

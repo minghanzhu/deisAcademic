@@ -1948,6 +1948,7 @@ Meteor.methods({
                 }
                 data = JSON.parse(data);
                 console.log("Updating course data...");
+                const new_terms = [];
 
                 for (let i = 0; i < data.length; i++) {
                     const d = data[i];
@@ -1975,8 +1976,10 @@ Meteor.methods({
                             Term.insert(d);
                             */
                         } else {
-                            Term.insert(d);
-                            if_compute_prediciton = true;
+                            //since once the term is inserted,
+                            //the system will think that it has all the data for that semester
+                            //so it should be inserted after the update is completely done
+                            new_terms.push(d);
                         }
                     } else if (d.type == "subject") {
                         const isInData = Subject.findOne({id: d.id});
@@ -2185,6 +2188,15 @@ Meteor.methods({
                 }
 
                 console.log("All done!");
+
+                //add the terms after the update is all done
+                if(new_terms.length != 0){
+                    for(let term_obj of new_terms){
+                        Term.insert(term_obj);
+                    }
+
+                    if_compute_prediciton = true;
+                }
                 console.log("-------------------------------------");
                 if(if_compute_prediciton){
                     console.log("New semester data available, recompute offering chance");
