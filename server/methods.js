@@ -2259,7 +2259,9 @@ Meteor.methods({
         }
 
         let yearName;
-        if(userYear == "1"){
+        if(userYear == "0"){
+            yearName = "N/A";
+        } else if(userYear == "1"){
             yearName = "Freshman";
         } else if(userYear == "2"){
             yearName = "Sophomore";
@@ -2267,6 +2269,10 @@ Meteor.methods({
             yearName = "Junior";
         } else if(userYear == "4"){
             yearName = "Senior";
+        } else if(userYear == "5"){
+            yearName = "Graduate";
+        } else if(userYear == "6"){
+            yearName = "Ph.D";
         } else if(!!userYear){
             console.log("[saveProfileChange] - Invalid update: No such year: " + userYear);
             throw new Meteor.Error(314, "Invalid update: No such year");
