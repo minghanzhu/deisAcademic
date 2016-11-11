@@ -1525,11 +1525,20 @@ Meteor.methods({
             const test_analysis = {};
             homeDict["test_analysis"] = test_analysis;
             const cont_list = cont_id_list;
-            CoursePrediction.remove({});
             var count = 0;
             for (let id of cont_list) {
                 const continuity_id = id;
-                const theHistory = Course.find({continuity_id: continuity_id,}).fetch();
+                const theHistory = Course.find({continuity_id: continuity_id, term:{$lt: now_term}}).fetch();
+                if(updateCollection == 1){
+                    for(let course of CourseUpdate2.find({continuity_id: continuity_id, term:{$gte: now_term}}).fetch()){
+                        theHistory.push(course);
+                    }
+                } else {
+                    for(let course of CourseUpdate1.find({continuity_id: continuity_id, term:{$gte: now_term}}).fetch()){
+                        theHistory.push(course);
+                    }
+                }
+
                 var historyTermCodes = _.pluck(theHistory, "term");
 
                 historyTermCodes.sort().reverse();
@@ -1778,6 +1787,7 @@ Meteor.methods({
                     percentage: p.percentage
                 }
             }
+            CoursePrediction.remove({course: continuity_id});
             CoursePrediction.insert(prediction_obj);
 
             const pdct_list = result.sort(function(a, b) {
@@ -1906,6 +1916,7 @@ Meteor.methods({
             return;
         } 
 
+        let if_compute_prediciton = false;
         const currentTerm = now_term;
         HTTP.call("GET", "http://registrar-prod-rhel6.unet.brandeis.edu/export/export.json", {}, function(err, response) {
             if (err) {
@@ -1965,6 +1976,7 @@ Meteor.methods({
                             */
                         } else {
                             Term.insert(d);
+                            if_compute_prediciton = true;
                         }
                     } else if (d.type == "subject") {
                         const isInData = Subject.findOne({id: d.id});
@@ -2174,6 +2186,10 @@ Meteor.methods({
 
                 console.log("All done!");
                 console.log("-------------------------------------");
+                if(if_compute_prediciton){
+                    console.log("New semester data available, recompute offering chance");
+                    Meteor.call("predictionAlgorithm", Meteor.settings.predictionKey);
+                }
             }));
         });
     },
