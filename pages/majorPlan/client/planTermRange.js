@@ -8,6 +8,13 @@ Template.planTermRange.onCreated(function(){
         return parseInt(a.id) - parseInt(b.id);
     });
 
+    //never end with summer term
+    let summer_term_obj;
+    if(!!term_list[term_list.length - 1].name.match("Summer")){
+        summer_term_obj = term_list[term_list.length - 1];
+        term_list.splice(term_list.length - 1, 1);
+    }
+
     for(let i = 0; i < Template.instance().termRangeDict.get("allowed_new_terms"); i++){
         const lasted_term = parseInt(term_list[term_list.length - 1].id);
         let new_term;
@@ -30,6 +37,10 @@ Template.planTermRange.onCreated(function(){
             name: name
         }
         term_list.push(term_obj);
+    }
+
+    if(summer_term_obj){
+        term_list.push(summer_term_obj);
     }
 
     const result = term_list.sort(function(a, b){
