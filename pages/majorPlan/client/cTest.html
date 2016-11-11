@@ -2,6 +2,9 @@
   {{#if and hasCourseList predictionDataReady}}{{else}}
     {{> loading}}
   {{/if}}
+  {{#if needRefresh}}
+    {{refreshPage}}
+  {{/if}}
   <div class="ui stackable grid">
     {{#if isNewPlan}}
   		<div class="twelve wide column">
