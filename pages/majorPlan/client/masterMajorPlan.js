@@ -1,5 +1,6 @@
 Template.masterMajorPlan.onCreated(function(){
 	this.masterPageDict = new ReactiveDict();
+    this.masterPageDict.set("currentNewestTerm", Term.find().fetch().sort(function(a, b){return b.id - a.id})[0].id);
 
 	if(this.data){
 		const data = this.data["plan_obj"];
@@ -19,7 +20,6 @@ Template.masterMajorPlan.onCreated(function(){
 	    this.masterPageDict.set("planEndSemester", data.end_term);
 	    this.masterPageDict.set("isModify", true);
         this.masterPageDict.set("noTimeSections", {});
-        this.masterPageDict.set("currentNewestTerm", Term.find().fetch().sort(function(a, b){return b.id - a.id})[0].id);
 
         const addedCourses = [];
 	    const current_plan_id = Router.current().params._id;
@@ -166,15 +166,28 @@ Template.masterMajorPlan.onCreated(function(){
                         noTimeSections[term]++;
                         if(noTimeSections[term] > 5) noTimeSections[term] = 1;
 
-                        const event_obj = {
-                            id: result.id, //this holds the section id so events at different tiems are associated
-                            title: course_code,
-                            start: specialTimes["start" + noTimeSections[term]],
-                            end: specialTimes["end" + noTimeSections[term]],
-                            section_obj: section_obj, //this hold the actual section object for later use,
-                            color: '#87cefa',
-                            displayEventTime : false
-                        };
+                        let event_obj;
+                        if($.inArray(section, response.msg["unavailable"]) != -1){
+                            event_obj = {
+                                id: section, //this holds the section id so events at different tiems are associated
+                                title: course_code,
+                                start: specialTimes["start" + noTimeSections[term]],
+                                end: specialTimes["end" + noTimeSections[term]],
+                                section_obj: section_obj, //this hold the actual section object for later use,
+                                color: '#FF4500', //orange
+                                displayEventTime : false
+                            };
+                        } else {
+                            event_obj = {
+                                id: section, //this holds the section id so events at different tiems are associated
+                                title: course_code,
+                                start: specialTimes["start" + noTimeSections[term]],
+                                end: specialTimes["end" + noTimeSections[term]],
+                                section_obj: section_obj, //this hold the actual section object for later use,
+                                color: '#87cefa',
+                                displayEventTime : false
+                            };
+                        }
 
                         masterDict.set("noTimeSections", noTimeSections);
                         events_array.push(event_obj);
