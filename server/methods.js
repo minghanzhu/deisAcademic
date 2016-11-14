@@ -1052,6 +1052,12 @@ Meteor.methods({
                 const schedule_id = SchedulesPnc.insert(schedule_obj);
                 schedule_id_list.push(schedule_id);
             } else {
+                //check before adding 
+                if(!schedule.term){
+                    console.log("[saveSchedule_MajorPlan] - Invalid insert: No such term");
+                    throw new Meteor.Error(206, "Invalid update: No such term");
+                }
+
                 const future_obj = {
                     term: schedule.term,
                     courseList: schedule.chosenCourse
@@ -1262,6 +1268,12 @@ Meteor.methods({
                     MajorPlansPnc.update(current_plan_id, { $push: { scheduleList: new_schedule_id } });
                 }
             } else {
+                //check before adding 
+                if(!schedule.term){
+                    console.log("[updateSchedule_MajorPlan] - Invalid update: No such term");
+                    throw new Meteor.Error(306, "Invalid update: No such term");
+                }
+
                 const future_obj = {
                     term: schedule.term,
                     courseList: schedule.chosenCourse
@@ -1926,283 +1938,284 @@ Meteor.methods({
 
             const fs = Npm.require('fs');
             fs.writeFile("/home/pnc/JSON/export.json", "[\n" + response.content.replace(/}\n{/ig, "},\n{") + "]", "utf-8", 
-                function (err) {
+                Meteor.bindEnvironment(function (err, data) {
                     if (err) {
                         console.log(err.message);
                         return;
                     }
-                }
-            );
-            
-            fs.readFile(
-            //"D:\\Luyi's\\JBS2016\\JSON\\export-2004-2016.json", 'utf8',
-            //"D:\\Luyi's\\JBS2016\\deisAcademic\\public\\data\\classes.json", 'utf8',
-            //"/Users/mhzhu/Desktop/deisAcademic/public/data/classes.json", 'utf8',
-            //Meteor.settings.filePath, 'utf8',
-            "/home/pnc/JSON/export.json", 'utf8',
-            //"C:/Users/pnc/Desktop/export.json", 'utf8',
-            Meteor.bindEnvironment(function(err, data) {
-                if (err) {
-                    console.log(err.message);
-                    return;
-                }
-                data = JSON.parse(data);
-                console.log("Updating course data...");
-                const new_terms = [];
 
-                for (let i = 0; i < data.length; i++) {
-                    const d = data[i];
-                    if (d.type == "instructor") {
-                        const isInData = Instructor.findOne({id: d.id});
-                        if(isInData){
-                            Instructor.remove(isInData._id);
-                            Instructor.insert(d);
-                        } else {
-                            Instructor.insert(d);
-                        }
-                    } else if (d.type == "requirement") {
-                        const isInData = Requirement.findOne({id: d.id});
-                        if(isInData){
-                            Requirement.remove(isInData._id);
-                            Requirement.insert(d);
-                        } else {
-                            Requirement.insert(d);
-                        }
-                    } else if (d.type == "term") {
-                        const isInData = Term.findOne({id: d.id});
-                        if(isInData){
-                            /*
-                            Term.remove(isInData._id);
-                            Term.insert(d);
-                            */
-                        } else {
-                            //since once the term is inserted,
-                            //the system will think that it has all the data for that semester
-                            //so it should be inserted after the update is completely done
-                            new_terms.push(d);
-                        }
-                    } else if (d.type == "subject") {
-                        const isInData = Subject.findOne({id: d.id});
-                        if(isInData){
-                            Subject.remove(isInData._id);
-                            Subject.insert(d);
-                        } else {
-                            Subject.insert(d);
-                        }
-                    } else if (d.type == "course") {
-                        if(d.term < currentTerm) continue;
-                        if(updateCollection == 1){
-                            CourseUpdate1.insert(d);
-                        } else {
-                            CourseUpdate2.insert(d);
-                        }
+                    fs.readFile(
+                    //"D:\\Luyi's\\JBS2016\\JSON\\export-2004-2016.json", 'utf8',
+                    //"D:\\Luyi's\\JBS2016\\deisAcademic\\public\\data\\classes.json", 'utf8',
+                    //"/Users/mhzhu/Desktop/deisAcademic/public/data/classes.json", 'utf8',
+                    //Meteor.settings.filePath, 'utf8',
+                    "/home/pnc/JSON/export.json", 'utf8',
+                    //"C:/Users/pnc/Desktop/export.json", 'utf8',
+                        Meteor.bindEnvironment(function(err, data) {
+                            if (err) {
+                                console.log(err.message);
+                                return;
+                            }
+                            data = JSON.parse(data);
+                            console.log("Updating course data...");
+                            const new_terms = [];
 
-                        const isInData = Course.findOne({id: d.id});
-                        if(isInData){
-                            Course.remove(isInData._id);
-                            Course.insert(d);
-                        } else {
-                            Course.insert(d);
-                        }
-                    } else if (d.type == "section") {
-                        if(d.id.substring(0, 4) < currentTerm) continue;
-                        if(updateCollection == 1){
-                            SectionUpdate1.insert(d);
-                        } else {
-                            SectionUpdate2.insert(d);
-                        }
-
-                        const isInData = Section.findOne({id: d.id});
-                        if(isInData){
-                            Section.remove(isInData._id);
-                            Section.insert(d);
-                        } else {
-                            Section.insert(d);
-                        }
-                    } else {
-                        if(!d.disclaimer){
-                            console.log("don't recognize data ");
-                            console.log(d.type);
-                        }
-                    }
-                }
-
-                console.log("Done!");
-
-                //update search collection using new course data
-                console.log("Updating search collection...");
-                let remove_rec = {};//keep track of the courses that are updated
-
-                let new_section_data;
-                let new_course_data;
-                let new_sections;
-                let new_courses;
-                if(updateCollection == 1){
-                    new_section_data = SectionUpdate1.find().fetch();
-                    //new_course_data = CourseUpdate1.find().fetch();
-                    new_sections = SectionUpdate1;
-                    new_courses = CourseUpdate1;
-                } else {
-                    new_section_data = SectionUpdate2.find().fetch();
-                    //new_course_data = CourseUpdate2.find().fetch();
-                    new_sections = SectionUpdate2;
-                    new_courses = CourseUpdate2;
-                }
-
-                for (let item of new_section_data){
-                    let course_obj = SearchPnc.findOne({id: item.course});
-                    if(!course_obj){
-                        const new_course_obj = new_courses.findOne({id: item.course});
-                        SearchPnc.insert(new_course_obj);
-                        console.log(new_course_obj.term + " - " + new_course_obj.code + " added to course collection");
-                    }
-
-                    course_obj = SearchPnc.findOne({id: item.course});
-                    if(course_obj){
-                        const course_id = course_obj._id;
-                        const section_times = item.times;
-                        const section_ins = item.instructors;
-
-                        //first check if this course has a times field
-                        const hasTime = !!course_obj.times;
-
-                        if(hasTime){//if so
-                            //removes the current time array
-                            if(!remove_rec["time-" + course_id]){//make sure it only gets removed once
-                                SearchPnc.update(course_id, {
-                                    $set: {
-                                        times: []
+                            for (let i = 0; i < data.length; i++) {
+                                const d = data[i];
+                                if (d.type == "instructor") {
+                                    const isInData = Instructor.findOne({id: d.id});
+                                    if(isInData){
+                                        Instructor.remove(isInData._id);
+                                        Instructor.insert(d);
+                                    } else {
+                                        Instructor.insert(d);
                                     }
-                                })
-                                remove_rec["time-" + course_id] = 1;
+                                } else if (d.type == "requirement") {
+                                    const isInData = Requirement.findOne({id: d.id});
+                                    if(isInData){
+                                        Requirement.remove(isInData._id);
+                                        Requirement.insert(d);
+                                    } else {
+                                        Requirement.insert(d);
+                                    }
+                                } else if (d.type == "term") {
+                                    const isInData = Term.findOne({id: d.id});
+                                    if(isInData){
+                                        /*
+                                        Term.remove(isInData._id);
+                                        Term.insert(d);
+                                        */
+                                    } else {
+                                        //since once the term is inserted,
+                                        //the system will think that it has all the data for that semester
+                                        //so it should be inserted after the update is completely done
+                                        new_terms.push(d);
+                                    }
+                                } else if (d.type == "subject") {
+                                    const isInData = Subject.findOne({id: d.id});
+                                    if(isInData){
+                                        Subject.remove(isInData._id);
+                                        Subject.insert(d);
+                                    } else {
+                                        Subject.insert(d);
+                                    }
+                                } else if (d.type == "course") {
+                                    if(d.term < currentTerm) continue;
+                                    if(updateCollection == 1){
+                                        CourseUpdate1.insert(d);
+                                    } else {
+                                        CourseUpdate2.insert(d);
+                                    }
+
+                                    const isInData = Course.findOne({id: d.id});
+                                    if(isInData){
+                                        Course.remove(isInData._id);
+                                        Course.insert(d);
+                                    } else {
+                                        Course.insert(d);
+                                    }
+                                } else if (d.type == "section") {
+                                    if(d.id.substring(0, 4) < currentTerm) continue;
+                                    if(updateCollection == 1){
+                                        SectionUpdate1.insert(d);
+                                    } else {
+                                        SectionUpdate2.insert(d);
+                                    }
+
+                                    const isInData = Section.findOne({id: d.id});
+                                    if(isInData){
+                                        Section.remove(isInData._id);
+                                        Section.insert(d);
+                                    } else {
+                                        Section.insert(d);
+                                    }
+                                } else {
+                                    if(!d.disclaimer){
+                                        console.log("don't recognize data ");
+                                        console.log(d.type);
+                                    }
+                                }
                             }
 
-                            //check if this section has times
-                            if(section_times.length != 0){//if so, add the objects to the times array
-                                for(let time of section_times){
-                                    SearchPnc.update(course_id, {
-                                        $push: {
-                                            times: time
+                            console.log("Done!");
+
+                            //update search collection using new course data
+                            console.log("Updating search collection...");
+                            let remove_rec = {};//keep track of the courses that are updated
+
+                            let new_section_data;
+                            let new_course_data;
+                            let new_sections;
+                            let new_courses;
+                            if(updateCollection == 1){
+                                new_section_data = SectionUpdate1.find().fetch();
+                                //new_course_data = CourseUpdate1.find().fetch();
+                                new_sections = SectionUpdate1;
+                                new_courses = CourseUpdate1;
+                            } else {
+                                new_section_data = SectionUpdate2.find().fetch();
+                                //new_course_data = CourseUpdate2.find().fetch();
+                                new_sections = SectionUpdate2;
+                                new_courses = CourseUpdate2;
+                            }
+
+                            for (let item of new_section_data){
+                                let course_obj = SearchPnc.findOne({id: item.course});
+                                if(!course_obj){
+                                    const new_course_obj = new_courses.findOne({id: item.course});
+                                    SearchPnc.insert(new_course_obj);
+                                    console.log(new_course_obj.term + " - " + new_course_obj.code + " added to course collection");
+                                }
+
+                                course_obj = SearchPnc.findOne({id: item.course});
+                                if(course_obj){
+                                    const course_id = course_obj._id;
+                                    const section_times = item.times;
+                                    const section_ins = item.instructors;
+
+                                    //first check if this course has a times field
+                                    const hasTime = !!course_obj.times;
+
+                                    if(hasTime){//if so
+                                        //removes the current time array
+                                        if(!remove_rec["time-" + course_id]){//make sure it only gets removed once
+                                            SearchPnc.update(course_id, {
+                                                $set: {
+                                                    times: []
+                                                }
+                                            })
+                                            remove_rec["time-" + course_id] = 1;
                                         }
-                                    })
-                                }
-                            }
-                        } else {//if not, create such field and put the current times into it, if there's any
-                            if(section_times.length != 0){
-                                SearchPnc.update(course_id, {
-                                    $set: {
-                                        times: section_times
-                                    }
-                                })
-                            }
-                        }
 
-                        //same for instructor
-                        const hasIns = !!course_obj.instructors;
-
-                        if(hasIns){//if so
-                            //removes the current instructor array
-                            if(!remove_rec["ins-" + course_id]){//make sure it only gets removed once
-                                SearchPnc.update(course_id, {
-                                    $set: {
-                                        instructors: []
-                                    }
-                                })
-                                remove_rec["ins-" + course_id] = 1;
-                            }
-
-                            //check if this section has times
-                            if(section_ins.length != 0){//if so, add the objects to the times array
-                                for(let ins of section_ins){
-                                    const ins_obj = Instructor.findOne({id: ins});
-                                    if(ins.first !== "Staff" && ins.last !== "Staff"){
-                                        SearchPnc.update(course_id, {
-                                            $push: {
-                                                instructors: ins
+                                        //check if this section has times
+                                        if(section_times.length != 0){//if so, add the objects to the times array
+                                            for(let time of section_times){
+                                                SearchPnc.update(course_id, {
+                                                    $push: {
+                                                        times: time
+                                                    }
+                                                })
                                             }
-                                        })
+                                        }
+                                    } else {//if not, create such field and put the current times into it, if there's any
+                                        if(section_times.length != 0){
+                                            SearchPnc.update(course_id, {
+                                                $set: {
+                                                    times: section_times
+                                                }
+                                            })
+                                        }
                                     }
-                                }
-                            }
-                        } else {//if not, create such field and put the current times into it, if there's any
-                            if(section_ins.length != 0){
-                                for(let ins of section_ins){
-                                    const ins_obj = Instructor.findOne({id: ins});
-                                    if(ins.first !== "Staff" && ins.last !== "Staff"){
-                                        SearchPnc.update(course_id, {$set:{instructors:[]}});
-                                        SearchPnc.update(course_id, {
-                                            $push: {
-                                                instructors: ins
+
+                                    //same for instructor
+                                    const hasIns = !!course_obj.instructors;
+
+                                    if(hasIns){//if so
+                                        //removes the current instructor array
+                                        if(!remove_rec["ins-" + course_id]){//make sure it only gets removed once
+                                            SearchPnc.update(course_id, {
+                                                $set: {
+                                                    instructors: []
+                                                }
+                                            })
+                                            remove_rec["ins-" + course_id] = 1;
+                                        }
+
+                                        //check if this section has times
+                                        if(section_ins.length != 0){//if so, add the objects to the times array
+                                            for(let ins of section_ins){
+                                                const ins_obj = Instructor.findOne({id: ins});
+                                                if(ins.first !== "Staff" && ins.last !== "Staff"){
+                                                    SearchPnc.update(course_id, {
+                                                        $push: {
+                                                            instructors: ins
+                                                        }
+                                                    })
+                                                }
                                             }
-                                        })
+                                        }
+                                    } else {//if not, create such field and put the current times into it, if there's any
+                                        if(section_ins.length != 0){
+                                            for(let ins of section_ins){
+                                                const ins_obj = Instructor.findOne({id: ins});
+                                                if(ins.first !== "Staff" && ins.last !== "Staff"){
+                                                    SearchPnc.update(course_id, {$set:{instructors:[]}});
+                                                    SearchPnc.update(course_id, {
+                                                        $push: {
+                                                            instructors: ins
+                                                        }
+                                                    })
+                                                }
+                                            }
+                                        }
                                     }
+                                } else {
+                                    console.log(item.id + " has a course id not in database");
                                 }
                             }
+
+                            remove_rec = {};
+                            console.log("Done!");
+
+                            //delete courses that are unavailable
+                            const current_term = now_term;
+                            const current_available_courses = SearchPnc.find({term:{$gte: now_term}}).fetch();
+                            console.log("Started checking unavailable courses...");
+                            for(let course_data of current_available_courses){
+                                if(updateCollection == 1){
+                                    if(!CourseUpdate1.findOne({id: course_data.id})){
+                                        SearchPnc.remove({id: course_data.id});
+                                        console.log("Removed course: " + course_data.code + " - " + course_data.term);
+                                        continue;
+                                    }
+
+                                    if(!SectionUpdate1.findOne({course: course_data.id})){
+                                        SearchPnc.remove({id: course_data.id});
+                                        console.log("Removed course: " + course_data.code + " - " + course_data.term);
+                                    }
+                                } else {
+                                    if(!CourseUpdate2.findOne({id: course_data.id})){
+                                        SearchPnc.remove({id: course_data.id});
+                                        console.log("Removed course: " + course_data.code + " - " + course_data.term);
+                                        continue;
+                                    }
+
+                                    if(!SectionUpdate2.findOne({course: course_data.id})){
+                                        SearchPnc.remove({id: course_data.id});
+                                        console.log("Removed course: " + course_data.code + " - " + course_data.term);
+                                    }
+                                }                    
+                            }
+
+                            if(updateCollection == 1){
+                                SectionUpdate2.remove({});
+                                CourseUpdate2.remove({});
+                                updateCollection = 2;
+                            } else {
+                                SectionUpdate1.remove({});
+                                CourseUpdate1.remove({});
+                                updateCollection = 1;
+                            }
+
+                            console.log("All done!");
+
+                            //add the terms after the update is all done
+                            if(new_terms.length != 0){
+                                for(let term_obj of new_terms){
+                                    Term.insert(term_obj);
+                                }
+
+                                if_compute_prediciton = true;
+                            }
+                            console.log("-------------------------------------");
+                            if(if_compute_prediciton){
+                                console.log("New semester data available, recompute offering chance");
+                                Meteor.call("predictionAlgorithm", Meteor.settings.predictionKey);
+                            }
                         }
-                    } else {
-                        console.log(item.id + " has a course id not in database");
-                    }
-                }
-
-                remove_rec = {};
-                console.log("Done!");
-
-                //delete courses that are unavailable
-                const current_term = now_term;
-                const current_available_courses = SearchPnc.find({term:{$gte: now_term}}).fetch();
-                console.log("Started checking unavailable courses...");
-                for(let course_data of current_available_courses){
-                    if(updateCollection == 1){
-                        if(!CourseUpdate1.findOne({id: course_data.id})){
-                            SearchPnc.remove({id: course_data.id});
-                            console.log("Removed course: " + course_data.code + " - " + course_data.term);
-                            continue;
-                        }
-
-                        if(!SectionUpdate1.findOne({course: course_data.id})){
-                            SearchPnc.remove({id: course_data.id});
-                            console.log("Removed course: " + course_data.code + " - " + course_data.term);
-                        }
-                    } else {
-                        if(!CourseUpdate2.findOne({id: course_data.id})){
-                            SearchPnc.remove({id: course_data.id});
-                            console.log("Removed course: " + course_data.code + " - " + course_data.term);
-                            continue;
-                        }
-
-                        if(!SectionUpdate2.findOne({course: course_data.id})){
-                            SearchPnc.remove({id: course_data.id});
-                            console.log("Removed course: " + course_data.code + " - " + course_data.term);
-                        }
-                    }                    
-                }
-
-                if(updateCollection == 1){
-                    SectionUpdate2.remove({});
-                    CourseUpdate2.remove({});
-                    updateCollection = 2;
-                } else {
-                    SectionUpdate1.remove({});
-                    CourseUpdate1.remove({});
-                    updateCollection = 1;
-                }
-
-                console.log("All done!");
-
-                //add the terms after the update is all done
-                if(new_terms.length != 0){
-                    for(let term_obj of new_terms){
-                        Term.insert(term_obj);
-                    }
-
-                    if_compute_prediciton = true;
-                }
-                console.log("-------------------------------------");
-                if(if_compute_prediciton){
-                    console.log("New semester data available, recompute offering chance");
-                    Meteor.call("predictionAlgorithm", Meteor.settings.predictionKey);
-                }
-            }));
+                    ));
+                })
+            );
         });
     },
 
