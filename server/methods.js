@@ -102,26 +102,32 @@ if (codes.length == 0) {
 let now_term;
 if (Term.find().count() > 0) {
     const date_now = new Date();
-    const current_year = date_now.getFullYear();
-    const current_month = date_now.getMonth() + 1; //1-12
-    const current_date = date_now.getDate(); //1-31
-    let season;
-    if (current_month >= 1 && current_month < 6) {
-        season = "Spring ";
-    } else if (current_month >= 6 && current_month < 9) {
-        if (current_month == 8 && current_date > 15) {
-            season = "Fall ";
-        } else {
-            season = "Summer ";
+    for(let term of Term.find().fetch()){
+        const start_time = term.start;
+        const end_time = term.end;
+        if(date_now >= Date.parse(start_time) && date_now <= Date.parse(end_time)){
+            now_term = term.id;
+            console.log("Current Term: " + term.name);
+            break;
         }
-    } else {
-        season = "Fall ";
-    };
-    const curren_semester = season + current_year;
-    const current_term = Term.findOne({ name: curren_semester }).id;
-    now_term = current_term;
-    const future_terms = Term.find({ id: { $gt: current_term } }).fetch();
-    console.log("Current Term: " + curren_semester);
+    }
+
+    //if now is between the end of a term and the start of another
+    if(!now_term){
+        const early_date = new Date(date_now.getFullYear(), date_now.getMonth() - 1, date_now.getDate());
+
+        for(let term of Term.find().fetch()){
+            const start_time = term.start;
+            const end_time = term.end;
+            if(early_date >= Date.parse(start_time) && early_date <= Date.parse(end_time)){
+                now_term = term.id;
+                console.log("Current Term: " + term.name);
+                break;
+            }
+        }
+    }
+
+    const future_terms = Term.find({ id: { $gt: now_term } }).fetch();
     let future_terms_string = "";
     for (let term of future_terms) {
         future_terms_string = future_terms_string + term.name + " ";
@@ -2202,11 +2208,13 @@ Meteor.methods({
                             //add the terms after the update is all done
                             if(new_terms.length != 0){
                                 for(let term_obj of new_terms){
+                                    //check if the course data is ready
+                                    if(!Course.findOne({term: term_obj.id})) continue;
                                     Term.insert(term_obj);
+                                    if_compute_prediciton = true;
                                 }
-
-                                if_compute_prediciton = true;
                             }
+
                             console.log("-------------------------------------");
                             if(if_compute_prediciton){
                                 console.log("New semester data available, recompute offering chance");
