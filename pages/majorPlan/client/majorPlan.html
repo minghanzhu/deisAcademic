@@ -1,8 +1,4 @@
 <template name="majorPlan">
-	<!-- <div class="ui container">
-		Welcome to major plan
-	</div> -->
-
 	<div class="ui stackable grid">
   <div class="nine wide column">
   	<div class="ui sticky" id="planSearch_result">
@@ -12,65 +8,31 @@
   </div>
 
   <div class="seven wide column">
-		<div id="major_info">
-			<ul>
-				{{#each m in majors}}
-				<li>
-					{{> majorItem m = m}}
-					<br>
-				</li>
-				<hr> {{/each}}
-			</ul>
-		</div>
+		{{#if dataReady}}
+			<div id="major_info">
+				<ul>
+					{{#each m in majors}}
+					<li>
+						{{> majorItem m = m}}
+						<br>
+					</li>
+					<hr> {{/each}}
+				</ul>
+			</div>
+		{{else}}
+			Loading major requirement info...
+		{{/if}}
   </div>
 </div>
-	<!-- <ul>
-		{{#each m in majors}}
-		<li>
-			{{> majorItem m = m}}
-			<br>
-		</li>
-		<hr> {{/each}}
-	</ul> -->
 </template>
 
 <template name="majorItem">
-	<a> <b style="font-size: 130%; color: #2874A6">{{{m.name}}}</b></a>
-	<!-- <div id={{m._id}} class="collapse"> -->
+	<a> <b style="font-size: 130%; color: #2874A6">{{m.name}}</b></a>
+	<br>
+
+	{{#each section in m.sections}}
+		<a data-toggle="collapse" data-target="#{{trim section.section_title m.name}}"><b style="font-size: 120%; color: #2874A6">{{section.section_title}}</b></a>
+		<div id="{{trim section.section_title m.name}}" class="collapse">{{{section.content}}}</div>
 		<br>
-		<br>
-		<a data-toggle="collapse" data-target="#major{{m._id}}"><b style="font-size: 120%; color: #2874A6">Major (BA/BS)</b></a>
-		<div id="major{{m._id}}" class="collapse in">{{{m.major}}}</div>
-		<br>
-		{{#if m.minor}}
-		<a data-toggle="collapse" data-target="#minor{{m._id}}"><b style="font-size: 120%; color: #2874A6">Minor</b></a>
-		<div id="minor{{m._id}}" class="collapse">{{{m.minor}}}</div>
-		<br>
-		{{else}}
-		{{/if}}
-		{{#if m.MA}}
-		<a data-toggle="collapse" data-target="#MA{{m._id}}"><b style="font-size: 120%; color: #2874A6">Master of Arts</b></a>
-		<div id="MA{{m._id}}" class="collapse">{{{m.MA}}}</div>
-		<br>
-		{{else}}
-		{{/if}}
-		{{#if m.MS}}
-		<a data-toggle="collapse" data-target="#MS{{m._id}}"><b style="font-size: 120%; color: #2874A6">Master of Science</b></a>
-		<div id="MS{{m._id}}" class="collapse">{{{m.MS}}}</div>
-		<br>
-		{{else}}
-		{{/if}}
-		{{#if m.combined}}
-		<a data-toggle="collapse" data-target="#combined{{m._id}}"><b style="font-size: 120%; color: #2874A6">Combined BA/MA</b></a>
-		<div id="combined{{m._id}}" class="collapse">{{{m.combined}}}</div>
-		<br>
-		{{else}}
-		{{/if}}
-		{{#if m.doctor}}
-		<a data-toggle="collapse" data-target="#doctor{{m._id}}"><b style="font-size: 120%; color: #2874A6">Doctor of Philosophy</b></a>
-		<div id="doctor{{m._id}}" class="collapse">{{{m.doctor}}}</div>
-		<br>
-		{{else}}
-		{{/if}}
-	<!-- </div> -->
+	{{/each}}
 </template>

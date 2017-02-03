@@ -2341,6 +2341,16 @@ Meteor.methods({
             userMinor: userMinor
         }})
     },
+
+    getMajorInfo: function(major_id){
+        let regexCode = new RegExp("-" + major_id + "$", "i");
+        if (!Subject.findOne({ id: regexCode })) {
+            console.log("[getMajorInfo] - No such major: " + id);
+            throw new Meteor.Error(107, "No such major");
+        };
+        
+        return HTTP.call("GET", "https://www.brandeis.edu/registrar/bulletin/provisional/courses/subjects/" + major_id + ".html#");
+    },
 });
 
 const methodList = Meteor.default_server.method_handlers;
