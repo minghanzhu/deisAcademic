@@ -243,6 +243,7 @@ Template.home.onRendered(function() {
     const now_term = GlobalParameters.findOne().current_term;
     $('.js-term').dropdown("set selected", now_term);
     $('.ui.checkbox').checkbox();
+    $('.ui.accordion').accordion();
 
     //this gets all the professors names and initialize the search selection
     //so that the user can search a professor name

@@ -4,7 +4,7 @@
         
         <div id="searchForm">
             <form id="search_main">
-                <input type="text" placeholder=" Search course code or title" name="keyword" id="searchBar" class="js-submit-search" autocomplete="off">
+                <input type="text" placeholder="Try COSI12b, calculus, MUS..." name="keyword" id="searchBar" class="js-submit-search" autocomplete="off">
             </form>
             {{#if notTalking}}
               {{> voiceButton}}
@@ -28,261 +28,269 @@
             </div>
         </div>
     </div>
-
-    <div id="advSearch_form" class="ui form">
-        <div class="fields">
-            <div class="two wide field">
-                <label>Term: </label>
-                <!-- <select name="term" class="js-term form-control">
-                    <option value="">Term</option>
-                    {{#each term in termList}}
-                      <option value="{{term.id}}">{{term.name}}</option>
-                    {{/each}}
-                </select> -->
-                <div class="ui selection fluid dropdown js-term">
-                  <input type="hidden" name="term">
-                  <i class="dropdown icon"></i>
-                  <div class="default text">Term</div>
-                  <div class="menu">
-                    <div class="item" data-value="">All terms</div>
-                    {{#each term in termList}}
-                      <div class="item" data-value="{{term.id}}">{{term.name}}</div>
-                    {{/each}}
-                  </div>
+    <div class="ui accordion">
+      <div class="title">
+        <i class="dropdown icon"></i>
+        Advanced Search
+      </div>
+      <div class="content">
+        <div id="advSearch_form" class="ui form">
+            <div class="fields">
+                <div class="two wide field">
+                    <label>Term: </label>
+                    <!-- <select name="term" class="js-term form-control">
+                        <option value="">Term</option>
+                        {{#each term in termList}}
+                          <option value="{{term.id}}">{{term.name}}</option>
+                        {{/each}}
+                    </select> -->
+                    <div class="ui selection fluid dropdown js-term">
+                      <input type="hidden" name="term">
+                      <i class="dropdown icon"></i>
+                      <div class="default text">Term</div>
+                      <div class="menu">
+                        <div class="item" data-value="">All terms</div>
+                        {{#each term in termList}}
+                          <div class="item" data-value="{{term.id}}">{{term.name}}</div>
+                        {{/each}}
+                      </div>
+                    </div>
                 </div>
-            </div>
 
-            <div class="three wide field" id="req-select">
-                <label>Requirement: </label>
-                <select class="js-req ui fluid dropdown" multiple="" id="multi-select">
-                    <option value="">Select from the list</option>
-                    <option value="CA">CA</option>
-                    <option value="FL">FL</option>
-                    <option value="HUM">HUM</option>
-                    <option value="NW">NW</option>
-                    <option value="OC">OC</option>
-                    <option value="PE-1">PE-1</option>
-                    <option value="PE-SC">PE-SC</option>
-                    <option value="QR">QR</option>
-                    <option value="QR1">QR1</option>
-                    <option value="QR2">QR2</option>
-                    <option value="SN">SN</option>
-                    <option value="SS">SS</option>
-                    <option value="USEM">USEM</option>
-                    <option value="USWI">USWI</option>
-                    <option value="UWS">UWS</option>
-                    <option value="WI">WI</option>
-                </select>
-            </div>
+                <div class="three wide field" id="req-select">
+                    <label>Requirement: </label>
+                    <select class="js-req ui fluid dropdown" multiple="" id="multi-select">
+                        <option value="">Select from the list</option>
+                        <option value="CA">CA</option>
+                        <option value="FL">FL</option>
+                        <option value="HUM">HUM</option>
+                        <option value="NW">NW</option>
+                        <option value="OC">OC</option>
+                        <option value="PE-1">PE-1</option>
+                        <option value="PE-SC">PE-SC</option>
+                        <option value="QR">QR</option>
+                        <option value="QR1">QR1</option>
+                        <option value="QR2">QR2</option>
+                        <option value="SN">SN</option>
+                        <option value="SS">SS</option>
+                        <option value="USEM">USEM</option>
+                        <option value="USWI">USWI</option>
+                        <option value="UWS">UWS</option>
+                        <option value="WI">WI</option>
+                    </select>
+                </div>
 
-            <div class="four wide field">
-                <label>Department: </label>
-                <div class="ui fluid search selection dropdown js-dept" id="search-select">
-                    <input type="hidden" name="department" value="">
-                    <i class="dropdown icon"></i>
-                    <div class="default text">Select or type</div>
-                    <div class="menu">
-                      <div class="item" data-value="all">All Department</div>
-                      <div class="item" data-value="100">African and Afro</div>
-                      <div class="item" data-value="200">American Studies</div>
-                      <div class="item" data-value="300">Anthropology</div>
-                      <div class="item" data-value="400">Arabic Language and Literature</div>
-                      <div class="item" data-value="500">Biochemistry</div>
-                      <div class="item" data-value="510">Biochemistry and Biophysics</div>
-                      <div class="item" data-value="600">Biological Physics</div>
-                      <div class="item" data-value="700">Biology</div>
-                      <div class="item" data-value="850">Biotechnology</div>
-                      <div class="item" data-value="900">Business</div>
-                      <div class="item" data-value="1000">Chemistry</div>
-                      <div class="item" data-value="1100">Chinese</div>
-                      <div class="item" data-value="1200">Classical Studies</div>
-                      <div class="item" data-value="1250">Comparative Humanities</div>
-                      <div class="item" data-value="1300">Comparative Literature and Culture</div>
-                      <div class="item" data-value="1400">Computer Science</div>
-                      <div class="item" data-value="1475">Creativity, the Arts, and Social Transformation</div>
-                      <div class="item" data-value="1500">East Asian Studies</div>
-                      <div class="item" data-value="1600">Economics</div>
-                      <div class="item" data-value="1700">Education</div>
-                      <div class="item" data-value="1800">English</div>
-                      <div class="item" data-value="1850">English as a Second Language</div>
-                      <div class="item" data-value="1900">Environmental Studies</div>
-                      <div class="item" data-value="2000">European Cultural Studies</div>
-                      <div class="item" data-value="2050">Experiential Learning Practicum</div>
-                      <div class="item" data-value="2100">Film, Television and Interactive Media</div>
-                      <div class="item" data-value="2300">Fine Arts</div>
-                      <div class="item" data-value="8000">First Year Seminars (FYS)</div>
-                      <div class="item" data-value="2400">French and Francophone Studies</div>
-                      <div class="item" data-value="2450">Genetic Counseling</div>
-                      <div class="item" data-value="2500">German Studies</div>
-                      <div class="item" data-value="2535">Global Studies</div>
-                      <div class="item" data-value="2550">Greek</div>
-                      <div class="item" data-value="2700">Health: Science, Society, and Policy</div>
-                      <div class="item" data-value="2800">Hebrew</div>
-                      <div class="item" data-value="2900">Heller School for Social Policy and Management</div>
-                      <div class="item" data-value="2950">Hindi</div>
-                      <div class="item" data-value="6600">Hispanic Studies</div>
-                      <div class="item" data-value="3000">History</div>
-                      <div class="item" data-value="3100">History of Ideas</div>
-                      <div class="item" data-value="3200">Hornstein Jewish Professional Leadership Program</div>
-                      <div class="item" data-value="3300">Independent Interdisciplinary Major</div>
-                      <div class="item" data-value="3400">International and Global Studies</div>
-                      <div class="item" data-value="3600">International Business School</div>
-                      <div class="item" data-value="3700">Internship</div>
-                      <div class="item" data-value="3900">Islamic and Middle Eastern Studies</div>
-                      <div class="item" data-value="4000">Italian Studies</div>
-                      <div class="item" data-value="4100">Japanese</div>
-                      <div class="item" data-value="4200">Journalism</div>
-                      <div class="item" data-value="4225">Justice Brandeis Semester</div>
-                      <div class="item" data-value="4235">Korean</div>
-                      <div class="item" data-value="4600">Language and Linguistics</div>
-                      <div class="item" data-value="4250">Latin</div>
-                      <div class="item" data-value="4300">Latin American and Latino Studies</div>
-                      <div class="item" data-value="4400">Legal Studies</div>
-                      <div class="item" data-value="4700">Mathematics</div>
-                      <div class="item" data-value="4800">Medieval and Renaissance Studies</div>
-                      <div class="item" data-value="4900">Molecular and Cell Biology</div>
-                      <div class="item" data-value="5000">Music</div>
-                      <div class="item" data-value="5100">Near Eastern and Judaic Studies</div>
-                      <div class="item" data-value="5200">Neuroscience</div>
-                      <div class="item" data-value="5300">Peace, Conflict, and Coexistence Studies</div>
-                      <div class="item" data-value="5400">Philosophy</div>
-                      <div class="item" data-value="5500">Physical Education</div>
-                      <div class="item" data-value="5600">Physics</div>
-                      <div class="item" data-value="5700">Politics</div>
-                      <div class="item" data-value="5750">Portuguese</div>
-                      <div class="item" data-value="5800">Postbaccalaureate Premedical Studies</div>
-                      <div class="item" data-value="5900">Psychology</div>
-                      <div class="item" data-value="5950">Quantitative Biology</div>
-                      <div class="item" data-value="6000">Religious Studies</div>
-                      <div class="item" data-value="6300">Russian Studies</div>
-                      <div class="item" data-value="6350">Sexuality and Queer Studies</div>
-                      <div class="item" data-value="6400">Social Justice and Social Policy</div>
-                      <div class="item" data-value="6500">Sociology</div>
-                      <div class="item" data-value="6550">South Asian Studies</div>
-                      <div class="item" data-value="6700">Theater Arts</div>
-                      <div class="item" data-value="6900">Women's, Gender, and Sexuality Studies</div>
-                      <div class="item" data-value="7050">University Writing (COMP and UWS)</div>
-                      <div class="item" data-value="7000">Yiddish</div>
+                <div class="four wide field">
+                    <label>Department: </label>
+                    <div class="ui fluid search selection dropdown js-dept" id="search-select">
+                        <input type="hidden" name="department" value="">
+                        <i class="dropdown icon"></i>
+                        <div class="default text">Select or type</div>
+                        <div class="menu">
+                          <div class="item" data-value="all">All Department</div>
+                          <div class="item" data-value="100">African and Afro</div>
+                          <div class="item" data-value="200">American Studies</div>
+                          <div class="item" data-value="300">Anthropology</div>
+                          <div class="item" data-value="400">Arabic Language and Literature</div>
+                          <div class="item" data-value="500">Biochemistry</div>
+                          <div class="item" data-value="510">Biochemistry and Biophysics</div>
+                          <div class="item" data-value="600">Biological Physics</div>
+                          <div class="item" data-value="700">Biology</div>
+                          <div class="item" data-value="850">Biotechnology</div>
+                          <div class="item" data-value="900">Business</div>
+                          <div class="item" data-value="1000">Chemistry</div>
+                          <div class="item" data-value="1100">Chinese</div>
+                          <div class="item" data-value="1200">Classical Studies</div>
+                          <div class="item" data-value="1250">Comparative Humanities</div>
+                          <div class="item" data-value="1300">Comparative Literature and Culture</div>
+                          <div class="item" data-value="1400">Computer Science</div>
+                          <div class="item" data-value="1475">Creativity, the Arts, and Social Transformation</div>
+                          <div class="item" data-value="1500">East Asian Studies</div>
+                          <div class="item" data-value="1600">Economics</div>
+                          <div class="item" data-value="1700">Education</div>
+                          <div class="item" data-value="1800">English</div>
+                          <div class="item" data-value="1850">English as a Second Language</div>
+                          <div class="item" data-value="1900">Environmental Studies</div>
+                          <div class="item" data-value="2000">European Cultural Studies</div>
+                          <div class="item" data-value="2050">Experiential Learning Practicum</div>
+                          <div class="item" data-value="2100">Film, Television and Interactive Media</div>
+                          <div class="item" data-value="2300">Fine Arts</div>
+                          <div class="item" data-value="8000">First Year Seminars (FYS)</div>
+                          <div class="item" data-value="2400">French and Francophone Studies</div>
+                          <div class="item" data-value="2450">Genetic Counseling</div>
+                          <div class="item" data-value="2500">German Studies</div>
+                          <div class="item" data-value="2535">Global Studies</div>
+                          <div class="item" data-value="2550">Greek</div>
+                          <div class="item" data-value="2700">Health: Science, Society, and Policy</div>
+                          <div class="item" data-value="2800">Hebrew</div>
+                          <div class="item" data-value="2900">Heller School for Social Policy and Management</div>
+                          <div class="item" data-value="2950">Hindi</div>
+                          <div class="item" data-value="6600">Hispanic Studies</div>
+                          <div class="item" data-value="3000">History</div>
+                          <div class="item" data-value="3100">History of Ideas</div>
+                          <div class="item" data-value="3200">Hornstein Jewish Professional Leadership Program</div>
+                          <div class="item" data-value="3300">Independent Interdisciplinary Major</div>
+                          <div class="item" data-value="3400">International and Global Studies</div>
+                          <div class="item" data-value="3600">International Business School</div>
+                          <div class="item" data-value="3700">Internship</div>
+                          <div class="item" data-value="3900">Islamic and Middle Eastern Studies</div>
+                          <div class="item" data-value="4000">Italian Studies</div>
+                          <div class="item" data-value="4100">Japanese</div>
+                          <div class="item" data-value="4200">Journalism</div>
+                          <div class="item" data-value="4225">Justice Brandeis Semester</div>
+                          <div class="item" data-value="4235">Korean</div>
+                          <div class="item" data-value="4600">Language and Linguistics</div>
+                          <div class="item" data-value="4250">Latin</div>
+                          <div class="item" data-value="4300">Latin American and Latino Studies</div>
+                          <div class="item" data-value="4400">Legal Studies</div>
+                          <div class="item" data-value="4700">Mathematics</div>
+                          <div class="item" data-value="4800">Medieval and Renaissance Studies</div>
+                          <div class="item" data-value="4900">Molecular and Cell Biology</div>
+                          <div class="item" data-value="5000">Music</div>
+                          <div class="item" data-value="5100">Near Eastern and Judaic Studies</div>
+                          <div class="item" data-value="5200">Neuroscience</div>
+                          <div class="item" data-value="5300">Peace, Conflict, and Coexistence Studies</div>
+                          <div class="item" data-value="5400">Philosophy</div>
+                          <div class="item" data-value="5500">Physical Education</div>
+                          <div class="item" data-value="5600">Physics</div>
+                          <div class="item" data-value="5700">Politics</div>
+                          <div class="item" data-value="5750">Portuguese</div>
+                          <div class="item" data-value="5800">Postbaccalaureate Premedical Studies</div>
+                          <div class="item" data-value="5900">Psychology</div>
+                          <div class="item" data-value="5950">Quantitative Biology</div>
+                          <div class="item" data-value="6000">Religious Studies</div>
+                          <div class="item" data-value="6300">Russian Studies</div>
+                          <div class="item" data-value="6350">Sexuality and Queer Studies</div>
+                          <div class="item" data-value="6400">Social Justice and Social Policy</div>
+                          <div class="item" data-value="6500">Sociology</div>
+                          <div class="item" data-value="6550">South Asian Studies</div>
+                          <div class="item" data-value="6700">Theater Arts</div>
+                          <div class="item" data-value="6900">Women's, Gender, and Sexuality Studies</div>
+                          <div class="item" data-value="7050">University Writing (COMP and UWS)</div>
+                          <div class="item" data-value="7000">Yiddish</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="three wide field">
+                    <label>Professor: </label>
+                    <div class="ui search js-prof" id="prof-search">
+                        <div class="ui icon input">
+                            <input class="prompt" type="text" placeholder="Search professors...">
+                            <i class="search icon"></i>
+                        </div>
+                    <div class="results"></div>
                     </div>
                 </div>
             </div>
 
-            <div class="three wide field">
-                <label>Professor: </label>
-                <div class="ui search js-prof" id="prof-search">
-                    <div class="ui icon input">
-                        <input class="prompt" type="text" placeholder="Search professors...">
-                        <i class="search icon"></i>
+            <div class="ui horizontal divider">Time and Date</div>
+
+            <div class="fields">
+                <div class="three wide field" id="day-select">
+                    <label>Days: </label>
+                    <select class="js-days ui fluid dropdown" multiple="" id="multi-select-days">
+                        <option value="">Select from the list</option>
+                        <option value="m">Monday</option>
+                        <option value="tu">Tuesday</option>
+                        <option value="w">Wednesday</option>
+                        <option value="th">Thursday</option>
+                        <option value="f">Friday</option>
+                    </select>
+                </div>
+
+                <div class="three wide field">
+                    <label>Start Time: </label>
+                    <div class="ui fluid search selection dropdown js-start-time" id="search-select-start-time">
+                        <input type="hidden" name="start_time" value="">
+                        <i class="dropdown icon"></i>
+                        <div class="default text">Select or type</div>
+                        <div class="menu">
+                            <div class="item" data-value="all">All time</div>
+                            <div class="item" data-value="07:00">7:00 AM</div>
+                            <div class="item" data-value="07:30">7:30 AM</div>
+                            <div class="item" data-value="08:00">8:00 AM</div>
+                            <div class="item" data-value="08:30">8:30 AM</div>
+                            <div class="item" data-value="09:00">9:00 AM</div>
+                            <div class="item" data-value="09:30">9:30 AM</div>
+                            <div class="item" data-value="10:00">10:00 AM</div>
+                            <div class="item" data-value="10:30">10:30 AM</div>
+                            <div class="item" data-value="11:00">11:00 AM</div>
+                            <div class="item" data-value="11:30">11:30 AM</div>
+                            <div class="item" data-value="12:00">12:00 PM</div>
+                            <div class="item" data-value="12:30">12:30 PM</div>
+                            <div class="item" data-value="13:00">1:00 PM</div>
+                            <div class="item" data-value="13:30">1:30 PM</div>
+                            <div class="item" data-value="14:00">2:00 PM</div>
+                            <div class="item" data-value="14:30">2:30 PM</div>
+                            <div class="item" data-value="15:00">3:00 PM</div>
+                            <div class="item" data-value="15:30">3:30 PM</div>
+                            <div class="item" data-value="16:00">4:00 PM</div>
+                            <div class="item" data-value="16:30">4:30 PM</div>
+                            <div class="item" data-value="17:00">5:00 PM</div>
+                            <div class="item" data-value="17:30">5:30 PM</div>
+                            <div class="item" data-value="18:00">6:00 PM</div>
+                            <div class="item" data-value="18:30">6:30 PM</div>
+                            <div class="item" data-value="19:00">7:00 PM</div>
+                            <div class="item" data-value="19:30">7:30 PM</div>
+                            <div class="item" data-value="20:00">8:00 PM</div>
+                            <div class="item" data-value="20:30">8:30 PM</div>
+                            <div class="item" data-value="21:00">9:00 PM</div>
+                            <div class="item" data-value="21:30">9:30 PM</div>
+                            <div class="item" data-value="22:00">10:00 PM</div>
+                            <div class="item" data-value="22:30">10:30 PM</div>
+                        </div>
                     </div>
-                <div class="results"></div>
+                </div>
+
+                <div class="three wide field">
+                    <label>End Time: </label>
+                    <div class="ui fluid search selection dropdown js-end-time" id="search-select-end-time">
+                        <input type="hidden" name="end_time" value="">
+                        <i class="dropdown icon"></i>
+                        <div class="default text">Select or type</div>
+                        <div class="menu">
+                            <div class="item" data-value="all">All time</div>
+                            <div class="item" data-value="07:00">7:00 AM</div>
+                            <div class="item" data-value="07:30">7:30 AM</div>
+                            <div class="item" data-value="08:00">8:00 AM</div>
+                            <div class="item" data-value="08:30">8:30 AM</div>
+                            <div class="item" data-value="09:00">9:00 AM</div>
+                            <div class="item" data-value="09:30">9:30 AM</div>
+                            <div class="item" data-value="10:00">10:00 AM</div>
+                            <div class="item" data-value="10:30">10:30 AM</div>
+                            <div class="item" data-value="11:00">11:00 AM</div>
+                            <div class="item" data-value="11:30">11:30 AM</div>
+                            <div class="item" data-value="12:00">12:00 PM</div>
+                            <div class="item" data-value="12:30">12:30 PM</div>
+                            <div class="item" data-value="13:00">1:00 PM</div>
+                            <div class="item" data-value="13:30">1:30 PM</div>
+                            <div class="item" data-value="14:00">2:00 PM</div>
+                            <div class="item" data-value="14:30">2:30 PM</div>
+                            <div class="item" data-value="15:00">3:00 PM</div>
+                            <div class="item" data-value="15:30">3:30 PM</div>
+                            <div class="item" data-value="16:00">4:00 PM</div>
+                            <div class="item" data-value="16:30">4:30 PM</div>
+                            <div class="item" data-value="17:00">5:00 PM</div>
+                            <div class="item" data-value="17:30">5:30 PM</div>
+                            <div class="item" data-value="18:00">6:00 PM</div>
+                            <div class="item" data-value="18:30">6:30 PM</div>
+                            <div class="item" data-value="19:00">7:00 PM</div>
+                            <div class="item" data-value="19:30">7:30 PM</div>
+                            <div class="item" data-value="20:00">8:00 PM</div>
+                            <div class="item" data-value="20:30">8:30 PM</div>
+                            <div class="item" data-value="21:00">9:00 PM</div>
+                            <div class="item" data-value="21:30">9:30 PM</div>
+                            <div class="item" data-value="22:00">10:00 PM</div>
+                            <div class="item" data-value="22:30">10:30 PM</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-
-        <div class="ui horizontal divider">Time and Date</div>
-
-        <div class="fields">
-            <div class="three wide field" id="day-select">
-                <label>Days: </label>
-                <select class="js-days ui fluid dropdown" multiple="" id="multi-select-days">
-                    <option value="">Select from the list</option>
-                    <option value="m">Monday</option>
-                    <option value="tu">Tuesday</option>
-                    <option value="w">Wednesday</option>
-                    <option value="th">Thursday</option>
-                    <option value="f">Friday</option>
-                </select>
-            </div>
-
-            <div class="three wide field">
-                <label>Start Time: </label>
-                <div class="ui fluid search selection dropdown js-start-time" id="search-select-start-time">
-                    <input type="hidden" name="start_time" value="">
-                    <i class="dropdown icon"></i>
-                    <div class="default text">Select or type</div>
-                    <div class="menu">
-                        <div class="item" data-value="all">All time</div>
-                        <div class="item" data-value="07:00">7:00 AM</div>
-                        <div class="item" data-value="07:30">7:30 AM</div>
-                        <div class="item" data-value="08:00">8:00 AM</div>
-                        <div class="item" data-value="08:30">8:30 AM</div>
-                        <div class="item" data-value="09:00">9:00 AM</div>
-                        <div class="item" data-value="09:30">9:30 AM</div>
-                        <div class="item" data-value="10:00">10:00 AM</div>
-                        <div class="item" data-value="10:30">10:30 AM</div>
-                        <div class="item" data-value="11:00">11:00 AM</div>
-                        <div class="item" data-value="11:30">11:30 AM</div>
-                        <div class="item" data-value="12:00">12:00 PM</div>
-                        <div class="item" data-value="12:30">12:30 PM</div>
-                        <div class="item" data-value="13:00">1:00 PM</div>
-                        <div class="item" data-value="13:30">1:30 PM</div>
-                        <div class="item" data-value="14:00">2:00 PM</div>
-                        <div class="item" data-value="14:30">2:30 PM</div>
-                        <div class="item" data-value="15:00">3:00 PM</div>
-                        <div class="item" data-value="15:30">3:30 PM</div>
-                        <div class="item" data-value="16:00">4:00 PM</div>
-                        <div class="item" data-value="16:30">4:30 PM</div>
-                        <div class="item" data-value="17:00">5:00 PM</div>
-                        <div class="item" data-value="17:30">5:30 PM</div>
-                        <div class="item" data-value="18:00">6:00 PM</div>
-                        <div class="item" data-value="18:30">6:30 PM</div>
-                        <div class="item" data-value="19:00">7:00 PM</div>
-                        <div class="item" data-value="19:30">7:30 PM</div>
-                        <div class="item" data-value="20:00">8:00 PM</div>
-                        <div class="item" data-value="20:30">8:30 PM</div>
-                        <div class="item" data-value="21:00">9:00 PM</div>
-                        <div class="item" data-value="21:30">9:30 PM</div>
-                        <div class="item" data-value="22:00">10:00 PM</div>
-                        <div class="item" data-value="22:30">10:30 PM</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="three wide field">
-                <label>End Time: </label>
-                <div class="ui fluid search selection dropdown js-end-time" id="search-select-end-time">
-                    <input type="hidden" name="end_time" value="">
-                    <i class="dropdown icon"></i>
-                    <div class="default text">Select or type</div>
-                    <div class="menu">
-                        <div class="item" data-value="all">All time</div>
-                        <div class="item" data-value="07:00">7:00 AM</div>
-                        <div class="item" data-value="07:30">7:30 AM</div>
-                        <div class="item" data-value="08:00">8:00 AM</div>
-                        <div class="item" data-value="08:30">8:30 AM</div>
-                        <div class="item" data-value="09:00">9:00 AM</div>
-                        <div class="item" data-value="09:30">9:30 AM</div>
-                        <div class="item" data-value="10:00">10:00 AM</div>
-                        <div class="item" data-value="10:30">10:30 AM</div>
-                        <div class="item" data-value="11:00">11:00 AM</div>
-                        <div class="item" data-value="11:30">11:30 AM</div>
-                        <div class="item" data-value="12:00">12:00 PM</div>
-                        <div class="item" data-value="12:30">12:30 PM</div>
-                        <div class="item" data-value="13:00">1:00 PM</div>
-                        <div class="item" data-value="13:30">1:30 PM</div>
-                        <div class="item" data-value="14:00">2:00 PM</div>
-                        <div class="item" data-value="14:30">2:30 PM</div>
-                        <div class="item" data-value="15:00">3:00 PM</div>
-                        <div class="item" data-value="15:30">3:30 PM</div>
-                        <div class="item" data-value="16:00">4:00 PM</div>
-                        <div class="item" data-value="16:30">4:30 PM</div>
-                        <div class="item" data-value="17:00">5:00 PM</div>
-                        <div class="item" data-value="17:30">5:30 PM</div>
-                        <div class="item" data-value="18:00">6:00 PM</div>
-                        <div class="item" data-value="18:30">6:30 PM</div>
-                        <div class="item" data-value="19:00">7:00 PM</div>
-                        <div class="item" data-value="19:30">7:30 PM</div>
-                        <div class="item" data-value="20:00">8:00 PM</div>
-                        <div class="item" data-value="20:30">8:30 PM</div>
-                        <div class="item" data-value="21:00">9:00 PM</div>
-                        <div class="item" data-value="21:30">9:30 PM</div>
-                        <div class="item" data-value="22:00">10:00 PM</div>
-                        <div class="item" data-value="22:30">10:30 PM</div>
-                    </div>
-                </div>
-            </div>
-        </div>
+      </div>
     </div>
+    
 
     <!-- <p id="be_back">
         We will be back
