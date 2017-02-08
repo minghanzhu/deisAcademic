@@ -1635,7 +1635,7 @@ Meteor.methods({
             const weight_percent = 0.75;
             const mixed_percent = 0.9;
             const allowed_terms = 6;
-            const latest_term_code = Term.find().fetch().sort(function(a, b){return a.id - b.id;})[Term.find().count() - 1].id.replace(/3$/, 2);
+            const latest_term_code = Term.find().fetch().sort(function(a, b){return a.id - b.id;})[Term.find().count() - 1].id.replace(/2$/, 1);
             const latest_available_term_index = (parseInt((2 * (latest_term_code.substring(0, 3) - 104)) + parseInt((latest_term_code.substring(3) - 1))));//20;
 
 
