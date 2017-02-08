@@ -178,7 +178,12 @@ Template.userPlanList.helpers({
         });
 
         for(let i = 0; i < allowed_new_terms; i++){
-            const lasted_term = parseInt(term_list[term_list.length - 1].id);
+            let lasted_term = parseInt(term_list[term_list.length - 1].id);
+            //make sure it is not a summer term
+            if(("" + lasted_term).charAt(3) == 2){
+            	lasted_term = parseInt(term_list[term_list.length - 2].id);
+            }
+
             let new_term;
             if(("" + lasted_term).charAt(3) == 1){
                 new_term = lasted_term + 2;//from spring to fall
