@@ -1,7 +1,3 @@
-Meteor.publish("major", function() {
-    return Major.find();
-});
-
 Meteor.publish("globalParameters", function(){
     return GlobalParameters.find();
 });
