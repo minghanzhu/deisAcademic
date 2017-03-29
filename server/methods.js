@@ -72,7 +72,12 @@ if (prof_name_and_id.length == 0) {
         const first_name = person.first;
         const last_name = person.last;
         if (first_name !== "Staff" && last_name !== "Staff") {
-            const full_name = first_name + " " + last_name;
+            let full_name;
+            if(first_name === last_name){
+                full_name = first_name;
+            } else {
+                full_name = first_name + " " + last_name;
+            }
             const id = person.id;
             prof_name_and_id.push({ title: full_name, id: id });
         }
@@ -472,11 +477,16 @@ Meteor.methods({
         for(let instru_id of instrutorData){
             const instru_obj = Instructor.findOne({ id: instru_id }); //get the professor object using the id
             if(instru_obj){
-                var instru_name = instru_obj.first + " " + instru_obj.last;
+                var instru_name;
+                if(instru_obj.first === instru_obj.last){
+                    instru_name = instru_obj.first;
+                } else {
+                    instru_name = instru_obj.first + " " + instru_obj.last;
+                }
                 if (instru_obj.first == "Staff" || instru_obj.last == "Staff"){
                    staff = "1" 
                 } else {
-                    names_array.push(instru_name)
+                    names_array.push(instru_name);
                 }
             } else {
                 non_exist = "1";
@@ -570,7 +580,11 @@ Meteor.methods({
             const prof_first = Instructor.findOne({ id: prof }).first;
             const prof_last = Instructor.findOne({ id: prof }).last;
             if (!prof_email) prof_email = "";
-            result = result + prof_first + " " + prof_last + prof_email + "<br>";
+            if(prof_first === prof_last){
+                result = result + prof_first + prof_email + "<br>";
+            } else {
+                result = result + prof_first + " " + prof_last + prof_email + "<br>";
+            }
         }
 
         result = result.substring(0, result.lastIndexOf("<br>"));
