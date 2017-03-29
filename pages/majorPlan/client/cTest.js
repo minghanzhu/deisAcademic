@@ -1680,7 +1680,12 @@ Template.scheduleCourseList.helpers({
         for(let instru_id of instrutorData){
             const instru_obj = Instructor.findOne({ id: instru_id }); //get the professor object using the id
             if(instru_obj){
-                var instru_name = instru_obj.first + " " + instru_obj.last;
+                var instru_name;
+                if(instru_obj.first === instru_obj.last){
+                    instru_name = instru_obj.first;
+                } else {
+                    instru_name = instru_obj.first + " " + instru_obj.last;
+                }
                 if (instru_obj.first == "Staff" || instru_obj.last == "Staff"){
                    staff = "1" 
                 } else {
