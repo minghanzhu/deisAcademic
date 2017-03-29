@@ -1695,20 +1695,35 @@ Meteor.methods({
             if (his_array.length <= 1) {
                 //return [{text:"xxxxxxUnpredictable", color:"red"}];
                 //console.log("Not enough history");
+                CoursePrediction.remove({course: continuity_id});
                 return;
             }
 
             let total = 0;
+            let max_difference = 0;
             for (let i = 1; i < his_array.length; i++) {
                 const current_index = his_array[i].substring(his_array[i].lastIndexOf(" "));
                 const previous_index = his_array[i - 1].substring(his_array[i - 1].lastIndexOf(" "));
                 const index_difference = current_index - previous_index;
+
+                if(index_difference > max_difference){
+                    max_difference = index_difference;
+                }
+
+
                 if (!result_obj[index_difference]) {
                     result_obj[index_difference] = 1;
                 } else {
                     result_obj[index_difference] = result_obj[index_difference] + 1;
                 }
                 total = total + 1;
+            }
+
+            //check if the available history is too old
+            const latest_his_index = his_array[his_array.length - 1].substring(his_array[his_array.length - 1].lastIndexOf(" "));
+            if(latest_available_term_index - latest_his_index > 2 * max_difference){
+                CoursePrediction.remove({course: continuity_id});
+                return;
             }
 
             //generate weight: indexes that repeat the most will have much higher weight
@@ -1733,6 +1748,7 @@ Meteor.methods({
             //if it's very unstable, return unpredictable
             if (difference_number > his_array.length / 2 && max_index_num < Math.floor(his_array.length / 2)) {
                 console.log("Unstable");
+                CoursePrediction.remove({course: continuity_id});
                 return;
             }
 
