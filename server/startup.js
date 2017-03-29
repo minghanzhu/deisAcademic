@@ -9,7 +9,7 @@ Meteor.startup(function() {
         console.log("search index added!")
     }
 
-    if(CoursePrediction.find().count() == 0) Meteor.call("predictionAlgorithm", Meteor.settings.predictionKey);
+    Meteor.call("predictionAlgorithm", Meteor.settings.predictionKey);
     Meteor.setInterval(function(){
         Meteor.call("updateJSON", Meteor.settings.updateKey);
     }, 300000);
