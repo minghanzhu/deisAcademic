@@ -726,9 +726,10 @@ Template.search_result.helpers({
 
 Template.search_result.events({
     "click .js-result-table tbody tr": function(event) {
-        if (event.target.nodeName === "DIV") {
+        if (event.target.nodeName === "DIV" || event.target.nodeName === "I" || event.target.className === "description") {
             return;
         }
+
         const homeDict = Template.instance().homeDict;
         homeDict.set('courseInfo');
         homeDict.set('sectionDetail', []);

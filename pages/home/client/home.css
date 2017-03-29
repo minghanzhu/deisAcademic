@@ -86,3 +86,12 @@ body {
 .ui.popup:before {
     opacity: 0;
 }
+
+.js-result-table:hover tbody tr {
+    cursor: pointer;
+    cursor: hand;
+}
+
+.js-result-table:hover tbody tr td[class="description"] {
+    cursor: default;
+}
