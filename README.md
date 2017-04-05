@@ -13,7 +13,7 @@ Here are some screenshots
 * https://ibb.co/fTjrVa
 * https://ibb.co/cKmuiv
 
-## What Can You Do With PlanDeis
+## Features
 
 * Search for courses
 * Track the enrollments of courses in your wishlist
@@ -59,4 +59,4 @@ See also the list of [contributors](https://github.com/mhzh/deisAcademic/graphs/
 
 ## License
 
-This project is licensed under the MIT License.
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
