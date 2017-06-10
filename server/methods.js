@@ -836,7 +836,7 @@ Meteor.methods({
 
                         "Content-Type": "application/json; charset=utf-8"
                     },
-                    data: { "query": parsedText, "lang": "en", "sessionId": "1234567890"};
+                    data: { "query": parsedText, "lang": "en", "sessionId": "1234567890"}
                 },
             )
         return z;
