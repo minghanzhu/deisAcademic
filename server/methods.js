@@ -2,7 +2,7 @@
 ----------------------------------
 Error list:
 
-Search: [1] 
+Search: [1]
 
 0. "Please have at least 3 characters for title search"
 
@@ -24,14 +24,14 @@ insert: [2] , update: [3], remove: [4]
 13. "No such schedule"
 14. "No such year"
 15. "No such subject"
-16. 
+16.
 17.
 18.
 19.
 -------Exists----------
 20. "No chosen course"
 21. "Empty schedule"
-22. 
+22.
 23.
 24.
 25.
@@ -59,7 +59,7 @@ insert: [2] , update: [3], remove: [4]
 
 //this decides which collection to be updated.
 //if it's 1, it means new data will go to collection 1
-//and collection 2 will hold all new data from the previous update, 
+//and collection 2 will hold all new data from the previous update,
 //until the current update is done and it'll be cleaned
 let updateCollection = 1;
 if(CourseUpdate1.find().count() != 0) updateCollection = 2;
@@ -193,7 +193,7 @@ Meteor.methods({
                     let code_key = item + " " + code_token.trim().substring(second_half.length).trim().toUpperCase();
                     codes_record.push(code_token);
                     keys_record.push(code_key.trim());
-                }  
+                }
             } else { //for normal code like COSI, MUS, MATH
                 let regex = new RegExp("( |^)" + item + " ?(\\d{1,3}[A-Z]{0,2})?( |$)", "i");
 
@@ -372,17 +372,17 @@ Meteor.methods({
                 }
             }
         }
-        
-        if (searchQuery.term == "/^/i" 
-            && searchQuery.code == "/^/i" 
+
+        if (searchQuery.term == "/^/i"
+            && searchQuery.code == "/^/i"
             && searchQuery.name == "/(?:)/i"
             && !searchQuery.$and
             && !searchQuery["subjects.id"]
             && !searchQuery.instructors
             && !searchQuery.times) {
             return ["no params"];
-        } else if (searchQuery.term == "/^/i" 
-            && searchQuery.code == "/^/i" 
+        } else if (searchQuery.term == "/^/i"
+            && searchQuery.code == "/^/i"
             && searchQuery.name != "/(?:)/i"
             && !searchQuery.$and
             && !searchQuery["subjects.id"]
@@ -393,8 +393,8 @@ Meteor.methods({
                 console.log("[searchPnc] - Keyword too short: " + keyword);
                 throw new Meteor.Error(100, "Please have at least 3 characters for title search.");
             }
-        } else if (searchQuery.term == "/^/i" 
-            && searchQuery.code == "/^/i" 
+        } else if (searchQuery.term == "/^/i"
+            && searchQuery.code == "/^/i"
             && searchQuery.name == "/(?:)/i"
             && !searchQuery.$and
             && !searchQuery["subjects.id"]
@@ -418,7 +418,7 @@ Meteor.methods({
             if(Statistics.findOne({keyword: keyword_orig})){
                 Statistics.update({
                     keyword: keyword_orig}, {
-                    $addToSet: { 
+                    $addToSet: {
                         numberOfResult: search_result.length
                     }
                 })
@@ -484,7 +484,7 @@ Meteor.methods({
                     instru_name = instru_obj.first + " " + instru_obj.last;
                 }
                 if (instru_obj.first == "Staff" || instru_obj.last == "Staff"){
-                   staff = "1" 
+                   staff = "1"
                 } else {
                     names_array.push(instru_name);
                 }
@@ -505,7 +505,7 @@ Meteor.methods({
                 if(i != names_array.length - 1){
                     instructors += names_array[i] + "<br>";
                 } else {
-                    instructors += names_array[i] 
+                    instructors += names_array[i]
                 }
             }
 
@@ -545,11 +545,11 @@ Meteor.methods({
                 }
             }
         }
-        
+
         if(ids.length == 0){
             ids.push("/");
         }
-        
+
         return ids.sort();
     },
 
@@ -607,7 +607,7 @@ Meteor.methods({
                 term_id_list.push(term.id);
             }
         }
-        
+
         for(let term_id of term_id_list){
             for(let continuity_id of courseContIdList){
                 const courseId = term_id + "-" + continuity_id;
@@ -636,7 +636,7 @@ Meteor.methods({
                         courseId: courseId
                     }
                 }
-                
+
                 result.push(section_info_obj);
             }
         }
@@ -659,7 +659,7 @@ Meteor.methods({
                 term_id_list.push(term.id);
             }
         }
-        
+
         const courseContIdList = [];
         for(let section_id of section_id_list){
             const course_id = Section.findOne({id: section_id}).course;
@@ -699,7 +699,7 @@ Meteor.methods({
                         courseId: courseId
                     }
                 }
-                
+
                 result.push(section_info_obj);
             }
         }
@@ -836,7 +836,7 @@ Meteor.methods({
 
                         "Content-Type": "application/json; charset=utf-8"
                     },
-                    data: { "query": parsedText, "lang": "en" }
+                    data: { "query": parsedText, "lang": "en", "sessionId": "1234567890"};
                 },
             )
         return z;
@@ -877,7 +877,7 @@ Meteor.methods({
                     msg["unavailable"].push(section);
                 }
             }
-            
+
             const course_id = Section.findOne({ id: section }).course;
             result_array.push(Course.findOne({ id: course_id }, {
                 fields: {
@@ -1072,7 +1072,7 @@ Meteor.methods({
                 const schedule_id = SchedulesPnc.insert(schedule_obj);
                 schedule_id_list.push(schedule_id);
             } else {
-                //check before adding 
+                //check before adding
                 if(!schedule.term){
                     console.log("[saveSchedule_MajorPlan] - Invalid insert: No such term");
                     throw new Meteor.Error(206, "Invalid update: No such term");
@@ -1288,7 +1288,7 @@ Meteor.methods({
                     MajorPlansPnc.update(current_plan_id, { $push: { scheduleList: new_schedule_id } });
                 }
             } else {
-                //check before adding 
+                //check before adding
                 if(!schedule.term){
                     console.log("[updateSchedule_MajorPlan] - Invalid update: No such term");
                     throw new Meteor.Error(306, "Invalid update: No such term");
@@ -1300,7 +1300,7 @@ Meteor.methods({
                 }
 
                 futureList.push(future_obj);
-            } 
+            }
         };
 
         MajorPlansPnc.update(current_plan_id, { $set: { start_term: term_range.start_term, end_term: term_range.end_term, chosenCourse: availableCourseList}});
@@ -1390,7 +1390,7 @@ Meteor.methods({
             };
         }
         if(invalidMajors.length != 0) throw new Meteor.Error(107, "No such major");
-        
+
 
         if (!term_range.start_term || !term_range.end_term) {
             console.log("[checkValidPlan] - Incomplete term");
@@ -1531,7 +1531,7 @@ Meteor.methods({
         } else if(key !== Meteor.settings.predictionKey){
             console.log("[predictionAlgorithm]: Invalid key - " + key);
             return;
-        } 
+        }
 
         //this saves all the distinct cont id's
         const course_list = Course.find().fetch(); //array of all courses
@@ -1583,7 +1583,7 @@ Meteor.methods({
 
                 homeDict[id + "courseOfferings"] = historyTermNames.reverse();
                 prediction(id);
-                
+
                 count++;
                 if (count == cont_list.length) {
                     console.log("done!");
@@ -1767,7 +1767,7 @@ Meteor.methods({
                 //compute other possibilities using previous results
                 for(let j = 0; j < i; j++){
                     if(dif_p[i - j]){
-                        prediction_stack[i] += dif_p[i - j] * prediction_stack[j]; 
+                        prediction_stack[i] += dif_p[i - j] * prediction_stack[j];
                     }
                 }
 
@@ -1904,7 +1904,7 @@ Meteor.methods({
                     }
                 }
             }
-            
+
             if(!this.userId){
                 wishlist_section_id_list = [];
             } else if(this.userId == MajorPlansPnc.findOne(plan_id).userId){
@@ -1929,7 +1929,7 @@ Meteor.methods({
             } else {
                 delete prediction_obj["course"]
                 result[continuity_id] = prediction_obj;
-            } 
+            }
         }
 
         for(let section_id of wishlist_section_id_list){
@@ -1945,9 +1945,9 @@ Meteor.methods({
             } else {
                 delete prediction_obj["course"]
                 result[continuity_id] = prediction_obj;
-            } 
+            }
         }
-        
+
         return result;
     },
 
@@ -1962,7 +1962,7 @@ Meteor.methods({
         } else if(key !== Meteor.settings.updateKey){
             console.log("[updateJSON]: Invalid key - " + key);
             return;
-        } 
+        }
 
         let if_compute_prediciton = false;
         const currentTerm = now_term;
@@ -1973,7 +1973,7 @@ Meteor.methods({
             };
 
             const fs = Npm.require('fs');
-            fs.writeFile("/home/pnc/JSON/export.json", "[\n" + response.content.replace(/}\n{/ig, "},\n{") + "]", "utf-8", 
+            fs.writeFile("/home/pnc/JSON/export.json", "[\n" + response.content.replace(/}\n{/ig, "},\n{") + "]", "utf-8",
                 Meteor.bindEnvironment(function (err, data) {
                     if (err) {
                         console.log(err.message);
@@ -2220,7 +2220,7 @@ Meteor.methods({
                                         SearchPnc.remove({id: course_data.id});
                                         console.log("Removed course: " + course_data.code + " - " + course_data.term);
                                     }
-                                }                    
+                                }
                             }
 
                             if(updateCollection == 1){
@@ -2347,7 +2347,7 @@ Meteor.methods({
             }
         }
 
-        if(UserProfilePnc.findOne({userName: submit_obj.userName}) 
+        if(UserProfilePnc.findOne({userName: submit_obj.userName})
             && UserProfilePnc.findOne({userName: submit_obj.userName}).userId !== this.userId){
             console.log("[saveProfileChange] - Invalid update: Duplicate usernames: " + submit_obj.userName);
             throw new Meteor.Error(335, "This username has been used. Please try another.");
@@ -2363,7 +2363,7 @@ Meteor.methods({
         }
 
         UserProfilePnc.update({userId: this.userId}, {$set: {
-            officialPlan: officialPlan, 
+            officialPlan: officialPlan,
             sharedPlans: sharedPlans,
             userName: userName,
             userYear: yearName,
@@ -2378,7 +2378,7 @@ Meteor.methods({
             console.log("[getMajorInfo] - No such major: " + id);
             throw new Meteor.Error(107, "No such major");
         };
-        
+
         return HTTP.call("GET", "https://www.brandeis.edu/registrar/bulletin/provisional/courses/subjects/" + major_id + ".html#");
     },
 });
